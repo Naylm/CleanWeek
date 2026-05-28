@@ -8,30 +8,13 @@ import './HomePage.css'
 
 export default function HomePage() {
   const { user } = useCurrentUser()
+  const { tasks, loading, isOffline: tasksOffline, completeTask, uncompleteTask } = useTasks(user?.id)
+  const { profile, allProfiles, isOffline: profilesOffline } = useProfile(user?.id)
   
-  // Gestion d'erreur pour les hooks Supabase
-  let tasks = [], loading = false, completeTask = () => {}, uncompleteTask = () => {}
-  let profile = null, allProfiles = []
+  const isOffline = tasksOffline || profilesOffline
   
-  try {
-    const tasksResult = useTasks(user?.id)
-    tasks = tasksResult.tasks || []
-    loading = tasksResult.loading || false
-    completeTask = tasksResult.completeTask || (() => {})
-    uncompleteTask = tasksResult.uncompleteTask || (() => {})
-  } catch (error) {
-    console.error('🔍 DEBUG: Error in useTasks hook:', error)
-  }
-  
-  try {
-    const profileResult = useProfile(user?.id)
-    profile = profileResult.profile || null
-    allProfiles = profileResult.allProfiles || []
-  } catch (error) {
-    console.error('🔍 DEBUG: Error in useProfile hook:', error)
-    // Utiliser les données de base de l'utilisateur si le profile échoue
-    profile = { display_name: user?.name || 'Utilisateur', avatar_color: user?.color || '#6C63FF' }
-    allProfiles = [profile]
+  if (isOffline) {
+    console.log('🔍 DEBUG: Application en mode dégradé (hors ligne)')
   }
 
   const today = new Date()
@@ -65,6 +48,18 @@ export default function HomePage() {
 
   return (
     <div className="home-page">
+      {isOffline && (
+        <div style={{
+          background: '#ff9800',
+          color: 'white',
+          padding: '8px 16px',
+          textAlign: 'center',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}>
+          📱 Mode dégradé : Application fonctionnant hors ligne
+        </div>
+      )}
       <header className="home-header">
         <div className="home-header-top">
           <div>
