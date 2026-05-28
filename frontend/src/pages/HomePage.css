@@ -1,0 +1,145 @@
+.home-page {
+  padding-bottom: 24px;
+}
+
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.home-header {
+  background: linear-gradient(160deg, var(--bg-card2) 0%, var(--bg-card) 100%);
+  padding: 20px 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.home-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.home-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.home-greeting {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.home-duo {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 15px;
+  color: white;
+  border: 2px solid var(--bg);
+  flex-shrink: 0;
+}
+
+.avatar-offset {
+  border: 2px solid var(--bg);
+}
+
+.progress-card {
+  background: rgba(108, 99, 255, 0.08);
+  border: 1px solid rgba(108, 99, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.progress-count {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.progress-bar-bg {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #9B92FF);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.progress-done {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--accent);
+  text-align: center;
+  font-weight: 600;
+}
+
+.home-section {
+  padding: 20px 16px 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.empty-state span {
+  font-size: 32px;
+}
