@@ -1,5 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
+
+// Helper pour timeout rapide sur les requêtes
+function withTimeout(promise, ms = 800) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), ms)
+    )
+  ])
+}
 
 // Données de démonstration pour le mode hors ligne
 const getDemoProfiles = (userId) => {
@@ -23,10 +33,13 @@ const getDemoProfiles = (userId) => {
 }
 
 export function useProfile(userId) {
-  const [profile, setProfile] = useState(null)
-  const [allProfiles, setAllProfiles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [isOffline, setIsOffline] = useState(false)
+  // Chargement immédiat des données démo
+  const demoData = userId ? getDemoProfiles(userId) : { allProfiles: [], profile: null }
+  const [profile, setProfile] = useState(demoData.profile)
+  const [allProfiles, setAllProfiles] = useState(demoData.allProfiles)
+  const [loading, setLoading] = useState(false)
+  const [isOffline, setIsOffline] = useState(true)
+  const hasCheckedRef = useRef(false)
 
   useEffect(() => {
     if (!userId) {
@@ -35,23 +48,27 @@ export function useProfile(userId) {
     }
 
     async function fetchProfiles() {
+      if (hasCheckedRef.current) return
+      hasCheckedRef.current = true
+
       try {
-        console.log('🔍 DEBUG: Tentative de connexion à Supabase pour les profils...')
-        const { data, error } = await supabase.from('profiles').select('*')
+        console.log('🔍 DEBUG: Tentative rapide connexion profils...')
+        const { data, error } = await withTimeout(
+          supabase.from('profiles').select('*'),
+          800
+        )
         
         if (!error && data) {
-          console.log('🔍 DEBUG: Profils chargés depuis Supabase:', data.length)
+          console.log('🔍 DEBUG: Profils chargés:', data.length)
           setAllProfiles(data)
           setProfile(data.find(p => p.id === userId) || null)
           setIsOffline(false)
         } else {
-          throw new Error(error?.message || 'Erreur Supabase')
+          throw new Error(error?.message || 'Erreur')
         }
       } catch (error) {
-        console.log('🔍 DEBUG: Erreur Supabase pour les profils, utilisation du mode dégradé:', error.message)
-        const demoData = getDemoProfiles(userId)
-        setAllProfiles(demoData.allProfiles)
-        setProfile(demoData.profile)
+        console.log('🔍 DEBUG: Supabase indisponible, reste en mode dégradé')
+        // Données démo déjà chargées
         setIsOffline(true)
       }
       setLoading(false)
@@ -59,7 +76,7 @@ export function useProfile(userId) {
 
     fetchProfiles()
 
-    // Ne pas créer de canal si nous sommes en mode dégradé
+    // Canal WebSocket seulement si online
     if (!isOffline) {
       try {
         const channel = supabase
@@ -71,14 +88,15 @@ export function useProfile(userId) {
           try {
             supabase.removeChannel(channel)
           } catch (error) {
-            console.log('🔍 DEBUG: Erreur lors de la suppression du canal de profils:', error)
+            console.log('🔍 DEBUG: Erreur suppression canal profils:', error)
           }
         }
       } catch (error) {
-        console.log('🔍 DEBUG: Impossible de créer le canal WebSocket pour les profils:', error)
+        console.log('🔍 DEBUG: Canal WebSocket profils non créé')
       }
     }
-  }, [userId, isOffline])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId])
 
   async function updateProfile(updates) {
     if (isOffline) {

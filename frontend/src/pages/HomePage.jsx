@@ -38,12 +38,8 @@ export default function HomePage() {
   const partnerProfile = user ? allProfiles.find(p => p.id !== user.id) : null
 
   if (!user) {
-    console.log('🔍 DEBUG: HomePage rendering without user, showing loading')
-    return <div className="page-loading"><div className="spinner" /></div>
-  }
-
-  if (loading) {
-    return <div className="page-loading"><div className="spinner" /></div>
+    console.log('🔍 DEBUG: HomePage rendering without user')
+    return null
   }
 
   return (

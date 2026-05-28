@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 // Données de démonstration pour le mode hors ligne
@@ -32,26 +32,44 @@ const DEMO_TASKS = [
   }
 ]
 
+// Helper pour timeout rapide sur les requêtes
+function withTimeout(promise, ms = 800) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Timeout')), ms)
+    )
+  ])
+}
+
 export function useTasks(userId) {
-  const [tasks, setTasks] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [isOffline, setIsOffline] = useState(false)
+  const [tasks, setTasks] = useState(DEMO_TASKS) // Chargement immédiat des données démo
+  const [loading, setLoading] = useState(false) // Pas de loading initial
+  const [isOffline, setIsOffline] = useState(true) // Par défaut offline pour éviter les attentes
+  const hasCheckedRef = useRef(false) // Pour éviter les doubles appels
 
   const fetchTasks = useCallback(async () => {
+    if (hasCheckedRef.current) return // Éviter les doubles appels
+    hasCheckedRef.current = true
+
     try {
-      console.log('🔍 DEBUG: Tentative de connexion à Supabase pour les tâches...')
-      const { data, error } = await supabase
-        .from('tasks')
-        .select(`
-          *,
-          completions (
-            id,
-            completed_by,
-            completed_at,
-            profiles (display_name, avatar_color)
-          )
-        `)
-        .order('created_at', { ascending: true })
+      console.log('🔍 DEBUG: Tentative rapide de connexion à Supabase...')
+      
+      const { data, error } = await withTimeout(
+        supabase
+          .from('tasks')
+          .select(`
+            *,
+            completions (
+              id,
+              completed_by,
+              completed_at,
+              profiles (display_name, avatar_color)
+            )
+          `)
+          .order('created_at', { ascending: true }),
+        800 // Timeout de 800ms max
+      )
 
       if (!error && data) {
         console.log('🔍 DEBUG: Tâches chargées depuis Supabase:', data.length)
@@ -61,8 +79,8 @@ export function useTasks(userId) {
         throw new Error(error?.message || 'Erreur Supabase')
       }
     } catch (error) {
-      console.log('🔍 DEBUG: Erreur Supabase, utilisation du mode dégradé:', error.message)
-      setTasks(DEMO_TASKS)
+      console.log('🔍 DEBUG: Supabase indisponible (<800ms), reste en mode dégradé')
+      // On garde les données démo déjà chargées
       setIsOffline(true)
     }
     setLoading(false)
@@ -71,7 +89,7 @@ export function useTasks(userId) {
   useEffect(() => {
     fetchTasks()
 
-    // Ne pas créer de canal si nous sommes en mode dégradé
+    // Canal WebSocket seulement si on est online
     if (!isOffline) {
       try {
         const channel = supabase
@@ -84,14 +102,15 @@ export function useTasks(userId) {
           try {
             supabase.removeChannel(channel)
           } catch (error) {
-            console.log('🔍 DEBUG: Erreur lors de la suppression du canal:', error)
+            console.log('🔍 DEBUG: Erreur suppression canal:', error)
           }
         }
       } catch (error) {
-        console.log('🔍 DEBUG: Impossible de créer le canal WebSocket:', error)
+        console.log('🔍 DEBUG: Canal WebSocket non créé')
       }
     }
-  }, [fetchTasks, isOffline])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Dépendances vides = exécution unique
 
   async function completeTask(taskId) {
     if (isOffline) {
