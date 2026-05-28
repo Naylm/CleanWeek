@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { useCurrentUser } from './hooks/useCurrentUser'
 import WhoAreYouPage from './pages/WhoAreYouPage'
 import HomePage from './pages/HomePage'
@@ -8,6 +9,15 @@ import Layout from './components/Layout'
 
 export default function App() {
   const { user } = useCurrentUser()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Redirige vers la bonne page quand l'utilisateur change
+  useEffect(() => {
+    if (!user && location.pathname !== '/') {
+      navigate('/', { replace: true })
+    }
+  }, [user, location.pathname, navigate])
 
   if (!user) {
     return (
