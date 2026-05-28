@@ -1,73 +1,84 @@
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 
 export function useTasks(userId) {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
 
   const fetchTasks = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('tasks')
-      .select(`
-        *,
-        completions (
-          id,
-          completed_by,
-          completed_at,
-          profiles (display_name, avatar_color)
-        )
-      `)
-      .order('created_at', { ascending: true })
-
-    if (!error && data) setTasks(data)
+    try {
+      const data = await api.get('/tasks')
+      setTasks(data)
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err)
+    }
     setLoading(false)
   }, [])
 
   useEffect(() => {
     fetchTasks()
-
-    const channel = supabase
-      .channel('tasks-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, fetchTasks)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'completions' }, fetchTasks)
-      .subscribe()
-
-    return () => supabase.removeChannel(channel)
+    const interval = setInterval(fetchTasks, 2000)
+    return () => clearInterval(interval)
   }, [fetchTasks])
 
   async function completeTask(taskId) {
     const today = new Date().toISOString().split('T')[0]
-    const { error } = await supabase.from('completions').insert({
-      task_id: taskId,
-      completed_by: userId,
-      completed_at: today,
-    })
-    if (!error) fetchTasks()
-    return !error
+    try {
+      await api.post('/completions', {
+        task_id: taskId,
+        completed_by: userId,
+        completed_at: today,
+      })
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to complete task:', err)
+      return false
+    }
   }
 
   async function uncompleteTask(completionId) {
-    const { error } = await supabase.from('completions').delete().eq('id', completionId)
-    if (!error) fetchTasks()
-    return !error
+    try {
+      await api.del(`/completions/${completionId}`)
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to uncomplete task:', err)
+      return false
+    }
   }
 
   async function addTask(task) {
-    const { error } = await supabase.from('tasks').insert(task)
-    if (!error) fetchTasks()
-    return !error
+    try {
+      await api.post('/tasks', task)
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to add task:', err)
+      return false
+    }
   }
 
   async function updateTask(id, updates) {
-    const { error } = await supabase.from('tasks').update(updates).eq('id', id)
-    if (!error) fetchTasks()
-    return !error
+    try {
+      await api.patch(`/tasks/${id}`, updates)
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to update task:', err)
+      return false
+    }
   }
 
   async function deleteTask(id) {
-    const { error } = await supabase.from('tasks').delete().eq('id', id)
-    if (!error) fetchTasks()
-    return !error
+    try {
+      await api.del(`/tasks/${id}`)
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to delete task:', err)
+      return false
+    }
   }
 
   return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, refetch: fetchTasks }

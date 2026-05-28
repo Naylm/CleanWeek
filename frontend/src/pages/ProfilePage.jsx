@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useProfile } from '../hooks/useProfile'
 import { useTasks } from '../hooks/useTasks'
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import { api } from '../lib/api'
 import './ProfilePage.css'
 
 const COLORS = ['#6C63FF', '#FF6584', '#43D9B8', '#FFB347', '#74B9FF', '#A29BFE', '#FD79A8', '#55EFC4']
@@ -51,11 +52,7 @@ export default function ProfilePage() {
             userVisibleOnly: true,
             applicationServerKey: import.meta.env.VITE_VAPID_PUBLIC_KEY,
           })
-          await fetch('/api/push/subscribe', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ subscription: sub, userId: user.id }),
-          })
+          await api.post('/push/subscribe', { subscription: sub, userId: user.id })
           setPushEnabled(true)
         }
       }
