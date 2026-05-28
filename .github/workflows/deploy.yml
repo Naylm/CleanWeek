@@ -51,10 +51,9 @@ jobs:
             mkdir -p /tmp/cleanweek-deploy
             tar -xzf /tmp/deploy.tar.gz -C /tmp/cleanweek-deploy
 
-            sudo cp -r /tmp/cleanweek-deploy/frontend/* /var/www/cleanweek/frontend/dist/
-            sudo cp -r /tmp/cleanweek-deploy/backend/src /var/www/cleanweek/backend/
-            sudo cp /tmp/cleanweek-deploy/backend/package.json /var/www/cleanweek/backend/
-            sudo chown -R nay:nay /var/www/cleanweek
+            cp -r /tmp/cleanweek-deploy/frontend/* /var/www/cleanweek/frontend/dist/
+            cp -r /tmp/cleanweek-deploy/backend/src /var/www/cleanweek/backend/
+            cp /tmp/cleanweek-deploy/backend/package.json /var/www/cleanweek/backend/
 
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
