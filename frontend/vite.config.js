@@ -52,6 +52,31 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // Compression gzip/brotli dans le build
+    reportCompressedSize: true,
+    // Splitting du code pour chunks plus petits
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // React dans un chunk séparé
+          react: ['react', 'react-dom', 'react-router-dom'],
+          // Supabase dans un chunk séparé
+          supabase: ['@supabase/supabase-js'],
+        },
+      },
+    },
+    // Minification aggressive
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Supprime tous les console.log en production
+        drop_debugger: true,
+      },
+    },
+    // Réduire la taille des chunks
+    chunkSizeWarningLimit: 500,
+  },
   server: {
     proxy: {
       '/api': {
