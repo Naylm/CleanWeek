@@ -1,8 +1,15 @@
+import { useState, useEffect } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import { api } from '../lib/api'
 import './WhoAreYouPage.css'
 
 export default function WhoAreYouPage() {
   const { selectUser } = useCurrentUser()
+  const [profiles, setProfiles] = useState([])
+
+  useEffect(() => {
+    api.get('/profiles').then(setProfiles).catch(() => {})
+  }, [])
 
   return (
     <div className="who-page">
@@ -15,15 +22,19 @@ export default function WhoAreYouPage() {
         </div>
 
         <div className="who-buttons">
-          <button className="who-btn laura" onClick={() => selectUser('laura')}>
-            <span className="who-avatar" style={{ background: '#FF6584' }}>L</span>
-            <span className="who-name">Laura</span>
-          </button>
-
-          <button className="who-btn melvin" onClick={() => selectUser('melvin')}>
-            <span className="who-avatar" style={{ background: '#6C63FF' }}>M</span>
-            <span className="who-name">Melvin</span>
-          </button>
+          {profiles.map(profile => (
+            <button
+              key={profile.id}
+              className="who-btn"
+              style={{ '--profile-color': profile.avatar_color }}
+              onClick={() => selectUser(profile.id)}
+            >
+              <span className="who-avatar" style={{ background: profile.avatar_color }}>
+                {profile.display_name?.slice(0, 1)?.toUpperCase()}
+              </span>
+              <span className="who-name">{profile.display_name}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>

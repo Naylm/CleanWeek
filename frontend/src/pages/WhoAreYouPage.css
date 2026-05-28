@@ -74,16 +74,8 @@
 .who-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow);
-}
-
-.who-btn.laura:hover {
-  border-color: #FF6584;
-  background: rgba(255, 101, 132, 0.08);
-}
-
-.who-btn.melvin:hover {
-  border-color: #6C63FF;
-  background: rgba(108, 99, 255, 0.08);
+  border-color: var(--profile-color);
+  background: color-mix(in srgb, var(--profile-color) 10%, transparent);
 }
 
 .who-btn:active {

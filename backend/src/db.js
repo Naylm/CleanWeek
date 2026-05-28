@@ -18,7 +18,7 @@ function init() {
       id TEXT PRIMARY KEY,
       display_name TEXT NOT NULL DEFAULT 'Utilisateur',
       avatar_color TEXT NOT NULL DEFAULT '#6C63FF',
-      created_at INTEGER DEFAULT (unixepoch())
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
 
     CREATE TABLE IF NOT EXISTS tasks (
@@ -27,7 +27,7 @@ function init() {
       category TEXT NOT NULL DEFAULT 'autre',
       frequency TEXT NOT NULL DEFAULT 'weekly',
       assigned_to TEXT,
-      created_at INTEGER DEFAULT (unixepoch())
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
 
     CREATE TABLE IF NOT EXISTS completions (
@@ -35,7 +35,7 @@ function init() {
       task_id TEXT NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
       completed_by TEXT NOT NULL,
       completed_at TEXT NOT NULL DEFAULT (date('now')),
-      created_at INTEGER DEFAULT (unixepoch()),
+      created_at INTEGER DEFAULT (unixepoch() * 1000),
       UNIQUE(task_id, completed_at)
     );
 
@@ -43,7 +43,7 @@ function init() {
       id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
       user_id TEXT NOT NULL UNIQUE,
       subscription TEXT NOT NULL,
-      created_at INTEGER DEFAULT (unixepoch())
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
   `)
 

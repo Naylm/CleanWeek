@@ -56,13 +56,13 @@ export default function TaskCard({ task, userId, allProfiles, onComplete, onUnco
         </div>
       </div>
 
-      {isDone && todayCompletion?.profiles && (
+      {isDone && todayCompletion?.display_name && (
         <div
           className="task-done-avatar"
-          style={{ background: todayCompletion.profiles.avatar_color || '#6C63FF' }}
-          title={todayCompletion.profiles.display_name}
+          style={{ background: todayCompletion.avatar_color || '#6C63FF' }}
+          title={todayCompletion.display_name}
         >
-          {todayCompletion.profiles.display_name?.slice(0, 1)?.toUpperCase()}
+          {todayCompletion.display_name?.slice(0, 1)?.toUpperCase()}
         </div>
       )}
     </div>

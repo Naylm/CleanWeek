@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
-import cron from 'node-cron'
 import path from 'path'
+import { randomUUID } from 'crypto'
 import { fileURLToPath } from 'url'
 import db from './db.js'
 
@@ -46,9 +46,12 @@ app.get('/api/tasks', (_req, res) => {
 
 app.post('/api/tasks', (req, res) => {
   const { name, category, frequency, assigned_to } = req.body
-  const result = db.prepare('INSERT INTO tasks (name, category, frequency, assigned_to) VALUES (?, ?, ?, ?)')
-    .run(name, category, frequency, assigned_to)
-  res.status(201).json({ id: result.lastInsertRowid })
+  if (!name?.trim()) return res.status(400).json({ error: 'name required' })
+  const id = randomUUID()
+  db.prepare('INSERT INTO tasks (id, name, category, frequency, assigned_to) VALUES (?, ?, ?, ?, ?)')
+    .run(id, name.trim(), category, frequency, assigned_to)
+  const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id)
+  res.status(201).json(task)
 })
 
 app.patch('/api/tasks/:id', (req, res) => {

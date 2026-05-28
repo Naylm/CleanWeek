@@ -19,7 +19,7 @@ export function useProfile(userId) {
 
   useEffect(() => {
     fetchProfiles()
-    const interval = setInterval(fetchProfiles, 2000)
+    const interval = setInterval(fetchProfiles, 30000)
     return () => clearInterval(interval)
   }, [fetchProfiles])
 
