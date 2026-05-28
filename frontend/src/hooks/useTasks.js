@@ -49,12 +49,10 @@ export function useTasks(userId) {
   const hasCheckedRef = useRef(false) // Pour éviter les doubles appels
 
   const fetchTasks = useCallback(async () => {
-    if (hasCheckedRef.current) return // Éviter les doubles appels
+    if (hasCheckedRef.current) return
     hasCheckedRef.current = true
 
     try {
-      console.log('🔍 DEBUG: Tentative rapide de connexion à Supabase...')
-      
       const { data, error } = await withTimeout(
         supabase
           .from('tasks')
@@ -68,49 +66,31 @@ export function useTasks(userId) {
             )
           `)
           .order('created_at', { ascending: true }),
-        800 // Timeout de 800ms max
+        800
       )
 
       if (!error && data) {
-        console.log('🔍 DEBUG: Tâches chargées depuis Supabase:', data.length)
         setTasks(data)
         setIsOffline(false)
       } else {
-        throw new Error(error?.message || 'Erreur Supabase')
+        throw new Error(error?.message || 'Erreur')
       }
     } catch (error) {
-      console.log('🔍 DEBUG: Supabase indisponible (<800ms), reste en mode dégradé')
-      // On garde les données démo déjà chargées
+      // Garde les données démo déjà chargées
       setIsOffline(true)
     }
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    fetchTasks()
+    // Différer la vérification après le premier rendu pour affichage instantané
+    const timer = setTimeout(() => {
+      fetchTasks()
+    }, 0)
 
-    // Canal WebSocket seulement si on est online
-    if (!isOffline) {
-      try {
-        const channel = supabase
-          .channel('tasks-changes')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, fetchTasks)
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'completions' }, fetchTasks)
-          .subscribe()
-
-        return () => {
-          try {
-            supabase.removeChannel(channel)
-          } catch (error) {
-            console.log('🔍 DEBUG: Erreur suppression canal:', error)
-          }
-        }
-      } catch (error) {
-        console.log('🔍 DEBUG: Canal WebSocket non créé')
-      }
-    }
+    return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Dépendances vides = exécution unique
+  }, [])
 
   async function completeTask(taskId) {
     if (isOffline) {

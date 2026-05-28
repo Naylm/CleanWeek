@@ -52,14 +52,12 @@ export function useProfile(userId) {
       hasCheckedRef.current = true
 
       try {
-        console.log('🔍 DEBUG: Tentative rapide connexion profils...')
         const { data, error } = await withTimeout(
           supabase.from('profiles').select('*'),
           800
         )
         
         if (!error && data) {
-          console.log('🔍 DEBUG: Profils chargés:', data.length)
           setAllProfiles(data)
           setProfile(data.find(p => p.id === userId) || null)
           setIsOffline(false)
@@ -67,34 +65,18 @@ export function useProfile(userId) {
           throw new Error(error?.message || 'Erreur')
         }
       } catch (error) {
-        console.log('🔍 DEBUG: Supabase indisponible, reste en mode dégradé')
         // Données démo déjà chargées
         setIsOffline(true)
       }
       setLoading(false)
     }
 
-    fetchProfiles()
+    // Différer après le premier rendu
+    const timer = setTimeout(() => {
+      fetchProfiles()
+    }, 0)
 
-    // Canal WebSocket seulement si online
-    if (!isOffline) {
-      try {
-        const channel = supabase
-          .channel('profiles-changes')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, fetchProfiles)
-          .subscribe()
-
-        return () => {
-          try {
-            supabase.removeChannel(channel)
-          } catch (error) {
-            console.log('🔍 DEBUG: Erreur suppression canal profils:', error)
-          }
-        }
-      } catch (error) {
-        console.log('🔍 DEBUG: Canal WebSocket profils non créé')
-      }
-    }
+    return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
 

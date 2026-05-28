@@ -23,15 +23,10 @@ export function getStoredUser() {
 }
 
 export function setStoredUser(slug) {
-  console.log('🔍 DEBUG: setStoredUser called with slug:', slug)
   try {
     localStorage.setItem(STORAGE_KEY, slug)
-    console.log('🔍 DEBUG: localStorage.setItem completed')
-    // Vérification que la valeur a bien été stockée
-    const stored = localStorage.getItem(STORAGE_KEY)
-    console.log('🔍 DEBUG: Verification - stored value:', stored)
   } catch (error) {
-    console.error('🔍 DEBUG: Error in localStorage.setItem:', error)
+    console.error('Error saving user:', error)
   }
 }
 
@@ -43,18 +38,11 @@ export function useCurrentUser() {
   const [user, setUser] = useState(() => getStoredUser())
 
   function selectUser(slug) {
-    console.log('🔍 DEBUG: selectUser called with slug:', slug)
-    console.log('🔍 DEBUG: USERS object:', USERS)
-    console.log('🔍 DEBUG: USERS[slug] exists?', !!USERS[slug])
-    
     if (USERS[slug]) {
-      console.log('🔍 DEBUG: User found, calling setStoredUser with:', slug)
       setStoredUser(slug)
-      console.log('🔍 DEBUG: setStoredUser completed, calling setUser with:', USERS[slug])
       setUser(USERS[slug])
-      console.log('🔍 DEBUG: setUser completed')
     } else {
-      console.error('🔍 DEBUG: User not found for slug:', slug)
+      console.error('User not found for slug:', slug)
     }
   }
 
