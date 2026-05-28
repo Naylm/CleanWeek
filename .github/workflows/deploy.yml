@@ -23,38 +23,45 @@ jobs:
         env:
           VITE_VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
 
-      - name: Deploy frontend to server
+      - name: Create deploy tarball
+        run: |
+          mkdir -p deploy/frontend deploy/backend
+          cp -r frontend/dist/* deploy/frontend/
+          cp -r backend/src deploy/backend/
+          cp backend/package.json deploy/backend/
+          tar -czf deploy.tar.gz -C deploy .
+
+      - name: Upload tarball to server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          source: "frontend/dist/"
-          target: "/var/www/cleanweek/frontend/"
-          strip_components: 2
-          overwrite: true
+          source: "deploy.tar.gz"
+          target: "/tmp/"
 
-      - name: Deploy backend to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: "backend/package.json,backend/.env,backend/src/"
-          target: "/var/www/cleanweek/backend/"
-          strip_components: 1
-          overwrite: true
-
-      - name: Restart backend
+      - name: Deploy on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
+            rm -rf /tmp/cleanweek-deploy
+            mkdir -p /tmp/cleanweek-deploy
+            tar -xzf /tmp/deploy.tar.gz -C /tmp/cleanweek-deploy
+
+            sudo cp -r /tmp/cleanweek-deploy/frontend/* /var/www/cleanweek/frontend/dist/
+            sudo cp -r /tmp/cleanweek-deploy/backend/src /var/www/cleanweek/backend/
+            sudo cp /tmp/cleanweek-deploy/backend/package.json /var/www/cleanweek/backend/
+            sudo chown -R nay:nay /var/www/cleanweek
+
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
             cd /var/www/cleanweek/backend
             npm install
             pm2 restart cleanweek-backend || pm2 start src/index.js --name cleanweek-backend
             pm2 save
+
+            rm -f /tmp/deploy.tar.gz
+            rm -rf /tmp/cleanweek-deploy
