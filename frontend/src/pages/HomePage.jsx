@@ -8,18 +8,42 @@ import './HomePage.css'
 
 export default function HomePage() {
   const { user } = useCurrentUser()
-  const { tasks, loading, completeTask, uncompleteTask } = useTasks(user.id)
-  const { profile, allProfiles } = useProfile(user.id)
+  
+  // Gestion d'erreur pour les hooks Supabase
+  let tasks = [], loading = false, completeTask = () => {}, uncompleteTask = () => {}
+  let profile = null, allProfiles = []
+  
+  try {
+    const tasksResult = useTasks(user?.id)
+    tasks = tasksResult.tasks || []
+    loading = tasksResult.loading || false
+    completeTask = tasksResult.completeTask || (() => {})
+    uncompleteTask = tasksResult.uncompleteTask || (() => {})
+  } catch (error) {
+    console.error('🔍 DEBUG: Error in useTasks hook:', error)
+  }
+  
+  try {
+    const profileResult = useProfile(user?.id)
+    profile = profileResult.profile || null
+    allProfiles = profileResult.allProfiles || []
+  } catch (error) {
+    console.error('🔍 DEBUG: Error in useProfile hook:', error)
+    // Utiliser les données de base de l'utilisateur si le profile échoue
+    profile = { display_name: user?.name || 'Utilisateur', avatar_color: user?.color || '#6C63FF' }
+    allProfiles = [profile]
+  }
 
   const today = new Date()
   const dateStr = today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
   const todayTasks = useMemo(() => {
+    if (!user) return []
     return tasks.filter(t => {
       if (t.assigned_to && t.assigned_to !== user.id && t.assigned_to !== 'both') return false
       return isTaskDueToday(t)
     })
-  }, [tasks, user.id])
+  }, [tasks, user?.id])
 
   const todayDone = todayTasks.filter(t => {
     const todayStr = new Date().toISOString().split('T')[0]
@@ -28,7 +52,12 @@ export default function HomePage() {
 
   const progress = todayTasks.length > 0 ? Math.round((todayDone.length / todayTasks.length) * 100) : 0
 
-  const partnerProfile = allProfiles.find(p => p.id !== user.id)
+  const partnerProfile = user ? allProfiles.find(p => p.id !== user.id) : null
+
+  if (!user) {
+    console.log('🔍 DEBUG: HomePage rendering without user, showing loading')
+    return <div className="page-loading"><div className="spinner" /></div>
+  }
 
   if (loading) {
     return <div className="page-loading"><div className="spinner" /></div>
