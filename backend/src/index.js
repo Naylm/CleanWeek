@@ -163,9 +163,9 @@ app.post('/api/meals', (req, res) => {
 })
 
 app.patch('/api/meals/:id', (req, res) => {
-  const { content, notes } = req.body
-  db.prepare('UPDATE meal_plans SET content = COALESCE(?, content), notes = COALESCE(?, notes) WHERE id = ?')
-    .run(content, notes, req.params.id)
+  const { content, notes, shopping_done } = req.body
+  db.prepare('UPDATE meal_plans SET content = COALESCE(?, content), notes = COALESCE(?, notes), shopping_done = COALESCE(?, shopping_done) WHERE id = ?')
+    .run(content, notes, shopping_done !== undefined ? (shopping_done ? 1 : 0) : undefined, req.params.id)
   res.json({ ok: true })
 })
 

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
 
 const MEALS = [
-  { value: 'breakfast', label: 'Petit-déj' },
   { value: 'lunch', label: 'Déjeuner' },
   { value: 'dinner', label: 'Dîner' },
 ]
@@ -60,5 +59,16 @@ export function useMeals() {
     }
   }
 
-  return { plans, loading, setMeal, updateMeal, deleteMeal, MEALS, refetch: fetchPlans }
+  async function toggleShoppingDone(id, done) {
+    try {
+      await api.patch(`/meals/${id}`, { shopping_done: done })
+      fetchPlans()
+      return true
+    } catch (err) {
+      console.error('Failed to toggle shopping_done:', err)
+      return false
+    }
+  }
+
+  return { plans, loading, setMeal, updateMeal, deleteMeal, toggleShoppingDone, MEALS, refetch: fetchPlans }
 }

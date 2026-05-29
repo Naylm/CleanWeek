@@ -16,7 +16,6 @@ const SHOP_CATEGORIES = [
 ]
 
 const MEAL_LABELS = {
-  breakfast: 'Petit-déj',
   lunch: 'Déjeuner',
   dinner: 'Dîner',
 }
@@ -24,7 +23,7 @@ const MEAL_LABELS = {
 export default function PlanningPage() {
   const { user } = useCurrentUser()
   const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping(user.id)
-  const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, MEALS } = useMeals()
+  const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, MEALS } = useMeals()
   const [activeTab, setActiveTab] = useState('meals')
 
   const [newItemName, setNewItemName] = useState('')
@@ -116,19 +115,28 @@ export default function PlanningPage() {
                       <div key={meal.value} className="meal-slot">
                         <span className="meal-label">{meal.label}</span>
                         {m ? (
-                          <div className="meal-content">
+                          <div className={`meal-content${m.shopping_done ? ' shopping-done' : ''}`}>
                             <p className="meal-text">{m.content}</p>
                             {m.notes && <p className="meal-notes">{m.notes}</p>}
-                            <button
-                              className="meal-edit-btn"
-                              onClick={() => {
-                                setAddingMeal({ date: day.date, meal: meal.value })
-                                setMealContent(m.content)
-                                setMealNotes(m.notes || '')
-                              }}
-                            >
-                              ✎
-                            </button>
+                            <div className="meal-actions">
+                              <button
+                                className={`meal-shopping-btn${m.shopping_done ? ' done' : ''}`}
+                                onClick={() => toggleShoppingDone(m.id, !m.shopping_done)}
+                                title={m.shopping_done ? 'Courses faites' : 'Courses à faire'}
+                              >
+                                {m.shopping_done ? '🛒 ✓' : '🛒'}
+                              </button>
+                              <button
+                                className="meal-edit-btn"
+                                onClick={() => {
+                                  setAddingMeal({ date: day.date, meal: meal.value })
+                                  setMealContent(m.content)
+                                  setMealNotes(m.notes || '')
+                                }}
+                              >
+                                ✎
+                              </button>
+                            </div>
                           </div>
                         ) : isAdding ? (
                           <div className="meal-form">
@@ -166,6 +174,35 @@ export default function PlanningPage() {
 
       {activeTab === 'shopping' && (
         <div className="shopping-section">
+          {/* Repas à prévoir */}
+          {(() => {
+            const todayStr = new Date().toISOString().split('T')[0]
+            const pendingMeals = weekDays.flatMap(day =>
+              MEALS.map(meal => {
+                const m = getMeal(day.date, meal.value)
+                return m && !m.shopping_done ? { ...m, dayLabel: day.label, isToday: day.isToday, mealLabel: meal.label } : null
+              }).filter(Boolean)
+            )
+            if (pendingMeals.length === 0) return null
+            return (
+              <div className="pending-meals">
+                <h3 className="pending-meals-title">Repas à prévoir 🍽️</h3>
+                <div className="pending-meals-list">
+                  {pendingMeals.map(m => (
+                    <div key={m.id} className={`pending-meal${m.isToday ? ' urgent' : ''}`}>
+                      <div className="pending-meal-info">
+                        <span className="pending-meal-day">{m.dayLabel} — {m.mealLabel}</span>
+                        <span className="pending-meal-content">{m.content}</span>
+                        {m.notes && <span className="pending-meal-notes">{m.notes}</span>}
+                      </div>
+                      {m.isToday && <span className="urgent-badge">Ce soir</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+
           <form className="shop-add-form" onSubmit={handleAddItem}>
             <input
               type="text"

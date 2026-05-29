@@ -70,6 +70,7 @@ function init() {
       meal TEXT NOT NULL,
       content TEXT NOT NULL DEFAULT '',
       notes TEXT,
+      shopping_done INTEGER NOT NULL DEFAULT 0,
       created_by TEXT,
       created_at INTEGER DEFAULT (unixepoch() * 1000),
       UNIQUE(date, meal)
