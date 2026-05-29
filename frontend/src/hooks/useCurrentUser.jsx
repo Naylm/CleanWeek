@@ -1,9 +1,15 @@
-import { useState, useContext, createContext } from 'react'
+import { useState, useContext, createContext, useEffect } from 'react'
 
 const UserContext = createContext(null)
 
 export function UserProvider({ children }) {
   const [connected, setConnected] = useState(() => !!localStorage.getItem('cw_connected'))
+  const [theme, setThemeState] = useState(() => localStorage.getItem('cw_theme') || 'rose')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('cw_theme', theme)
+  }, [theme])
 
   function login() {
     localStorage.setItem('cw_connected', '1')
@@ -15,8 +21,12 @@ export function UserProvider({ children }) {
     setConnected(false)
   }
 
+  function setTheme(newTheme) {
+    setThemeState(newTheme)
+  }
+
   return (
-    <UserContext.Provider value={{ connected, login, logout }}>
+    <UserContext.Provider value={{ connected, login, logout, theme, setTheme }}>
       {children}
     </UserContext.Provider>
   )

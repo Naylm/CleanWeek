@@ -34,7 +34,47 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+}
+
+.settings-themes {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.settings-theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border-radius: var(--radius-sm);
+  border: 2px solid transparent;
+  background: rgba(0,0,0,0.02);
+  transition: all 0.2s;
+}
+
+.settings-theme-btn.active {
+  border-color: var(--accent);
+  background: rgba(0,0,0,0.04);
+}
+
+.theme-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.theme-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
 .settings-text {
@@ -57,5 +97,5 @@
 
 .settings-logout:hover,
 .settings-logout:active {
-  background: rgba(255, 183, 178, 0.1);
+  background: rgba(0,0,0,0.04);
 }
