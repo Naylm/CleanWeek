@@ -152,6 +152,22 @@
   color: #4CAF50;
 }
 
+.meal-delete-btn {
+  padding: 2px 6px;
+  font-size: 12px;
+  opacity: 0.5;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.meal-delete-btn:hover {
+  opacity: 1;
+  color: var(--accent2);
+}
+
+.meal-content:hover .meal-delete-btn {
+  opacity: 0.7;
+}
+
 .meal-content.shopping-done {
   opacity: 0.6;
 }

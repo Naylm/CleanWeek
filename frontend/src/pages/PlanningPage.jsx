@@ -136,6 +136,13 @@ export default function PlanningPage() {
                               >
                                 ✎
                               </button>
+                              <button
+                                className="meal-delete-btn"
+                                onClick={() => { if (confirm('Supprimer ce repas ?')) deleteMeal(m.id) }}
+                                title="Supprimer"
+                              >
+                                🗑
+                              </button>
                             </div>
                           </div>
                         ) : isAdding ? (
