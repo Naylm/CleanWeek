@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import { useProfile } from '../hooks/useProfile'
+import { useMeals } from '../hooks/useMeals'
 import { useCurrentUser } from '../hooks/useCurrentUser'
 import TaskCard from '../components/TaskCard'
 import { isTaskDueToday, getNextDueDate } from '../lib/taskUtils'
@@ -10,6 +11,7 @@ export default function HomePage() {
   const { user } = useCurrentUser()
   const { tasks, loading, completeTask, uncompleteTask, react, unreact } = useTasks(user.id)
   const { profile, allProfiles } = useProfile(user.id)
+  const { plans, loading: loadingMeals } = useMeals()
 
   const today = new Date()
   const dateStr = today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
@@ -40,7 +42,11 @@ export default function HomePage() {
 
   const progress = allToday.length > 0 ? Math.round((todayDone.length / allToday.length) * 100) : 0
 
-  if (loading) {
+  const todayStr = new Date().toISOString().split('T')[0]
+  const tonightMeal = plans.find(p => p.date === todayStr && p.meal === 'dinner')
+  const remainingTasks = allToday.length - todayDone.length
+
+  if (loading || loadingMeals) {
     return <div className="page-loading"><div className="spinner" /></div>
   }
 
@@ -73,6 +79,26 @@ export default function HomePage() {
           )}
         </div>
       </header>
+
+      {(tonightMeal || remainingTasks > 0) && (
+        <div className="tonight-card">
+          <div className="tonight-row">
+            {tonightMeal && (
+              <div className="tonight-meal">
+                <span className="tonight-label">Ce soir 🍽️</span>
+                <span className="tonight-content">{tonightMeal.content}</span>
+                {tonightMeal.notes && <span className="tonight-notes">{tonightMeal.notes}</span>}
+              </div>
+            )}
+            {remainingTasks > 0 && (
+              <div className="tonight-tasks">
+                <span className="tonight-label">Reste à faire</span>
+                <span className="tonight-count">{remainingTasks} tâche{remainingTasks > 1 ? 's' : ''}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="home-columns">
         <section className="home-column">
