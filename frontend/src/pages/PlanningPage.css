@@ -123,22 +123,30 @@
 }
 
 .meal-edit-btn {
-  padding: 2px 6px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .meal-actions {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 2px;
+  right: 2px;
 }
 
 .meal-shopping-btn {
-  padding: 2px 6px;
-  font-size: 12px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: rgba(255,165,0,0.08);
@@ -153,13 +161,18 @@
 }
 
 .meal-delete-btn {
-  padding: 2px 6px;
-  font-size: 12px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
   opacity: 0.5;
   transition: opacity 0.15s, color 0.15s;
 }
 
-.meal-delete-btn:hover {
+.meal-delete-btn:hover,
+.meal-delete-btn:active {
   opacity: 1;
   color: var(--accent2);
 }
@@ -174,15 +187,17 @@
 
 .meal-add-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 12px;
   border-radius: var(--radius-sm);
   border: 1px dashed var(--border);
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
   transition: all 0.2s;
+  min-height: 40px;
 }
 
-.meal-add-btn:hover {
+.meal-add-btn:hover,
+.meal-add-btn:active {
   border-color: var(--accent);
   color: var(--accent);
 }
@@ -191,16 +206,17 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .meal-form input {
   background: rgba(255,255,255,0.05);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
-  font-size: 14px;
+  padding: 12px 14px;
+  font-size: 16px;
   transition: border-color 0.2s;
+  min-height: 44px;
 }
 
 .meal-form input:focus {
@@ -213,11 +229,12 @@
 }
 
 .meal-form-actions button {
-  padding: 6px 12px;
+  padding: 10px 16px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: 14px;
+  min-height: 40px;
 }
 
 .meal-form-actions .btn-save {
@@ -307,30 +324,36 @@
 }
 
 .shop-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   accent-color: var(--accent);
   flex-shrink: 0;
 }
 
 .shop-item-name {
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .shop-item-delete {
-  padding: 2px 6px;
+  min-width: 36px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: var(--text-muted);
-  font-size: 12px;
-  opacity: 0;
+  font-size: 13px;
+  opacity: 0.4;
   transition: opacity 0.15s;
 }
 
-.shop-item:hover .shop-item-delete {
+.shop-item:hover .shop-item-delete,
+.shop-item:active .shop-item-delete {
   opacity: 1;
 }
 
-.shop-item-delete:hover {
+.shop-item-delete:hover,
+.shop-item-delete:active {
   color: var(--accent2);
 }
 
