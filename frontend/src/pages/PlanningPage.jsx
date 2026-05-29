@@ -34,7 +34,7 @@ export default function PlanningPage() {
 
   const weekDays = useMemo(() => {
     const days = []
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 9; i++) {
       const d = new Date()
       d.setDate(d.getDate() + i)
       days.push({
