@@ -14,7 +14,7 @@ const PORT = 3001
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
 
-const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '../frontend/dist')
+const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '../../frontend/dist')
 app.use(express.static(FRONTEND_DIR))
 
 // ============ API ============
