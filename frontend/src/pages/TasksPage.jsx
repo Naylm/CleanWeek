@@ -13,11 +13,9 @@ export default function TasksPage() {
   const { allProfiles } = useProfile(user.id)
   const [showAdd, setShowAdd] = useState(false)
   const [filterCategory, setFilterCategory] = useState('all')
-  const [filterAssignee, setFilterAssignee] = useState('all')
 
   const filtered = tasks.filter(t => {
     if (filterCategory !== 'all' && t.category !== filterCategory) return false
-    if (filterAssignee !== 'all' && t.assigned_to !== filterAssignee && t.assigned_to !== 'both') return false
     return true
   })
 
@@ -53,24 +51,6 @@ export default function TasksPage() {
           ))}
         </div>
 
-        <div className="filter-row filter-assignee-row">
-          <button
-            className={`filter-chip${filterAssignee === 'all' ? ' active' : ''}`}
-            onClick={() => setFilterAssignee('all')}
-          >
-            Tous
-          </button>
-          {allProfiles.map(p => (
-            <button
-              key={p.id}
-              className={`filter-chip${filterAssignee === p.id ? ' active' : ''}`}
-              style={filterAssignee === p.id ? { borderColor: p.avatar_color, color: p.avatar_color } : {}}
-              onClick={() => setFilterAssignee(p.id)}
-            >
-              {p.display_name}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="tasks-list-section">

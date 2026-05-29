@@ -6,7 +6,7 @@ export default function AddTaskModal({ userId, allProfiles, onAdd, onClose }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('autre')
   const [frequency, setFrequency] = useState('weekly')
-  const [assignedTo, setAssignedTo] = useState('both')
+  const [assignedTo, setAssignedTo] = useState(userId)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
@@ -80,13 +80,6 @@ export default function AddTaskModal({ userId, allProfiles, onAdd, onClose }) {
           <div className="field">
             <label>Assigné à</label>
             <div className="select-group">
-              <button
-                type="button"
-                className={`select-btn${assignedTo === 'both' ? ' active' : ''}`}
-                onClick={() => setAssignedTo('both')}
-              >
-                Tous les deux
-              </button>
               {allProfiles.map(p => (
                 <button
                   key={p.id}

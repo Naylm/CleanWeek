@@ -19,17 +19,11 @@ export default function HomePage() {
   const partnerProfile = allProfiles.find(p => p.id !== user.id)
 
   const myTasks = useMemo(() => {
-    return tasks.filter(t => {
-      const mine = t.assigned_to === user.id || t.assigned_to === 'both' || !t.assigned_to
-      return mine && isTaskDueToday(t)
-    })
+    return tasks.filter(t => t.assigned_to === user.id && isTaskDueToday(t))
   }, [tasks, user.id])
 
   const partnerTasks = useMemo(() => {
-    return tasks.filter(t => {
-      const theirs = t.assigned_to === partnerProfile?.id || t.assigned_to === 'both' || !t.assigned_to
-      return theirs && isTaskDueToday(t)
-    })
+    return tasks.filter(t => t.assigned_to === partnerProfile?.id && isTaskDueToday(t))
   }, [tasks, partnerProfile])
 
   const allToday = [...new Set([...myTasks, ...partnerTasks].map(t => t.id))]

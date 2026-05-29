@@ -58,13 +58,10 @@ export default function TaskCard({ task, userId, allProfiles, onComplete, onUnco
           ) : (
             <span className={`task-freq ${task.frequency}`}>{getFreqLabel(task.frequency)}</span>
           )}
-          {task.assigned_to && task.assigned_to !== 'both' && assignedProfile && (
+          {assignedProfile && (
             <span className="task-assignee" style={{ color: assignedProfile.avatar_color }}>
               {assignedProfile.display_name}
             </span>
-          )}
-          {task.assigned_to === 'both' && (
-            <span className="task-assignee task-both">Tous les deux</span>
           )}
         </div>
       </div>

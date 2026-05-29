@@ -89,14 +89,16 @@ function init() {
   const count = db.prepare('SELECT count(*) as c FROM tasks').get().c
   if (count === 0) {
     const tStmt = db.prepare('INSERT INTO tasks (name, category, frequency, assigned_to) VALUES (?, ?, ?, ?)')
+    const lauraId = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+    const melvinId = 'b2c3d4e5-f6a7-8901-bcde-f12345678901'
     const defaultTasks = [
-      ["Passer l'aspirateur", 'salon', 'weekly', 'both'],
-      ['Faire la vaisselle', 'cuisine', 'daily', 'both'],
-      ['Nettoyer les toilettes', 'salle_de_bain', 'weekly', 'both'],
-      ['Faire la lessive', 'linge', 'weekly', 'both'],
-      ['Sortir les poubelles', 'exterieur', 'weekly', 'both'],
-      ['Nettoyer le sol cuisine', 'cuisine', 'weekly', 'both'],
-      ['Changer les draps', 'chambre', 'biweekly', 'both'],
+      ["Passer l'aspirateur", 'salon', 'weekly', lauraId],
+      ['Faire la vaisselle', 'cuisine', 'daily', melvinId],
+      ['Nettoyer les toilettes', 'salle_de_bain', 'weekly', lauraId],
+      ['Faire la lessive', 'linge', 'weekly', melvinId],
+      ['Sortir les poubelles', 'exterieur', 'weekly', lauraId],
+      ['Nettoyer le sol cuisine', 'cuisine', 'weekly', melvinId],
+      ['Changer les draps', 'chambre', 'biweekly', lauraId],
     ]
     for (const t of defaultTasks) tStmt.run(...t)
   }

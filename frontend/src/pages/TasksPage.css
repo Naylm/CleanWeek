@@ -72,9 +72,7 @@
   color: var(--accent);
 }
 
-.filter-assignee-row .filter-chip {
-  font-size: 12px;
-}
+
 
 .tasks-list-section {
   padding: 16px 16px 0;
