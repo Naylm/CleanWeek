@@ -27,12 +27,13 @@
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s;
+  background: rgba(0,0,0,0.02);
 }
 
 .planning-tabs button.active {
-  background: rgba(108, 99, 255, 0.15);
+  background: rgba(255, 183, 178, 0.15);
   border-color: var(--accent);
-  color: var(--accent);
+  color: #E8918C;
 }
 
 /* === MENUS === */
@@ -51,10 +52,11 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
+  box-shadow: var(--shadow);
 }
 
 .day-card.today {
-  border-color: rgba(108, 99, 255, 0.3);
+  border-color: rgba(255, 183, 178, 0.3);
 }
 
 .day-header {
@@ -105,7 +107,7 @@
 .meal-content {
   flex: 1;
   min-width: 0;
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.02);
   border-radius: var(--radius-sm);
   padding: 8px 12px;
   position: relative;
@@ -122,16 +124,6 @@
   margin-top: 2px;
 }
 
-.meal-edit-btn {
-  min-width: 36px;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
 .meal-actions {
   display: flex;
   gap: 2px;
@@ -140,79 +132,51 @@
   right: 2px;
 }
 
-.meal-shopping-btn {
-  min-width: 36px;
-  min-height: 36px;
+.meal-shopping-btn,
+.meal-swap-btn,
+.meal-edit-btn,
+.meal-delete-btn {
+  min-width: 32px;
+  min-height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: rgba(255,165,0,0.08);
-  color: #FFA500;
+  font-size: 12px;
+  border-radius: 50%;
+  opacity: 0.6;
   transition: all 0.15s;
 }
 
+.meal-shopping-btn {
+  border: 1px solid var(--border);
+  background: rgba(255, 183, 178, 0.08);
+  color: #E8918C;
+}
+
 .meal-shopping-btn.done {
-  background: rgba(76,175,80,0.15);
-  border-color: #4CAF50;
-  color: #4CAF50;
-}
-
-.meal-swap-btn {
-  min-width: 36px;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  opacity: 0.5;
-  transition: opacity 0.15s, transform 0.15s;
-}
-
-.meal-swap-btn:hover,
-.meal-swap-btn:active {
+  background: rgba(160, 196, 255, 0.15);
+  border-color: var(--accent2);
+  color: #7A9FD4;
   opacity: 1;
-  transform: rotate(180deg);
 }
 
-.meal-content:hover .meal-swap-btn {
-  opacity: 0.7;
-}
+.meal-swap-btn:hover { opacity: 1; transform: rotate(180deg); }
+.meal-edit-btn:hover { opacity: 1; }
+.meal-delete-btn:hover { opacity: 1; color: var(--accent); }
 
-.meal-delete-btn {
-  min-width: 36px;
-  min-height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  opacity: 0.5;
-  transition: opacity 0.15s, color 0.15s;
-}
-
-.meal-delete-btn:hover,
-.meal-delete-btn:active {
-  opacity: 1;
-  color: var(--accent2);
-}
-
-.meal-content:hover .meal-delete-btn {
-  opacity: 0.7;
-}
+.meal-content:hover .meal-actions button { opacity: 0.8; }
 
 .meal-content.shopping-done {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .meal-add-btn {
   flex: 1;
-  padding: 12px;
+  padding: 10px 12px;
   border-radius: var(--radius-sm);
   border: 1px dashed var(--border);
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s;
   min-height: 40px;
 }
@@ -231,13 +195,12 @@
 }
 
 .meal-form input {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  font-size: 16px;
+  padding: 10px 12px;
+  font-size: 14px;
   transition: border-color 0.2s;
-  min-height: 44px;
 }
 
 .meal-form input:focus {
@@ -250,18 +213,17 @@
 }
 
 .meal-form-actions button {
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 14px;
-  min-height: 40px;
+  font-size: 13px;
 }
 
 .meal-form-actions .btn-save {
-  background: rgba(108, 99, 255, 0.15);
+  background: rgba(255, 183, 178, 0.15);
   border-color: var(--accent);
-  color: var(--accent);
+  color: #E8918C;
   font-weight: 600;
 }
 
@@ -278,7 +240,7 @@
 
 .shop-add-form input {
   flex: 1;
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 14px;
@@ -290,7 +252,7 @@
 }
 
 .shop-add-form select {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   padding: 10px 12px;
@@ -327,15 +289,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 10px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.02);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .shop-item:hover {
-  background: rgba(255,255,255,0.05);
+  background: rgba(0,0,0,0.04);
 }
 
 .shop-item.checked .shop-item-name {
@@ -375,7 +337,7 @@
 
 .shop-item-delete:hover,
 .shop-item-delete:active {
-  color: var(--accent2);
+  color: var(--accent);
 }
 
 .page-loading {
@@ -407,17 +369,22 @@
   color: var(--text-muted);
 }
 
-/* === PENDING MEALS (in shopping tab) === */
+.empty-state span {
+  font-size: 36px;
+}
+
+/* === PENDING MEALS === */
 .pending-meals {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 20px;
+  box-shadow: var(--shadow);
 }
 
 .pending-meals-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -438,12 +405,12 @@
   gap: 10px;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.02);
 }
 
 .pending-meal.urgent {
-  background: rgba(255,165,0,0.08);
-  border: 1px solid rgba(255,165,0,0.2);
+  background: rgba(255, 183, 178, 0.08);
+  border: 1px solid rgba(255, 183, 178, 0.2);
 }
 
 .pending-meal-info {
@@ -474,8 +441,8 @@
 .urgent-badge {
   font-size: 10px;
   font-weight: 700;
-  background: #FFA500;
-  color: #000;
+  background: var(--accent);
+  color: white;
   padding: 2px 8px;
   border-radius: 999px;
   flex-shrink: 0;
@@ -485,7 +452,7 @@
 .swap-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.3);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -502,6 +469,7 @@
   max-height: 70vh;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow);
 }
 
 .swap-modal-header {
@@ -537,14 +505,14 @@
   gap: 2px;
   padding: 10px 12px;
   border-radius: var(--radius-sm);
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.02);
   text-align: left;
   transition: background 0.15s;
 }
 
 .swap-option:hover,
 .swap-option:active {
-  background: rgba(108, 99, 255, 0.1);
+  background: rgba(255, 183, 178, 0.08);
 }
 
 .swap-day {
@@ -558,8 +526,4 @@
 .swap-content {
   font-size: 14px;
   font-weight: 500;
-}
-
-.empty-state span {
-  font-size: 36px;
 }

@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { CATEGORIES, FREQUENCIES } from '../lib/taskUtils'
 import './AddTaskModal.css'
 
-export default function AddTaskModal({ userId, allProfiles, onAdd, onClose }) {
+export default function AddTaskModal({ onAdd, onClose }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState('autre')
   const [frequency, setFrequency] = useState('weekly')
-  const [assignedTo, setAssignedTo] = useState(userId)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e) {
@@ -17,7 +16,6 @@ export default function AddTaskModal({ userId, allProfiles, onAdd, onClose }) {
       name: name.trim(),
       category,
       frequency,
-      assigned_to: assignedTo,
     })
     setLoading(false)
     onClose()
@@ -72,23 +70,6 @@ export default function AddTaskModal({ userId, allProfiles, onAdd, onClose }) {
                   onClick={() => setFrequency(f.value)}
                 >
                   {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="field">
-            <label>Assigné à</label>
-            <div className="select-group">
-              {allProfiles.map(p => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className={`select-btn${assignedTo === p.id ? ' active' : ''}`}
-                  style={assignedTo === p.id ? { borderColor: p.avatar_color, color: p.avatar_color, background: `${p.avatar_color}22` } : {}}
-                  onClick={() => setAssignedTo(p.id)}
-                >
-                  {p.display_name}
                 </button>
               ))}
             </div>

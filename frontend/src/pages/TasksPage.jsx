@@ -1,16 +1,12 @@
 import { useState } from 'react'
 import { useTasks } from '../hooks/useTasks'
-import { useProfile } from '../hooks/useProfile'
-import { useCurrentUser } from '../hooks/useCurrentUser'
 import TaskCard from '../components/TaskCard'
 import AddTaskModal from '../components/AddTaskModal'
 import { CATEGORIES } from '../lib/taskUtils'
 import './TasksPage.css'
 
 export default function TasksPage() {
-  const { user } = useCurrentUser()
-  const { tasks, loading, completeTask, uncompleteTask, addTask, deleteTask, react, unreact } = useTasks(user.id)
-  const { allProfiles } = useProfile(user.id)
+  const { tasks, loading, completeTask, uncompleteTask, addTask, deleteTask } = useTasks()
   const [showAdd, setShowAdd] = useState(false)
   const [filterCategory, setFilterCategory] = useState('all')
 
@@ -50,7 +46,6 @@ export default function TasksPage() {
             </button>
           ))}
         </div>
-
       </div>
 
       <div className="tasks-list-section">
@@ -66,13 +61,9 @@ export default function TasksPage() {
               <SwipeableTask
                 key={task.id}
                 task={task}
-                userId={user.id}
-                allProfiles={allProfiles}
                 onComplete={completeTask}
                 onUncomplete={uncompleteTask}
                 onDelete={deleteTask}
-                onReact={react}
-                onUnreact={unreact}
               />
             ))}
           </div>
@@ -81,8 +72,6 @@ export default function TasksPage() {
 
       {showAdd && (
         <AddTaskModal
-          userId={user.id}
-          allProfiles={allProfiles}
           onAdd={addTask}
           onClose={() => setShowAdd(false)}
         />
@@ -91,19 +80,15 @@ export default function TasksPage() {
   )
 }
 
-function SwipeableTask({ task, userId, allProfiles, onComplete, onUncomplete, onDelete, onReact, onUnreact }) {
+function SwipeableTask({ task, onComplete, onUncomplete, onDelete }) {
   const [showDelete, setShowDelete] = useState(false)
 
   return (
     <div className="swipeable-task">
       <TaskCard
         task={task}
-        userId={userId}
-        allProfiles={allProfiles}
         onComplete={onComplete}
         onUncomplete={onUncomplete}
-        onReact={onReact}
-        onUnreact={onUnreact}
       />
       <button
         className="task-delete-btn"

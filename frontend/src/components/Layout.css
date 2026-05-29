@@ -24,6 +24,7 @@
   position: relative;
   z-index: 100;
   flex-shrink: 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
 }
 
 .nav-item {
@@ -41,9 +42,9 @@
   flex: 1;
 }
 
-.nav-item svg {
-  width: 22px;
-  height: 22px;
+.nav-icon {
+  font-size: 20px;
+  line-height: 1;
 }
 
 .nav-item.active {

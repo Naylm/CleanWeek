@@ -1,10 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { getCategoryIcon, formatNextDue, isTaskDueToday } from '../lib/taskUtils'
 import './TaskCard.css'
 
-const REACTION_EMOJIS = ['🔥', '👏', '❤️', '💪', '🙏']
-
-export default function TaskCard({ task, userId, allProfiles, onComplete, onUncomplete, onReact, onUnreact, upcoming = false }) {
+export default function TaskCard({ task, onComplete, onUncomplete, upcoming = false }) {
   const todayStr = new Date().toISOString().split('T')[0]
 
   const todayCompletion = useMemo(() => {
@@ -12,10 +10,6 @@ export default function TaskCard({ task, userId, allProfiles, onComplete, onUnco
   }, [task.completions, todayStr])
 
   const isDone = !!todayCompletion
-  const assignedProfile = allProfiles.find(p => p.id === task.assigned_to)
-  const doneByMe = todayCompletion?.completed_by === userId
-
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   async function handleToggle() {
     if (isDone) {
@@ -24,17 +18,6 @@ export default function TaskCard({ task, userId, allProfiles, onComplete, onUnco
       await onComplete(task.id)
     }
   }
-
-  async function handleReact(emoji) {
-    setShowEmojiPicker(false)
-    if (todayCompletion) await onReact?.(todayCompletion.id, emoji)
-  }
-
-  async function handleUnreact() {
-    if (todayCompletion) await onUnreact?.(todayCompletion.id)
-  }
-
-  const myReaction = todayCompletion?.reactions?.find(r => r.user_id === userId)
 
   return (
     <div className={`task-card${isDone ? ' done' : ''}${upcoming ? ' upcoming' : ''}`}>
@@ -58,55 +41,8 @@ export default function TaskCard({ task, userId, allProfiles, onComplete, onUnco
           ) : (
             <span className={`task-freq ${task.frequency}`}>{getFreqLabel(task.frequency)}</span>
           )}
-          {assignedProfile && (
-            <span className="task-assignee" style={{ color: assignedProfile.avatar_color }}>
-              {assignedProfile.display_name}
-            </span>
-          )}
         </div>
       </div>
-
-      {isDone && todayCompletion?.display_name && (
-        <div className="task-done-section">
-          <div
-            className="task-done-avatar"
-            style={{ background: todayCompletion.avatar_color || '#6C63FF' }}
-            title={todayCompletion.display_name}
-          >
-            {todayCompletion.display_name?.slice(0, 1)?.toUpperCase()}
-          </div>
-
-          {!doneByMe && (
-            <div className="task-reactions">
-              {todayCompletion.reactions?.map(r => (
-                <span key={r.id} className="task-reaction" title={r.display_name}>
-                  {r.emoji}
-                </span>
-              ))}
-              {myReaction ? (
-                <button className="reaction-btn active" onClick={handleUnreact} title="Retirer">
-                  {myReaction.emoji}
-                </button>
-              ) : (
-                <div className="reaction-picker-wrap">
-                  <button className="reaction-btn" onClick={() => setShowEmojiPicker(v => !v)} title="Réagir">
-                    +
-                  </button>
-                  {showEmojiPicker && (
-                    <div className="emoji-picker">
-                      {REACTION_EMOJIS.map(emoji => (
-                        <button key={emoji} onClick={() => handleReact(emoji)}>
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   )
 }

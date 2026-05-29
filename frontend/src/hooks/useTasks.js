@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
 
-export function useTasks(userId) {
+export function useTasks() {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -24,11 +24,7 @@ export function useTasks(userId) {
   async function completeTask(taskId) {
     const today = new Date().toISOString().split('T')[0]
     try {
-      await api.post('/completions', {
-        task_id: taskId,
-        completed_by: userId,
-        completed_at: today,
-      })
+      await api.post('/completions', { task_id: taskId, completed_at: today })
       fetchTasks()
       return true
     } catch (err) {
@@ -81,34 +77,5 @@ export function useTasks(userId) {
     }
   }
 
-  async function react(completionId, emoji) {
-    try {
-      await api.post('/reactions', {
-        completion_id: completionId,
-        user_id: userId,
-        emoji,
-      })
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to react:', err)
-      return false
-    }
-  }
-
-  async function unreact(completionId) {
-    try {
-      await api.del('/reactions', {
-        completion_id: completionId,
-        user_id: userId,
-      })
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to unreact:', err)
-      return false
-    }
-  }
-
-  return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, react, unreact, refetch: fetchTasks }
+  return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, refetch: fetchTasks }
 }

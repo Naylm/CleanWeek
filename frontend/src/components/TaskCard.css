@@ -8,11 +8,12 @@
   padding: 14px 16px;
   transition: opacity 0.2s, background 0.2s;
   cursor: default;
+  box-shadow: var(--shadow);
 }
 
 .task-card.done {
   opacity: 0.55;
-  background: rgba(255,255,255,0.03);
+  background: rgba(0,0,0,0.02);
 }
 
 .task-card.upcoming {
@@ -20,8 +21,8 @@
 }
 
 .task-check {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: 2px solid var(--border);
   flex-shrink: 0;
@@ -96,109 +97,13 @@
   border-radius: 999px;
 }
 
-.task-freq.daily { background: rgba(255, 101, 132, 0.15); color: var(--accent2); }
-.task-freq.weekly { background: rgba(108, 99, 255, 0.15); color: var(--accent); }
-.task-freq.biweekly { background: rgba(108, 99, 255, 0.1); color: #9B92FF; }
-.task-freq.monthly { background: rgba(255, 255, 255, 0.06); color: var(--text-muted); }
+.task-freq.daily { background: rgba(255, 183, 178, 0.2); color: #E8918C; }
+.task-freq.weekly { background: rgba(160, 196, 255, 0.2); color: #7A9FD4; }
+.task-freq.biweekly { background: rgba(201, 177, 255, 0.15); color: #9B82D4; }
+.task-freq.monthly { background: rgba(0,0,0,0.04); color: var(--text-muted); }
 
 .task-due {
   font-size: 12px;
   color: var(--text-muted);
   font-weight: 500;
-}
-
-.task-assignee {
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.task-both {
-  color: var(--text-muted) !important;
-}
-
-.task-done-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-
-.task-done-section {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.task-reactions {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.task-reaction {
-  font-size: 13px;
-  line-height: 1;
-}
-
-.reaction-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: rgba(255,255,255,0.05);
-  color: var(--text-muted);
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-  flex-shrink: 0;
-}
-
-.reaction-btn:hover {
-  background: rgba(255,255,255,0.1);
-  color: var(--text);
-}
-
-.reaction-btn.active {
-  background: rgba(108, 99, 255, 0.2);
-  border-color: var(--accent);
-  color: var(--accent);
-  font-size: 13px;
-}
-
-.reaction-picker-wrap {
-  position: relative;
-}
-
-.emoji-picker {
-  position: absolute;
-  right: 0;
-  top: 28px;
-  z-index: 10;
-  display: flex;
-  gap: 4px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 6px 8px;
-  box-shadow: var(--shadow);
-}
-
-.emoji-picker button {
-  font-size: 18px;
-  padding: 2px 4px;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-
-.emoji-picker button:hover {
-  background: rgba(255,255,255,0.1);
 }

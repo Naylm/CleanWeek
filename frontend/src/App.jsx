@@ -1,29 +1,19 @@
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useCurrentUser } from './hooks/useCurrentUser'
-import WhoAreYouPage from './pages/WhoAreYouPage'
 import HomePage from './pages/HomePage'
 import TasksPage from './pages/TasksPage'
 import PlanningPage from './pages/PlanningPage'
-import ProfilePage from './pages/ProfilePage'
+import SettingsPage from './pages/SettingsPage'
 import Layout from './components/Layout'
+import './App.css'
 
 export default function App() {
-  const { user } = useCurrentUser()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { connected } = useCurrentUser()
 
-  // Redirige vers la bonne page quand l'utilisateur change
-  useEffect(() => {
-    if (!user && location.pathname !== '/') {
-      navigate('/', { replace: true })
-    }
-  }, [user, location.pathname, navigate])
-
-  if (!user) {
+  if (!connected) {
     return (
       <Routes>
-        <Route path="/" element={<WhoAreYouPage />} />
+        <Route path="/" element={<WelcomePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     )
@@ -35,9 +25,27 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/tasks" element={<TasksPage />} />
         <Route path="/planning" element={<PlanningPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
+  )
+}
+
+function WelcomePage() {
+  const { login } = useCurrentUser()
+  return (
+    <div className="welcome-page">
+      <div className="welcome-bg">
+        <div className="welcome-card">
+          <div className="welcome-mascot">🐱</div>
+          <h1>CleanWeek</h1>
+          <p>La maison ensemble, tout en douceur</p>
+          <button className="welcome-btn" onClick={login}>
+            Entrer 🏠
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
