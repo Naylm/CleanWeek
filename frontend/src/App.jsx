@@ -4,6 +4,7 @@ import { useCurrentUser } from './hooks/useCurrentUser'
 import WhoAreYouPage from './pages/WhoAreYouPage'
 import HomePage from './pages/HomePage'
 import TasksPage from './pages/TasksPage'
+import PlanningPage from './pages/PlanningPage'
 import ProfilePage from './pages/ProfilePage'
 import Layout from './components/Layout'
 
@@ -33,6 +34,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/planning" element={<PlanningPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

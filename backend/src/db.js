@@ -54,6 +54,26 @@ function init() {
       created_at INTEGER DEFAULT (unixepoch() * 1000),
       UNIQUE(completion_id, user_id)
     );
+
+    CREATE TABLE IF NOT EXISTS shopping_items (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      name TEXT NOT NULL,
+      category TEXT NOT NULL DEFAULT 'autre',
+      checked INTEGER NOT NULL DEFAULT 0,
+      added_by TEXT,
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
+    );
+
+    CREATE TABLE IF NOT EXISTS meal_plans (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      date TEXT NOT NULL,
+      meal TEXT NOT NULL,
+      content TEXT NOT NULL DEFAULT '',
+      notes TEXT,
+      created_by TEXT,
+      created_at INTEGER DEFAULT (unixepoch() * 1000),
+      UNIQUE(date, meal)
+    );
   `)
 
   // Insert default profiles if not exists

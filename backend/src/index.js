@@ -118,6 +118,62 @@ app.delete('/api/reactions', (req, res) => {
   res.json({ ok: true })
 })
 
+// ============ SHOPPING ============
+app.get('/api/shopping', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM shopping_items ORDER BY checked, created_at DESC').all()
+  res.json(rows)
+})
+
+app.post('/api/shopping', (req, res) => {
+  const { name, category, added_by } = req.body
+  if (!name?.trim()) return res.status(400).json({ error: 'name required' })
+  const id = randomUUID()
+  db.prepare('INSERT INTO shopping_items (id, name, category, added_by) VALUES (?, ?, ?, ?)')
+    .run(id, name.trim(), category || 'autre', added_by || null)
+  const item = db.prepare('SELECT * FROM shopping_items WHERE id = ?').get(id)
+  res.status(201).json(item)
+})
+
+app.patch('/api/shopping/:id', (req, res) => {
+  const { checked } = req.body
+  db.prepare('UPDATE shopping_items SET checked = COALESCE(?, checked) WHERE id = ?')
+    .run(checked !== undefined ? (checked ? 1 : 0) : undefined, req.params.id)
+  res.json({ ok: true })
+})
+
+app.delete('/api/shopping/:id', (req, res) => {
+  db.prepare('DELETE FROM shopping_items WHERE id = ?').run(req.params.id)
+  res.json({ ok: true })
+})
+
+// ============ MEAL PLANS ============
+app.get('/api/meals', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM meal_plans ORDER BY date, meal').all()
+  res.json(rows)
+})
+
+app.post('/api/meals', (req, res) => {
+  const { date, meal, content, notes, created_by } = req.body
+  if (!date || !meal) return res.status(400).json({ error: 'date and meal required' })
+  const id = randomUUID()
+  db.prepare('INSERT INTO meal_plans (id, date, meal, content, notes, created_by) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(id, date, meal, content || '', notes || null, created_by || null)
+  const item = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id)
+  res.status(201).json(item)
+})
+
+app.patch('/api/meals/:id', (req, res) => {
+  const { content, notes } = req.body
+  db.prepare('UPDATE meal_plans SET content = COALESCE(?, content), notes = COALESCE(?, notes) WHERE id = ?')
+    .run(content, notes, req.params.id)
+  res.json({ ok: true })
+})
+
+app.delete('/api/meals/:id', (req, res) => {
+  db.prepare('DELETE FROM meal_plans WHERE id = ?').run(req.params.id)
+  res.json({ ok: true })
+})
+
 app.post('/api/push/subscribe', (req, res) => {
   const { subscription, userId } = req.body
   db.prepare('INSERT OR REPLACE INTO push_subscriptions (user_id, subscription) VALUES (?, ?)')
