@@ -70,5 +70,16 @@ export function useMeals() {
     }
   }
 
-  return { plans, loading, setMeal, updateMeal, deleteMeal, toggleShoppingDone, MEALS, refetch: fetchPlans }
+  async function swapMeals(id1, id2) {
+    try {
+      await api.post('/meals/swap', { id1, id2 })
+      fetchPlans()
+      return true
+    } catch (err) {
+      console.error('Failed to swap meals:', err)
+      return false
+    }
+  }
+
+  return { plans, loading, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS, refetch: fetchPlans }
 }

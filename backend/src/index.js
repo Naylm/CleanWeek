@@ -174,6 +174,22 @@ app.delete('/api/meals/:id', (req, res) => {
   res.json({ ok: true })
 })
 
+app.post('/api/meals/swap', (req, res) => {
+  const { id1, id2 } = req.body
+  if (!id1 || !id2) return res.status(400).json({ error: 'missing ids' })
+
+  const m1 = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id1)
+  const m2 = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id2)
+  if (!m1 || !m2) return res.status(404).json({ error: 'not found' })
+
+  db.prepare('UPDATE meal_plans SET content = ?, notes = ? WHERE id = ?')
+    .run(m2.content, m2.notes, m1.id)
+  db.prepare('UPDATE meal_plans SET content = ?, notes = ? WHERE id = ?')
+    .run(m1.content, m1.notes, m2.id)
+
+  res.json({ ok: true })
+})
+
 app.post('/api/push/subscribe', (req, res) => {
   const { subscription, userId } = req.body
   db.prepare('INSERT OR REPLACE INTO push_subscriptions (user_id, subscription) VALUES (?, ?)')

@@ -23,7 +23,7 @@ const MEAL_LABELS = {
 export default function PlanningPage() {
   const { user } = useCurrentUser()
   const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping(user.id)
-  const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, MEALS } = useMeals()
+  const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS } = useMeals()
   const [activeTab, setActiveTab] = useState('meals')
 
   const [newItemName, setNewItemName] = useState('')
@@ -31,6 +31,7 @@ export default function PlanningPage() {
   const [addingMeal, setAddingMeal] = useState(null) // { date, meal }
   const [mealContent, setMealContent] = useState('')
   const [mealNotes, setMealNotes] = useState('')
+  const [swappingMealId, setSwappingMealId] = useState(null)
 
   const weekDays = useMemo(() => {
     const days = []
@@ -144,6 +145,13 @@ export default function PlanningPage() {
                                 title={m.shopping_done ? 'Courses faites' : 'Courses à faire'}
                               >
                                 {m.shopping_done ? '🛒 ✓' : '🛒'}
+                              </button>
+                              <button
+                                className="meal-swap-btn"
+                                onClick={() => setSwappingMealId(m.id)}
+                                title="Échanger avec un autre jour"
+                              >
+                                🔄
                               </button>
                               <button
                                 className="meal-edit-btn"
@@ -261,6 +269,40 @@ export default function PlanningPage() {
               <p>La liste de courses est vide</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Swap modal */}
+      {swappingMealId && (
+        <div className="swap-modal-overlay" onClick={e => e.target === e.currentTarget && setSwappingMealId(null)}>
+          <div className="swap-modal">
+            <div className="swap-modal-header">
+              <h3>Échanger avec...</h3>
+              <button onClick={() => setSwappingMealId(null)}>✕</button>
+            </div>
+            <div className="swap-modal-list">
+              {plans
+                .filter(p => p.id !== swappingMealId && p.content)
+                .sort((a, b) => a.date.localeCompare(b.date) || a.meal.localeCompare(b.meal))
+                .map(p => {
+                  const day = weekDays.find(d => d.date === p.date)
+                  const mealLabel = MEALS.find(m => m.value === p.meal)?.label || p.meal
+                  return (
+                    <button
+                      key={p.id}
+                      className="swap-option"
+                      onClick={() => {
+                        swapMeals(swappingMealId, p.id)
+                        setSwappingMealId(null)
+                      }}
+                    >
+                      <span className="swap-day">{day?.label || p.date} — {mealLabel}</span>
+                      <span className="swap-content">{p.content}</span>
+                    </button>
+                  )
+                })}
+            </div>
+          </div>
         </div>
       )}
     </div>
