@@ -114,7 +114,26 @@ export default function PlanningPage() {
                     return (
                       <div key={meal.value} className="meal-slot">
                         <span className="meal-label">{meal.label}</span>
-                        {m ? (
+                        {isAdding ? (
+                          <div className="meal-form">
+                            <input
+                              autoFocus
+                              placeholder="Qu'est-ce qu'on mange ?"
+                              value={mealContent}
+                              onChange={e => setMealContent(e.target.value)}
+                              onKeyDown={e => e.key === 'Enter' && handleSetMeal(day.date, meal.value)}
+                            />
+                            <input
+                              placeholder="Notes (optionnel)"
+                              value={mealNotes}
+                              onChange={e => setMealNotes(e.target.value)}
+                            />
+                            <div className="meal-form-actions">
+                              <button onClick={() => { setAddingMeal(null); setMealContent(''); setMealNotes('') }}>Annuler</button>
+                              <button className="btn-save" onClick={() => handleSetMeal(day.date, meal.value)}>OK</button>
+                            </div>
+                          </div>
+                        ) : m ? (
                           <div className={`meal-content${m.shopping_done ? ' shopping-done' : ''}`}>
                             <p className="meal-text">{m.content}</p>
                             {m.notes && <p className="meal-notes">{m.notes}</p>}
@@ -143,25 +162,6 @@ export default function PlanningPage() {
                               >
                                 🗑
                               </button>
-                            </div>
-                          </div>
-                        ) : isAdding ? (
-                          <div className="meal-form">
-                            <input
-                              autoFocus
-                              placeholder="Qu'est-ce qu'on mange ?"
-                              value={mealContent}
-                              onChange={e => setMealContent(e.target.value)}
-                              onKeyDown={e => e.key === 'Enter' && handleSetMeal(day.date, meal.value)}
-                            />
-                            <input
-                              placeholder="Notes (optionnel)"
-                              value={mealNotes}
-                              onChange={e => setMealNotes(e.target.value)}
-                            />
-                            <div className="meal-form-actions">
-                              <button onClick={() => { setAddingMeal(null); setMealContent(''); setMealNotes('') }}>Annuler</button>
-                              <button className="btn-save" onClick={() => handleSetMeal(day.date, meal.value)}>OK</button>
                             </div>
                           </div>
                         ) : (
