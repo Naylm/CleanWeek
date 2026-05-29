@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useShopping } from '../hooks/useShopping'
 import { useMeals } from '../hooks/useMeals'
 import './PlanningPage.css'
@@ -21,8 +20,7 @@ const MEAL_LABELS = {
 }
 
 export default function PlanningPage() {
-  const { user } = useCurrentUser()
-  const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping(user.id)
+  const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping()
   const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS } = useMeals()
   const [activeTab, setActiveTab] = useState('meals')
 
@@ -70,7 +68,7 @@ export default function PlanningPage() {
     if (existing) {
       await updateMeal(existing.id, { content: mealContent.trim(), notes: mealNotes.trim() || undefined })
     } else {
-      await setMeal({ date, meal, content: mealContent.trim(), notes: mealNotes.trim() || undefined, created_by: user.id })
+      await setMeal({ date, meal, content: mealContent.trim(), notes: mealNotes.trim() || undefined })
     }
     setAddingMeal(null)
     setMealContent('')

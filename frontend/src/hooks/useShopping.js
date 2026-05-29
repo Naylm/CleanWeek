@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
 
-export function useShopping(userId) {
+export function useShopping() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -23,7 +23,7 @@ export function useShopping(userId) {
 
   async function addItem(item) {
     try {
-      await api.post('/shopping', { ...item, added_by: userId })
+      await api.post('/shopping', item)
       fetchItems()
       return true
     } catch (err) {
