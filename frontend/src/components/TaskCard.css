@@ -128,3 +128,77 @@
   color: white;
   flex-shrink: 0;
 }
+
+.task-done-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.task-reactions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.task-reaction {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.reaction-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.reaction-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+}
+
+.reaction-btn.active {
+  background: rgba(108, 99, 255, 0.2);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-size: 13px;
+}
+
+.reaction-picker-wrap {
+  position: relative;
+}
+
+.emoji-picker {
+  position: absolute;
+  right: 0;
+  top: 28px;
+  z-index: 10;
+  display: flex;
+  gap: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  box-shadow: var(--shadow);
+}
+
+.emoji-picker button {
+  font-size: 18px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.emoji-picker button:hover {
+  background: rgba(255,255,255,0.1);
+}

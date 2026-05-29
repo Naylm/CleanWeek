@@ -45,6 +45,15 @@ function init() {
       subscription TEXT NOT NULL,
       created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
+
+    CREATE TABLE IF NOT EXISTS reactions (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      completion_id TEXT NOT NULL REFERENCES completions(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL,
+      emoji TEXT NOT NULL,
+      created_at INTEGER DEFAULT (unixepoch() * 1000),
+      UNIQUE(completion_id, user_id)
+    );
   `)
 
   // Insert default profiles if not exists

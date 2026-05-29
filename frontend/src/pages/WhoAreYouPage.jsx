@@ -1,15 +1,13 @@
-import { useState, useEffect } from 'react'
 import { useCurrentUser } from '../hooks/useCurrentUser'
-import { api } from '../lib/api'
 import './WhoAreYouPage.css'
+
+const PROFILES = [
+  { id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', display_name: 'Laura', avatar_color: '#FF6584' },
+  { id: 'b2c3d4e5-f6a7-8901-bcde-f12345678901', display_name: 'Melvin', avatar_color: '#6C63FF' },
+]
 
 export default function WhoAreYouPage() {
   const { selectUser } = useCurrentUser()
-  const [profiles, setProfiles] = useState([])
-
-  useEffect(() => {
-    api.get('/profiles').then(setProfiles).catch(() => {})
-  }, [])
 
   return (
     <div className="who-page">
@@ -22,7 +20,7 @@ export default function WhoAreYouPage() {
         </div>
 
         <div className="who-buttons">
-          {profiles.map(profile => (
+          {PROFILES.map(profile => (
             <button
               key={profile.id}
               className="who-btn"
@@ -30,7 +28,7 @@ export default function WhoAreYouPage() {
               onClick={() => selectUser(profile.id)}
             >
               <span className="who-avatar" style={{ background: profile.avatar_color }}>
-                {profile.display_name?.slice(0, 1)?.toUpperCase()}
+                {profile.display_name.slice(0, 1)}
               </span>
               <span className="who-name">{profile.display_name}</span>
             </button>

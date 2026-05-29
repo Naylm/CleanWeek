@@ -9,7 +9,7 @@ import './TasksPage.css'
 
 export default function TasksPage() {
   const { user } = useCurrentUser()
-  const { tasks, loading, completeTask, uncompleteTask, addTask, deleteTask } = useTasks(user.id)
+  const { tasks, loading, completeTask, uncompleteTask, addTask, deleteTask, react, unreact } = useTasks(user.id)
   const { allProfiles } = useProfile(user.id)
   const [showAdd, setShowAdd] = useState(false)
   const [filterCategory, setFilterCategory] = useState('all')
@@ -91,6 +91,8 @@ export default function TasksPage() {
                 onComplete={completeTask}
                 onUncomplete={uncompleteTask}
                 onDelete={deleteTask}
+                onReact={react}
+                onUnreact={unreact}
               />
             ))}
           </div>
@@ -109,7 +111,7 @@ export default function TasksPage() {
   )
 }
 
-function SwipeableTask({ task, userId, allProfiles, onComplete, onUncomplete, onDelete }) {
+function SwipeableTask({ task, userId, allProfiles, onComplete, onUncomplete, onDelete, onReact, onUnreact }) {
   const [showDelete, setShowDelete] = useState(false)
 
   return (
@@ -120,6 +122,8 @@ function SwipeableTask({ task, userId, allProfiles, onComplete, onUncomplete, on
         allProfiles={allProfiles}
         onComplete={onComplete}
         onUncomplete={onUncomplete}
+        onReact={onReact}
+        onUnreact={onUnreact}
       />
       <button
         className="task-delete-btn"

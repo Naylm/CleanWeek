@@ -41,7 +41,19 @@ app.get('/api/tasks', (_req, res) => {
     JOIN profiles p ON p.id = c.completed_by
     ORDER BY c.completed_at DESC
   `).all()
-  res.json(tasks.map(t => ({ ...t, completions: completions.filter(c => c.task_id === t.id) })))
+  const reactions = db.prepare(`
+    SELECT r.id, r.completion_id, r.user_id, r.emoji,
+           p.display_name, p.avatar_color
+    FROM reactions r
+    JOIN profiles p ON p.id = r.user_id
+  `).all()
+  res.json(tasks.map(t => ({
+    ...t,
+    completions: completions.filter(c => c.task_id === t.id).map(c => ({
+      ...c,
+      reactions: reactions.filter(r => r.completion_id === c.id)
+    }))
+  })))
 })
 
 app.post('/api/tasks', (req, res) => {
@@ -79,6 +91,30 @@ app.post('/api/completions', (req, res) => {
 
 app.delete('/api/completions/:id', (req, res) => {
   db.prepare('DELETE FROM completions WHERE id = ?').run(req.params.id)
+  res.json({ ok: true })
+})
+
+app.post('/api/reactions', (req, res) => {
+  const { completion_id, user_id, emoji } = req.body
+  if (!completion_id || !user_id || !emoji) {
+    return res.status(400).json({ error: 'missing fields' })
+  }
+  try {
+    db.prepare('INSERT INTO reactions (completion_id, user_id, emoji) VALUES (?, ?, ?)')
+      .run(completion_id, user_id, emoji)
+    res.status(201).json({ ok: true })
+  } catch (err) {
+    res.status(409).json({ error: 'Already reacted' })
+  }
+})
+
+app.delete('/api/reactions', (req, res) => {
+  const { completion_id, user_id } = req.body
+  if (!completion_id || !user_id) {
+    return res.status(400).json({ error: 'missing fields' })
+  }
+  db.prepare('DELETE FROM reactions WHERE completion_id = ? AND user_id = ?')
+    .run(completion_id, user_id)
   res.json({ ok: true })
 })
 

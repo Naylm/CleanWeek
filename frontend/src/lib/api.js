@@ -26,8 +26,13 @@ async function patch(path, body) {
   return r.json()
 }
 
-async function del(path) {
-  const r = await fetch(API_BASE + path, { method: 'DELETE' })
+async function del(path, body) {
+  const opts = { method: 'DELETE' }
+  if (body) {
+    opts.headers = { 'Content-Type': 'application/json' }
+    opts.body = JSON.stringify(body)
+  }
+  const r = await fetch(API_BASE + path, opts)
   if (!r.ok) throw new Error(await r.text())
   return r.json()
 }

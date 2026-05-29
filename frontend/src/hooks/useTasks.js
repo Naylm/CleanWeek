@@ -81,5 +81,34 @@ export function useTasks(userId) {
     }
   }
 
-  return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, refetch: fetchTasks }
+  async function react(completionId, emoji) {
+    try {
+      await api.post('/reactions', {
+        completion_id: completionId,
+        user_id: userId,
+        emoji,
+      })
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to react:', err)
+      return false
+    }
+  }
+
+  async function unreact(completionId) {
+    try {
+      await api.del('/reactions', {
+        completion_id: completionId,
+        user_id: userId,
+      })
+      fetchTasks()
+      return true
+    } catch (err) {
+      console.error('Failed to unreact:', err)
+      return false
+    }
+  }
+
+  return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, react, unreact, refetch: fetchTasks }
 }
