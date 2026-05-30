@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { api } from '../lib/api'
+
+const API_URL = import.meta.env.VITE_API_URL || ''
 
 export function useTasks() {
   const [tasks, setTasks] = useState([])
@@ -7,75 +8,88 @@ export function useTasks() {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const data = await api.get('/tasks')
+      const res = await fetch(`${API_URL}/api/tasks`)
+      if (!res.ok) throw new Error('Failed to fetch')
+      const data = await res.json()
       setTasks(data)
     } catch (err) {
-      console.error('Failed to fetch tasks:', err)
+      console.error('Error fetching tasks:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   useEffect(() => {
     fetchTasks()
-    const interval = setInterval(fetchTasks, 30000)
-    return () => clearInterval(interval)
   }, [fetchTasks])
 
-  async function completeTask(taskId) {
+  const addTask = useCallback(async (taskData) => {
+    const res = await fetch(`${API_URL}/api/tasks`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(taskData),
+    })
+    if (!res.ok) throw new Error('Failed to add task')
+    await fetchTasks()
+  }, [fetchTasks])
+
+  const updateTask = useCallback(async (id, updates) => {
+    const res = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    })
+    if (!res.ok) throw new Error('Failed to update task')
+    await fetchTasks()
+  }, [fetchTasks])
+
+  const deleteTask = useCallback(async (id) => {
+    const res = await fetch(`${API_URL}/api/tasks/${id}`, {
+      method: 'DELETE',
+    })
+    if (!res.ok) throw new Error('Failed to delete task')
+    await fetchTasks()
+  }, [fetchTasks])
+
+  const completeTask = useCallback(async (taskId) => {
     const today = new Date().toISOString().split('T')[0]
-    try {
-      await api.post('/completions', { task_id: taskId, completed_at: today })
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to complete task:', err)
-      return false
-    }
-  }
+    const res = await fetch(`${API_URL}/api/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_id: taskId, completed_at: today }),
+    })
+    if (!res.ok) throw new Error('Failed to complete task')
+    await fetchTasks()
+  }, [fetchTasks])
 
-  async function uncompleteTask(completionId) {
-    try {
-      await api.del(`/completions/${completionId}`)
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to uncomplete task:', err)
-      return false
-    }
-  }
+  const uncompleteTask = useCallback(async (completionId) => {
+    const res = await fetch(`${API_URL}/api/completions/${completionId}`, {
+      method: 'DELETE',
+    })
+    if (!res.ok) throw new Error('Failed to uncomplete task')
+    await fetchTasks()
+  }, [fetchTasks])
 
-  async function addTask(task) {
-    try {
-      await api.post('/tasks', task)
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to add task:', err)
-      return false
-    }
-  }
+  // Snooze (postpone) a task
+  const snoozeTask = useCallback(async (taskId, days = 1) => {
+    const res = await fetch(`${API_URL}/api/tasks/${taskId}/snooze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days }),
+    })
+    if (!res.ok) throw new Error('Failed to snooze task')
+    await fetchTasks()
+  }, [fetchTasks])
 
-  async function updateTask(id, updates) {
-    try {
-      await api.patch(`/tasks/${id}`, updates)
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to update task:', err)
-      return false
-    }
+  return {
+    tasks,
+    loading,
+    addTask,
+    updateTask,
+    deleteTask,
+    completeTask,
+    uncompleteTask,
+    snoozeTask,
+    refresh: fetchTasks,
   }
-
-  async function deleteTask(id) {
-    try {
-      await api.del(`/tasks/${id}`)
-      fetchTasks()
-      return true
-    } catch (err) {
-      console.error('Failed to delete task:', err)
-      return false
-    }
-  }
-
-  return { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask, refetch: fetchTasks }
 }

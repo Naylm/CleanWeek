@@ -7,7 +7,7 @@ import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays } from '../li
 import './HomePage.css'
 
 export default function HomePage() {
-  const { tasks, loading: tasksLoading, completeTask, uncompleteTask } = useTasks()
+  const { tasks, loading: tasksLoading, completeTask, snoozeTask } = useTasks()
   const { plans, loading: mealsLoading } = useMeals()
   const { settings, loading: settingsLoading, getPeriodLabel } = useWeekSettings()
 
@@ -22,6 +22,7 @@ export default function HomePage() {
   }, [settings])
 
   const dateStr = referenceDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+  const todayStr = referenceDate.toISOString().split('T')[0]
 
   // Tâches du jour triées par urgence
   const todayTasks = useMemo(() => {
@@ -29,17 +30,21 @@ export default function HomePage() {
     return sortTasksByUrgency(dueTasks)
   }, [tasks, referenceDate])
 
-  // Tâches à venir triées par urgence
+  // Tâches à venir (inclut les fraîchement faites avec barre à 0%)
   const upcomingTasks = useMemo(() => {
     const futureTasks = tasks.filter(t => {
+      // Vérifier si la tâche a été faite aujourd'hui
+      const doneToday = t.completions?.some(c => c.completed_at === todayStr)
+      // Si faite aujourd'hui, elle va dans "À venir" avec barre à 0%
+      if (doneToday) return true
+      // Sinon, inclure si pas encore dûe
       const daysSince = getDaysSinceLastDone(t, referenceDate)
       const intervalDays = getTaskIntervalDays(t)
-      return daysSince < intervalDays // Pas encore en retard
+      return daysSince < intervalDays && !isTaskDueToday(t, referenceDate)
     })
     return sortTasksByUrgency(futureTasks).slice(0, 5)
-  }, [tasks, referenceDate])
+  }, [tasks, referenceDate, todayStr])
 
-  const todayStr = referenceDate.toISOString().split('T')[0]
   const todayDone = todayTasks.filter(t => {
     return t.completions?.some(c => c.completed_at === todayStr)
   })
@@ -53,10 +58,8 @@ export default function HomePage() {
 
   // Handler pour reporter une tâche
   const handleSnooze = useCallback((taskId, days) => {
-    // Créer une fausse completion avec une date future pour "reporter"
-    // Ou utiliser une logique personnalisée
-    console.log(`Task ${taskId} snoozed for ${days} days`)
-  }, [])
+    snoozeTask(taskId, days)
+  }, [snoozeTask])
 
   if (tasksLoading || mealsLoading || settingsLoading) {
     return <div className="page-loading"><div className="spinner" /></div>

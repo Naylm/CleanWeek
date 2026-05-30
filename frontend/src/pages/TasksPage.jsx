@@ -6,7 +6,7 @@ import { CATEGORIES } from '../lib/taskUtils'
 import './TasksPage.css'
 
 export default function TasksPage() {
-  const { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask } = useTasks()
+  const { tasks, loading, completeTask, snoozeTask, addTask, updateTask, deleteTask } = useTasks()
   const [showAdd, setShowAdd] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
@@ -35,8 +35,7 @@ export default function TasksPage() {
   }
 
   function handleSnooze(taskId, days) {
-    // Pour l'instant, on log seulement (à implémenter selon ta logique)
-    console.log(`Task ${taskId} snoozed for ${days} days`)
+    snoozeTask(taskId, days)
   }
 
   if (loading) {

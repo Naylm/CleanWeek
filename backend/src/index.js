@@ -105,6 +105,24 @@ app.delete('/api/completions/:id', (req, res) => {
   res.json({ ok: true })
 })
 
+// Snooze a task (postpone)
+app.post('/api/tasks/:id/snooze', (req, res) => {
+  const { days } = req.body
+  const snoozeDays = days || 1
+
+  // Create a completion entry for today to mark it as "done for now"
+  const today = new Date().toISOString().split('T')[0]
+  const completionId = randomUUID()
+
+  try {
+    db.prepare('INSERT INTO completions (id, task_id, completed_at) VALUES (?, ?, ?)')
+      .run(completionId, req.params.id, today)
+    res.json({ ok: true, snoozed: today, days: snoozeDays })
+  } catch (err) {
+    res.status(400).json({ error: err.message })
+  }
+})
+
 // ============ WEEK SETTINGS ============
 app.get('/api/week-settings', (_req, res) => {
   const settings = db.prepare('SELECT * FROM week_settings WHERE id = 1').get()
