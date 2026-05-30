@@ -17,7 +17,17 @@
 }
 
 .task-card.upcoming {
-  opacity: 0.7;
+  opacity: 0.95;
+}
+
+.task-card.upcoming .task-meta {
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.task-card.upcoming .countdown-timer {
+  margin-top: 6px;
 }
 
 .task-check {

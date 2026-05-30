@@ -1,9 +1,12 @@
 import { useMemo } from 'react'
-import { getCategoryIcon, formatNextDue, isTaskDueToday, getIntervalLabel } from '../lib/taskUtils'
+import { getCategoryIcon, formatNextDue, isTaskDueToday, getIntervalLabel, getNextDueDate } from '../lib/taskUtils'
+import CountdownTimer from './CountdownTimer'
+import { useNotifications } from '../hooks/useNotifications'
 import './TaskCard.css'
 
 export default function TaskCard({ task, onComplete, onUncomplete, upcoming = false, referenceDate = new Date() }) {
   const todayStr = referenceDate.toISOString().split('T')[0]
+  const { notifyTask } = useNotifications()
 
   const todayCompletion = useMemo(() => {
     return task.completions?.find(c => c.completed_at === todayStr) || null
@@ -11,12 +14,26 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
 
   const isDone = !!todayCompletion
 
+  // Get next due date for countdown
+  const nextDueDate = useMemo(() => {
+    if (!upcoming) return null
+    return getNextDueDate(task, referenceDate)
+  }, [task, upcoming, referenceDate])
+
   async function handleToggle() {
     if (isDone) {
       await onUncomplete(todayCompletion.id)
     } else {
       await onComplete(task.id)
     }
+  }
+
+  function handleNotify(notification) {
+    notifyTask({
+      taskName: task.name,
+      message: notification.message,
+      level: notification.level
+    })
   }
 
   return (
@@ -36,8 +53,12 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
           <span className={`task-name${isDone ? ' task-name-done' : ''}`}>{task.name}</span>
         </div>
         <div className="task-meta">
-          {upcoming ? (
-            <span className="task-due">{formatNextDue(task, referenceDate)}</span>
+          {upcoming && nextDueDate ? (
+            <CountdownTimer
+              dueDate={nextDueDate}
+              taskName={task.name}
+              onNotify={handleNotify}
+            />
           ) : (
             <span className={`task-freq ${task.frequency}${task.custom_interval_enabled ? ' custom' : ''}`}>
               {getIntervalLabel(task)}

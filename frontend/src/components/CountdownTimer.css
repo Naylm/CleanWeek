@@ -1,0 +1,124 @@
+.countdown-timer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.countdown-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.countdown-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+  position: relative;
+}
+
+.countdown-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.3));
+  border-radius: 0 2px 2px 0;
+}
+
+.countdown-text {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+/* Normal - Vert (beaucoup de temps) */
+.countdown-timer.normal .countdown-bar-fill {
+  background: linear-gradient(90deg, #98D8C8 0%, #7BC4A8 100%);
+  box-shadow: 0 0 8px rgba(152, 216, 200, 0.4);
+}
+.countdown-timer.normal .countdown-text {
+  color: #5DA682;
+}
+
+/* Caution - Jaune/Orange (3 jours) */
+.countdown-timer.caution .countdown-bar-fill {
+  background: linear-gradient(90deg, #FFD97D 0%, #FFC94D 100%);
+  box-shadow: 0 0 8px rgba(255, 217, 125, 0.4);
+}
+.countdown-timer.caution .countdown-text {
+  color: #D4A83A;
+}
+
+/* Warning - Orange (2 jours) */
+.countdown-timer.warning .countdown-bar-fill {
+  background: linear-gradient(90deg, #FFB347 0%, #FF8C42 100%);
+  box-shadow: 0 0 10px rgba(255, 179, 71, 0.5);
+}
+.countdown-timer.warning .countdown-text {
+  color: #E67E22;
+}
+
+/* Urgent - Rouge (demain) */
+.countdown-timer.urgent .countdown-bar-fill {
+  background: linear-gradient(90deg, #FF6B6B 0%, #FF4757 100%);
+  box-shadow: 0 0 12px rgba(255, 107, 107, 0.6);
+  animation: pulse-urgent 1.5s ease-in-out infinite;
+}
+.countdown-timer.urgent .countdown-text {
+  color: #FF4757;
+  font-weight: 700;
+  animation: text-pulse 1.5s ease-in-out infinite;
+}
+
+/* Overdue - Rouge foncé clignotant (dépassé) */
+.countdown-timer.overdue .countdown-bar-fill {
+  background: linear-gradient(90deg, #FF4757 0%, #C44569 100%);
+  box-shadow: 0 0 15px rgba(255, 71, 87, 0.8);
+  animation: pulse-overdue 0.8s ease-in-out infinite;
+}
+.countdown-timer.overdue .countdown-text {
+  color: #C44569;
+  font-weight: 700;
+  animation: text-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; box-shadow: 0 0 12px rgba(255, 107, 107, 0.6); }
+  50% { opacity: 0.85; box-shadow: 0 0 20px rgba(255, 107, 107, 0.9); }
+}
+
+@keyframes pulse-overdue {
+  0%, 100% { opacity: 1; box-shadow: 0 0 15px rgba(255, 71, 87, 0.8); }
+  50% { opacity: 0.7; box-shadow: 0 0 25px rgba(255, 71, 87, 1); }
+}
+
+@keyframes text-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Compact mode for task cards */
+.countdown-timer.compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.countdown-timer.compact .countdown-bar-bg {
+  flex: 1;
+  height: 3px;
+}
+
+.countdown-timer.compact .countdown-text {
+  font-size: 10px;
+  min-width: 50px;
+  text-align: right;
+}
