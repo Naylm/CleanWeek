@@ -235,3 +235,61 @@ export function getIntervalLabel(task) {
 
   return FREQUENCIES.find(f => f.value === task.frequency)?.label || task.frequency
 }
+
+/**
+ * Calcule le nombre de jours ecoules depuis la derniere execution d'une tache.
+ * Retourne 0 si jamais fait.
+ */
+export function getDaysSinceLastDone(task, referenceDate = new Date()) {
+  const lastCompletion = task.completions?.length
+    ? task.completions.reduce((latest, c) => {
+        const d = new Date(c.completed_at)
+        return d > latest ? d : latest
+      }, new Date(0))
+    : null
+
+  if (!lastCompletion || lastCompletion.getTime() === 0) {
+    // Jamais fait - considerer comme "fraichement cree" ou calculer depuis creation
+    const createdAt = new Date(task.created_at)
+    return Math.max(0, differenceInDays(startOfDay(referenceDate), startOfDay(createdAt)))
+  }
+
+  return Math.max(0, differenceInDays(startOfDay(referenceDate), startOfDay(lastCompletion)))
+}
+
+/**
+ * Retourne l'intervalle en jours pour une tache selon sa frequence.
+ */
+export function getTaskIntervalDays(task) {
+  // Si intervalle personnalise
+  if (task.custom_interval_enabled && task.customInterval) {
+    const interval = task.customInterval
+
+    if (interval.interval_type === 'days_of_week' && interval.days_of_week) {
+      const days = JSON.parse(interval.days_of_week)
+      // Calculer l'intervalle moyen entre les jours selectionnes
+      if (days.length === 1) return 7 // Une fois par semaine
+      if (days.length === 2) return 3 // Deux fois par semaine ~ tous les 3-4 jours
+      if (days.length >= 3) return 2 // Plusieurs fois par semaine
+      return 7
+    }
+
+    if (interval.interval_type === 'month_interval' && interval.month_interval) {
+      return parseInt(interval.month_interval) * 30 // Approximation en jours
+    }
+  }
+
+  // Frequence standard
+  switch (task.frequency) {
+    case 'daily':
+      return 1
+    case 'weekly':
+      return 7
+    case 'biweekly':
+      return 14
+    case 'monthly':
+      return 30
+    default:
+      return 7
+  }
+}

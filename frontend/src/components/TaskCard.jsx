@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
-import { getCategoryIcon, formatNextDue, isTaskDueToday, getIntervalLabel, getNextDueDate } from '../lib/taskUtils'
-import CountdownTimer from './CountdownTimer'
+import { getCategoryIcon, isTaskDueToday, getIntervalLabel } from '../lib/taskUtils'
+import SweepyBar from './SweepyBar'
 import { useNotifications } from '../hooks/useNotifications'
 import './TaskCard.css'
 
-export default function TaskCard({ task, onComplete, onUncomplete, upcoming = false, referenceDate = new Date() }) {
+export default function TaskCard({ task, onComplete, onUncomplete, showProgress = true, referenceDate = new Date() }) {
   const todayStr = referenceDate.toISOString().split('T')[0]
   const { notifyTask } = useNotifications()
 
@@ -13,12 +13,7 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
   }, [task.completions, todayStr])
 
   const isDone = !!todayCompletion
-
-  // Get next due date for countdown
-  const nextDueDate = useMemo(() => {
-    if (!upcoming) return null
-    return getNextDueDate(task, referenceDate)
-  }, [task, upcoming, referenceDate])
+  const isDue = isTaskDueToday(task, referenceDate)
 
   async function handleToggle() {
     if (isDone) {
@@ -37,12 +32,11 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
   }
 
   return (
-    <div className={`task-card${isDone ? ' done' : ''}${upcoming ? ' upcoming' : ''}`}>
+    <div className={`task-card${isDone ? ' done' : ''}${isDue ? ' due' : ''}`}>
       <button
         className={`task-check${isDone ? ' checked' : ''}`}
         onClick={handleToggle}
         aria-label={isDone ? 'Marquer non fait' : 'Marquer fait'}
-        disabled={upcoming}
       >
         {isDone && <CheckIcon />}
       </button>
@@ -53,10 +47,9 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
           <span className={`task-name${isDone ? ' task-name-done' : ''}`}>{task.name}</span>
         </div>
         <div className="task-meta">
-          {upcoming && nextDueDate ? (
-            <CountdownTimer
-              dueDate={nextDueDate}
-              taskName={task.name}
+          {showProgress ? (
+            <SweepyBar
+              task={task}
               onNotify={handleNotify}
             />
           ) : (

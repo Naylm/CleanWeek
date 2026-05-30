@@ -1,0 +1,145 @@
+.sweepy-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+.sweepy-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sweepy-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+}
+
+.sweepy-text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sweepy-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sweepy-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+  position: relative;
+}
+
+.sweepy-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4));
+  border-radius: 0 4px 4px 0;
+}
+
+/* Normal - Vert (0-30%)
+   Fraîchement fait, tout va bien */
+.sweepy-bar.normal .sweepy-fill {
+  background: linear-gradient(90deg, #98D8C8 0%, #7BC4A8 100%);
+}
+.sweepy-bar.normal .sweepy-text {
+  color: #5DA682;
+}
+
+/* Caution - Jaune (30-60%)
+   Ça commence à dater */
+.sweepy-bar.caution .sweepy-fill {
+  background: linear-gradient(90deg, #FFD97D 0%, #FFC94D 100%);
+}
+.sweepy-bar.caution .sweepy-text {
+  color: #D4A83A;
+}
+
+/* Warning - Orange (60-90%)
+   Il faut bientôt le faire */
+.sweepy-bar.warning .sweepy-fill {
+  background: linear-gradient(90deg, #FFB347 0%, #FF8C42 100%);
+}
+.sweepy-bar.warning .sweepy-text {
+  color: #E67E22;
+}
+
+/* Urgent - Rouge (90-100%)
+   Échéance imminente */
+.sweepy-bar.urgent .sweepy-fill {
+  background: linear-gradient(90deg, #FF6B6B 0%, #FF4757 100%);
+  animation: pulse-urgent 1.5s ease-in-out infinite;
+}
+.sweepy-bar.urgent .sweepy-text {
+  color: #FF4757;
+  font-weight: 700;
+}
+.sweepy-bar.urgent .sweepy-label {
+  color: #FF4757;
+}
+
+/* Overdue - Rouge foncé clignotant (>100%)
+   EN RETARD ! */
+.sweepy-bar.overdue .sweepy-fill {
+  background: linear-gradient(90deg, #FF4757 0%, #C44569 100%);
+  animation: pulse-overdue 0.8s ease-in-out infinite;
+}
+.sweepy-bar.overdue .sweepy-text {
+  color: #C44569;
+  font-weight: 700;
+}
+.sweepy-bar.overdue .sweepy-label {
+  color: #C44569;
+  animation: text-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes pulse-urgent {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(255, 107, 107, 0.4); }
+  50% { opacity: 0.85; box-shadow: 0 0 15px rgba(255, 107, 107, 0.7); }
+}
+
+@keyframes pulse-overdue {
+  0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 71, 87, 0.6); }
+  50% { opacity: 0.7; box-shadow: 0 0 20px rgba(255, 71, 87, 0.9); }
+}
+
+@keyframes text-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* Compact mode for task cards */
+.sweepy-bar.compact {
+  padding: 4px 0;
+}
+
+.sweepy-bar.compact .sweepy-header {
+  margin-bottom: 2px;
+}
+
+.sweepy-bar.compact .sweepy-track {
+  height: 6px;
+}
+
+.sweepy-bar.compact .sweepy-label {
+  font-size: 8px;
+}
+
+.sweepy-bar.compact .sweepy-text {
+  font-size: 11px;
+}
