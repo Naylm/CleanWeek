@@ -27,23 +27,60 @@ app.get('/api/tasks', (_req, res) => {
     FROM completions c
     ORDER BY c.completed_at DESC
   `).all()
-  res.json(tasks.map(t => ({ ...t, completions: completions.filter(c => c.task_id === t.id) })))
+  const intervals = db.prepare('SELECT * FROM task_intervals').all()
+  res.json(tasks.map(t => ({
+    ...t,
+    completions: completions.filter(c => c.task_id === t.id),
+    customInterval: intervals.find(i => i.task_id === t.id) || null
+  })))
 })
 
 app.post('/api/tasks', (req, res) => {
-  const { name, category, frequency } = req.body
+  const { name, category, frequency, customInterval } = req.body
   if (!name?.trim()) return res.status(400).json({ error: 'name required' })
   const id = randomUUID()
-  db.prepare('INSERT INTO tasks (id, name, category, frequency) VALUES (?, ?, ?, ?)')
-    .run(id, name.trim(), category, frequency)
+  const customIntervalEnabled = customInterval && customInterval.enabled ? 1 : 0
+  db.prepare('INSERT INTO tasks (id, name, category, frequency, custom_interval_enabled) VALUES (?, ?, ?, ?, ?)')
+    .run(id, name.trim(), category, frequency, customIntervalEnabled)
+
+  // Save custom interval if enabled
+  if (customIntervalEnabled && customInterval) {
+    const intervalId = randomUUID()
+    db.prepare('INSERT INTO task_intervals (id, task_id, interval_type, days_of_week, month_interval) VALUES (?, ?, ?, ?, ?)')
+      .run(intervalId, id, customInterval.intervalType || 'frequency',
+        customInterval.daysOfWeek ? JSON.stringify(customInterval.daysOfWeek) : null,
+        customInterval.monthInterval || null)
+  }
+
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id)
   res.status(201).json(task)
 })
 
 app.patch('/api/tasks/:id', (req, res) => {
-  const { name, category, frequency } = req.body
-  db.prepare('UPDATE tasks SET name = COALESCE(?, name), category = COALESCE(?, category), frequency = COALESCE(?, frequency) WHERE id = ?')
-    .run(name, category, frequency, req.params.id)
+  const { name, category, frequency, customInterval } = req.body
+  const customIntervalEnabled = customInterval && customInterval.enabled ? 1 : 0
+
+  db.prepare('UPDATE tasks SET name = COALESCE(?, name), category = COALESCE(?, category), frequency = COALESCE(?, frequency), custom_interval_enabled = COALESCE(?, custom_interval_enabled) WHERE id = ?')
+    .run(name, category, frequency, customIntervalEnabled, req.params.id)
+
+  // Update or insert custom interval
+  if (customInterval) {
+    const existing = db.prepare('SELECT * FROM task_intervals WHERE task_id = ?').get(req.params.id)
+    if (existing) {
+      db.prepare('UPDATE task_intervals SET interval_type = COALESCE(?, interval_type), days_of_week = COALESCE(?, days_of_week), month_interval = COALESCE(?, month_interval) WHERE task_id = ?')
+        .run(customInterval.intervalType,
+          customInterval.daysOfWeek ? JSON.stringify(customInterval.daysOfWeek) : null,
+          customInterval.monthInterval || null,
+          req.params.id)
+    } else if (customIntervalEnabled) {
+      const intervalId = randomUUID()
+      db.prepare('INSERT INTO task_intervals (id, task_id, interval_type, days_of_week, month_interval) VALUES (?, ?, ?, ?, ?)')
+        .run(intervalId, req.params.id, customInterval.intervalType || 'frequency',
+          customInterval.daysOfWeek ? JSON.stringify(customInterval.daysOfWeek) : null,
+          customInterval.monthInterval || null)
+    }
+  }
+
   res.json({ ok: true })
 })
 
@@ -66,6 +103,35 @@ app.post('/api/completions', (req, res) => {
 app.delete('/api/completions/:id', (req, res) => {
   db.prepare('DELETE FROM completions WHERE id = ?').run(req.params.id)
   res.json({ ok: true })
+})
+
+// ============ WEEK SETTINGS ============
+app.get('/api/week-settings', (_req, res) => {
+  const settings = db.prepare('SELECT * FROM week_settings WHERE id = 1').get()
+  if (!settings) {
+    db.prepare('INSERT INTO week_settings (id, start_day_of_week, current_week_offset) VALUES (1, 5, 0)').run()
+    const newSettings = db.prepare('SELECT * FROM week_settings WHERE id = 1').get()
+    return res.json(newSettings)
+  }
+  res.json(settings)
+})
+
+app.patch('/api/week-settings', (req, res) => {
+  const { startDayOfWeek, weekStartDate, currentWeekOffset } = req.body
+  db.prepare(`
+    UPDATE week_settings
+    SET start_day_of_week = COALESCE(?, start_day_of_week),
+        week_start_date = COALESCE(?, week_start_date),
+        current_week_offset = COALESCE(?, current_week_offset),
+        updated_at = (unixepoch() * 1000)
+    WHERE id = 1
+  `).run(
+    startDayOfWeek !== undefined ? startDayOfWeek : null,
+    weekStartDate || null,
+    currentWeekOffset !== undefined ? currentWeekOffset : null
+  )
+  const settings = db.prepare('SELECT * FROM week_settings WHERE id = 1').get()
+  res.json(settings)
 })
 
 // ============ SHOPPING ============

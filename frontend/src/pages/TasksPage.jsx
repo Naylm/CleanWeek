@@ -2,18 +2,33 @@ import { useState } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import TaskCard from '../components/TaskCard'
 import AddTaskModal from '../components/AddTaskModal'
-import { CATEGORIES } from '../lib/taskUtils'
+import { CATEGORIES, getIntervalLabel } from '../lib/taskUtils'
 import './TasksPage.css'
 
 export default function TasksPage() {
-  const { tasks, loading, completeTask, uncompleteTask, addTask, deleteTask } = useTasks()
+  const { tasks, loading, completeTask, uncompleteTask, addTask, updateTask, deleteTask } = useTasks()
   const [showAdd, setShowAdd] = useState(false)
+  const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
 
   const filtered = tasks.filter(t => {
     if (filterCategory !== 'all' && t.category !== filterCategory) return false
     return true
   })
+
+  async function handleAddOrUpdate(taskData, taskId) {
+    if (taskId) {
+      await updateTask(taskId, taskData)
+      setEditingTask(null)
+    } else {
+      await addTask(taskData)
+      setShowAdd(false)
+    }
+  }
+
+  function handleEditTask(task) {
+    setEditingTask(task)
+  }
 
   if (loading) {
     return <div className="page-loading"><div className="spinner" /></div>
@@ -64,24 +79,27 @@ export default function TasksPage() {
                 onComplete={completeTask}
                 onUncomplete={uncompleteTask}
                 onDelete={deleteTask}
+                onEdit={handleEditTask}
               />
             ))}
           </div>
         )}
       </div>
 
-      {showAdd && (
+      {(showAdd || editingTask) && (
         <AddTaskModal
-          onAdd={addTask}
-          onClose={() => setShowAdd(false)}
+          onAdd={handleAddOrUpdate}
+          onClose={() => { setShowAdd(false); setEditingTask(null) }}
+          initialTask={editingTask}
         />
       )}
     </div>
   )
 }
 
-function SwipeableTask({ task, onComplete, onUncomplete, onDelete }) {
+function SwipeableTask({ task, onComplete, onUncomplete, onDelete, onEdit }) {
   const [showDelete, setShowDelete] = useState(false)
+  const [showActions, setShowActions] = useState(false)
 
   return (
     <div className="swipeable-task">
@@ -90,17 +108,26 @@ function SwipeableTask({ task, onComplete, onUncomplete, onDelete }) {
         onComplete={onComplete}
         onUncomplete={onUncomplete}
       />
-      <button
-        className="task-delete-btn"
-        onClick={() => {
-          if (showDelete) onDelete(task.id)
-          else setShowDelete(true)
-        }}
-        onBlur={() => setShowDelete(false)}
-        title={showDelete ? 'Confirmer suppression' : 'Supprimer'}
-      >
-        {showDelete ? '✓' : '🗑'}
-      </button>
+      <div className={`task-actions${showActions ? ' visible' : ''}`}>
+        <button
+          className="task-edit-btn"
+          onClick={() => onEdit(task)}
+          title="Modifier"
+        >
+          ✎
+        </button>
+        <button
+          className="task-delete-btn"
+          onClick={() => {
+            if (showDelete) onDelete(task.id)
+            else setShowDelete(true)
+          }}
+          onBlur={() => setTimeout(() => setShowDelete(false), 200)}
+          title={showDelete ? 'Confirmer suppression' : 'Supprimer'}
+        >
+          {showDelete ? '✓' : '🗑'}
+        </button>
+      </div>
     </div>
   )
 }

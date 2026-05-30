@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useShopping } from '../hooks/useShopping'
 import { useMeals } from '../hooks/useMeals'
+import { useWeekSettings } from '../hooks/useWeekSettings'
 import './PlanningPage.css'
 
 const SHOP_CATEGORIES = [
@@ -22,6 +23,7 @@ const MEAL_LABELS = {
 export default function PlanningPage() {
   const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping()
   const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS } = useMeals()
+  const { settings, loading: loadingSettings, getWeekDays, getPeriodLabel, goToPreviousWeek, goToNextWeek, goToCurrentWeek } = useWeekSettings()
   const [activeTab, setActiveTab] = useState('meals')
 
   const [newItemName, setNewItemName] = useState('')
@@ -31,19 +33,11 @@ export default function PlanningPage() {
   const [mealNotes, setMealNotes] = useState('')
   const [swappingMealId, setSwappingMealId] = useState(null)
 
+  // Utiliser les jours de semaine depuis les paramètres
   const weekDays = useMemo(() => {
-    const days = []
-    for (let i = 0; i < 9; i++) {
-      const d = new Date()
-      d.setDate(d.getDate() + i)
-      days.push({
-        date: d.toISOString().split('T')[0],
-        label: d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric' }),
-        isToday: i === 0,
-      })
-    }
-    return days
-  }, [])
+    if (loadingSettings || !settings) return []
+    return getWeekDays(9)
+  }, [settings, getWeekDays, loadingSettings])
 
   const groupedItems = useMemo(() => {
     const byCat = {}
@@ -79,7 +73,7 @@ export default function PlanningPage() {
     return plans.find(p => p.date === date && p.meal === meal)
   }
 
-  if (loadingShop || loadingMeals) {
+  if (loadingShop || loadingMeals || loadingSettings) {
     return <div className="page-loading"><div className="spinner" /></div>
   }
 
@@ -87,6 +81,13 @@ export default function PlanningPage() {
     <div className="planning-page">
       <header className="planning-header">
         <h1>Planning</h1>
+        <div className="week-navigation">
+          <button className="week-nav-btn" onClick={goToPreviousWeek} title="Semaine précédente">←</button>
+          <button className="week-current-btn" onClick={goToCurrentWeek}>
+            {getPeriodLabel()}
+          </button>
+          <button className="week-nav-btn" onClick={goToNextWeek} title="Semaine suivante">→</button>
+        </div>
         <div className="planning-tabs">
           <button className={activeTab === 'meals' ? 'active' : ''} onClick={() => setActiveTab('meals')}>
             Menus 🍽️
@@ -195,110 +196,89 @@ export default function PlanningPage() {
                 const m = getMeal(day.date, meal.value)
                 return m && !m.shopping_done ? { ...m, dayLabel: day.label, isToday: day.isToday, mealLabel: meal.label } : null
               }).filter(Boolean)
-            )
+            ).slice(0, 3)
+
             if (pendingMeals.length === 0) return null
+
             return (
-              <div className="pending-meals">
-                <h3 className="pending-meals-title">Repas à prévoir 🍽️</h3>
-                <div className="pending-meals-list">
-                  {pendingMeals.map(m => (
-                    <div key={m.id} className={`pending-meal${m.isToday ? ' urgent' : ''}`}>
-                      <div className="pending-meal-info">
-                        <span className="pending-meal-day">{m.dayLabel} — {m.mealLabel}</span>
-                        <span className="pending-meal-content">{m.content}</span>
-                        {m.notes && <span className="pending-meal-notes">{m.notes}</span>}
-                      </div>
-                      {m.isToday && <span className="urgent-badge">Ce soir</span>}
-                    </div>
+              <div className="shop-meals-banner">
+                <span>🍽️ À prévoir :</span>
+                <div className="shop-meals-list">
+                  {pendingMeals.map((m, i) => (
+                    <span key={i} className={m.isToday ? 'today' : ''}>
+                      {m.dayLabel} {m.mealLabel.toLowerCase()}: <strong>{m.content}</strong>
+                    </span>
                   ))}
                 </div>
               </div>
             )
           })()}
 
-          <form className="shop-add-form" onSubmit={handleAddItem}>
+          {/* Formulaire d'ajout */}
+          <form className="shop-form" onSubmit={handleAddItem}>
             <input
-              type="text"
-              placeholder="Ajouter un article..."
               value={newItemName}
               onChange={e => setNewItemName(e.target.value)}
-              autoFocus
+              placeholder="Ajouter un article..."
             />
             <select value={newItemCategory} onChange={e => setNewItemCategory(e.target.value)}>
-              {SHOP_CATEGORIES.map(c => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
+              {SHOP_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
-            <button type="submit" className="btn-primary-sm">+</button>
+            <button type="submit" disabled={!newItemName.trim()}>Ajouter</button>
           </form>
 
-          {Object.entries(groupedItems).map(([catKey, group]) => {
-            if (group.items.length === 0) return null
-            const allChecked = group.items.every(i => i.checked)
-            return (
-              <div key={catKey} className={`shop-category${allChecked ? ' all-checked' : ''}`}>
-                <h3 className="shop-cat-title">{group.label}</h3>
-                <div className="shop-items">
-                  {group.items.map(item => (
-                    <label key={item.id} className={`shop-item${item.checked ? ' checked' : ''}`}>
-                      <input
-                        type="checkbox"
-                        checked={item.checked}
-                        onChange={() => toggleItem(item.id, item.checked)}
-                      />
-                      <span className="shop-item-name">{item.name}</span>
-                      <button
-                        className="shop-item-delete"
-                        onClick={(e) => { e.preventDefault(); deleteItem(item.id) }}
-                        title="Supprimer"
-                      >
-                        ✕
-                      </button>
-                    </label>
-                  ))}
+          {/* Liste par catégorie */}
+          <div className="shop-list">
+            {SHOP_CATEGORIES.map(cat => {
+              const { label, items } = groupedItems[cat.value]
+              if (items.length === 0) return null
+              return (
+                <div key={cat.value} className="shop-cat">
+                  <h4>{label}</h4>
+                  <ul>
+                    {items.map(item => (
+                      <li key={item.id} className={item.checked ? 'checked' : ''}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={item.checked}
+                            onChange={() => toggleItem(item.id, !item.checked)}
+                          />
+                          <span>{item.name}</span>
+                        </label>
+                        <button className="shop-delete-btn" onClick={() => deleteItem(item.id)}>✕</button>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            )
-          })}
-
-          {items.length === 0 && (
-            <div className="empty-state">
-              <span>🛒</span>
-              <p>La liste de courses est vide</p>
-            </div>
-          )}
+              )
+            })}
+          </div>
         </div>
       )}
 
-      {/* Swap modal */}
+      {/* Modal d'échange de repas */}
       {swappingMealId && (
-        <div className="swap-modal-overlay" onClick={e => e.target === e.currentTarget && setSwappingMealId(null)}>
-          <div className="swap-modal">
-            <div className="swap-modal-header">
+        <div className="modal-overlay" onClick={() => setSwappingMealId(null)}>
+          <div className="modal">
+            <div className="modal-header">
               <h3>Échanger avec...</h3>
-              <button onClick={() => setSwappingMealId(null)}>✕</button>
+              <button className="modal-close" onClick={() => setSwappingMealId(null)}>✕</button>
             </div>
-            <div className="swap-modal-list">
-              {plans
-                .filter(p => p.id !== swappingMealId && p.content)
-                .sort((a, b) => a.date.localeCompare(b.date) || a.meal.localeCompare(b.meal))
-                .map(p => {
-                  const day = weekDays.find(d => d.date === p.date)
-                  const mealLabel = MEALS.find(m => m.value === p.meal)?.label || p.meal
-                  return (
-                    <button
-                      key={p.id}
-                      className="swap-option"
-                      onClick={() => {
-                        swapMeals(swappingMealId, p.id)
-                        setSwappingMealId(null)
-                      }}
-                    >
-                      <span className="swap-day">{day?.label || p.date} — {mealLabel}</span>
-                      <span className="swap-content">{p.content}</span>
-                    </button>
-                  )
-                })}
+            <div className="swap-list">
+              {plans.filter(p => p.id !== swappingMealId).map(p => {
+                const dayLabel = weekDays.find(d => d.date === p.date)?.label || p.date
+                return (
+                  <button
+                    key={p.id}
+                    className="swap-item"
+                    onClick={() => { swapMeals(swappingMealId, p.id); setSwappingMealId(null) }}
+                  >
+                    <span>{dayLabel} - {MEAL_LABELS[p.meal]}</span>
+                    <span className="swap-content">{p.content}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>

@@ -1,33 +1,45 @@
 import { useMemo } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import { useMeals } from '../hooks/useMeals'
+import { useWeekSettings } from '../hooks/useWeekSettings'
 import TaskCard from '../components/TaskCard'
 import { isTaskDueToday, getNextDueDate } from '../lib/taskUtils'
 import './HomePage.css'
 
 export default function HomePage() {
-  const { tasks, loading, completeTask, uncompleteTask } = useTasks()
-  const { plans } = useMeals()
+  const { tasks, loading: tasksLoading, completeTask, uncompleteTask } = useTasks()
+  const { plans, loading: mealsLoading } = useMeals()
+  const { settings, loading: settingsLoading, getPeriodLabel } = useWeekSettings()
 
-  const today = new Date()
-  const dateStr = today.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
+  // Calculer la date de référence basée sur le décalage de semaine
+  const referenceDate = useMemo(() => {
+    if (!settings) return new Date()
+    const today = new Date()
+    const offset = settings.current_week_offset || 0
+    const refDate = new Date(today)
+    refDate.setDate(today.getDate() + (offset * 7))
+    return refDate
+  }, [settings])
+
+  const dateStr = referenceDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
   const todayTasks = useMemo(() => {
-    return tasks.filter(t => isTaskDueToday(t))
-  }, [tasks])
+    return tasks.filter(t => isTaskDueToday(t, referenceDate))
+  }, [tasks, referenceDate])
 
+  const todayStr = referenceDate.toISOString().split('T')[0]
   const todayDone = todayTasks.filter(t => {
-    const todayStr = new Date().toISOString().split('T')[0]
     return t.completions?.some(c => c.completed_at === todayStr)
   })
 
   const progress = todayTasks.length > 0 ? Math.round((todayDone.length / todayTasks.length) * 100) : 0
 
-  const todayStr = new Date().toISOString().split('T')[0]
   const tonightMeal = plans.find(p => p.date === todayStr && p.meal === 'dinner')
   const remainingTasks = todayTasks.length - todayDone.length
 
-  if (loading) {
+  const isCurrentWeek = !settings || settings.current_week_offset === 0
+
+  if (tasksLoading || mealsLoading || settingsLoading) {
     return <div className="page-loading"><div className="spinner" /></div>
   }
 
@@ -37,7 +49,7 @@ export default function HomePage() {
         <div className="home-header-top">
           <div>
             <p className="home-date">{dateStr}</p>
-            <h1 className="home-greeting">Bonjour 🏠</h1>
+            <h1 className="home-greeting">{isCurrentWeek ? "Bonjour 🏠" : `Semaine ${getPeriodLabel()} 🏠`}</h1>
           </div>
           <div className="home-mascot">🐱</div>
         </div>
@@ -77,11 +89,11 @@ export default function HomePage() {
       )}
 
       <section className="home-section">
-        <h2 className="section-title">Aujourd'hui</h2>
+        <h2 className="section-title">{isCurrentWeek ? "Aujourd'hui" : "Cette période"}</h2>
         {todayTasks.length === 0 ? (
           <div className="empty-state">
             <span>✨</span>
-            <p>Rien à faire aujourd'hui, profite !</p>
+            <p>Rien à faire, profite !</p>
           </div>
         ) : (
           <div className="task-list">
@@ -91,6 +103,7 @@ export default function HomePage() {
                 task={task}
                 onComplete={completeTask}
                 onUncomplete={uncompleteTask}
+                referenceDate={referenceDate}
               />
             ))}
           </div>
@@ -101,8 +114,8 @@ export default function HomePage() {
         <h2 className="section-title">À venir</h2>
         <div className="task-list">
           {tasks
-            .filter(t => !isTaskDueToday(t) && getNextDueDate(t) > today)
-            .sort((a, b) => getNextDueDate(a) - getNextDueDate(b))
+            .filter(t => !isTaskDueToday(t, referenceDate) && getNextDueDate(t, referenceDate) > referenceDate)
+            .sort((a, b) => getNextDueDate(a, referenceDate) - getNextDueDate(b, referenceDate))
             .slice(0, 5)
             .map(task => (
               <TaskCard
@@ -111,6 +124,7 @@ export default function HomePage() {
                 onComplete={completeTask}
                 onUncomplete={uncompleteTask}
                 upcoming
+                referenceDate={referenceDate}
               />
             ))}
         </div>

@@ -232,13 +232,13 @@
   padding: 16px;
 }
 
-.shop-add-form {
+.shop-form {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
 }
 
-.shop-add-form input {
+.shop-form input {
   flex: 1;
   background: rgba(0,0,0,0.03);
   border: 1px solid var(--border);
@@ -247,11 +247,11 @@
   font-size: 15px;
 }
 
-.shop-add-form input:focus {
+.shop-form input:focus {
   border-color: var(--accent);
 }
 
-.shop-add-form select {
+.shop-form select {
   background: rgba(0,0,0,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -261,16 +261,17 @@
   min-width: 140px;
 }
 
-.shop-category {
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shop-cat {
   margin-bottom: 16px;
 }
 
-.shop-category.all-checked .shop-cat-title {
-  opacity: 0.5;
-  text-decoration: line-through;
-}
-
-.shop-cat-title {
+.shop-cat h4 {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -279,46 +280,56 @@
   margin-bottom: 8px;
 }
 
-.shop-items {
+.shop-cat ul {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.shop-item {
+.shop-cat li {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px;
   border-radius: var(--radius-sm);
   background: rgba(0,0,0,0.02);
-  cursor: pointer;
   transition: all 0.2s;
 }
 
-.shop-item:hover {
+.shop-cat li:hover {
   background: rgba(0,0,0,0.04);
 }
 
-.shop-item.checked .shop-item-name {
-  text-decoration: line-through;
-  color: var(--text-muted);
+.shop-cat li.checked {
   opacity: 0.6;
 }
 
-.shop-item input[type="checkbox"] {
+.shop-cat li.checked span {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.shop-cat li input[type="checkbox"] {
   width: 22px;
   height: 22px;
   accent-color: var(--accent);
   flex-shrink: 0;
 }
 
-.shop-item-name {
+.shop-cat li label {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.shop-cat li span {
   flex: 1;
   font-size: 15px;
 }
 
-.shop-item-delete {
+.shop-delete-btn {
   min-width: 36px;
   min-height: 36px;
   display: flex;
@@ -330,13 +341,11 @@
   transition: opacity 0.15s;
 }
 
-.shop-item:hover .shop-item-delete,
-.shop-item:active .shop-item-delete {
+.shop-cat li:hover .shop-delete-btn {
   opacity: 1;
 }
 
-.shop-item-delete:hover,
-.shop-item-delete:active {
+.shop-delete-btn:hover {
   color: var(--accent);
 }
 
@@ -374,7 +383,7 @@
 }
 
 /* === PENDING MEALS === */
-.pending-meals {
+.shop-meals-banner {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -383,123 +392,43 @@
   box-shadow: var(--shadow);
 }
 
-.pending-meals-title {
+.shop-meals-banner > span {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-muted);
   margin-bottom: 10px;
+  display: block;
 }
 
-.pending-meals-list {
+.shop-meals-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.pending-meal {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  background: rgba(0,0,0,0.02);
-}
-
-.pending-meal.urgent {
-  background: rgba(255, 183, 178, 0.08);
-  border: 1px solid rgba(255, 183, 178, 0.2);
-}
-
-.pending-meal-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.pending-meal-day {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  color: var(--text-muted);
-}
-
-.pending-meal-content {
+.shop-meals-list span {
   font-size: 14px;
-  font-weight: 500;
 }
 
-.pending-meal-notes {
-  font-size: 12px;
-  color: var(--text-muted);
+.shop-meals-list span.today {
+  background: rgba(255, 183, 178, 0.1);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
 }
 
-.urgent-badge {
-  font-size: 10px;
-  font-weight: 700;
-  background: var(--accent);
-  color: white;
-  padding: 2px 8px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-/* === SWAP MODAL === */
-.swap-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.3);
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 200;
-  padding: 16px;
-}
-
-.swap-modal {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  width: 100%;
-  max-width: 400px;
-  max-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow);
-}
-
-.swap-modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.swap-modal-header h3 {
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.swap-modal-header button {
-  color: var(--text-muted);
-  font-size: 18px;
-  padding: 4px;
-}
-
-.swap-modal-list {
+.swap-list {
   overflow-y: auto;
   padding: 8px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: 400px;
 }
 
-.swap-option {
+.swap-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -510,12 +439,12 @@
   transition: background 0.15s;
 }
 
-.swap-option:hover,
-.swap-option:active {
+.swap-item:hover,
+.swap-item:active {
   background: rgba(255, 183, 178, 0.08);
 }
 
-.swap-day {
+.swap-item span:first-child {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -526,4 +455,51 @@
 .swap-content {
   font-size: 14px;
   font-weight: 500;
+}
+
+/* Week Navigation */
+.week-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 8px;
+  background: rgba(0,0,0,0.02);
+  border-radius: var(--radius-sm);
+}
+
+.week-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.week-nav-btn:hover {
+  background: rgba(255, 183, 178, 0.15);
+  border-color: var(--accent);
+  color: #E8918C;
+}
+
+.week-current-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 140px;
+  transition: all 0.2s;
+}
+
+.week-current-btn:hover {
+  background: rgba(255, 183, 178, 0.1);
+  border-color: var(--accent);
 }

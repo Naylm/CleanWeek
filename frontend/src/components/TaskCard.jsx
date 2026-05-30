@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
-import { getCategoryIcon, formatNextDue, isTaskDueToday } from '../lib/taskUtils'
+import { getCategoryIcon, formatNextDue, isTaskDueToday, getIntervalLabel } from '../lib/taskUtils'
 import './TaskCard.css'
 
-export default function TaskCard({ task, onComplete, onUncomplete, upcoming = false }) {
-  const todayStr = new Date().toISOString().split('T')[0]
+export default function TaskCard({ task, onComplete, onUncomplete, upcoming = false, referenceDate = new Date() }) {
+  const todayStr = referenceDate.toISOString().split('T')[0]
 
   const todayCompletion = useMemo(() => {
     return task.completions?.find(c => c.completed_at === todayStr) || null
@@ -37,9 +37,11 @@ export default function TaskCard({ task, onComplete, onUncomplete, upcoming = fa
         </div>
         <div className="task-meta">
           {upcoming ? (
-            <span className="task-due">{formatNextDue(task)}</span>
+            <span className="task-due">{formatNextDue(task, referenceDate)}</span>
           ) : (
-            <span className={`task-freq ${task.frequency}`}>{getFreqLabel(task.frequency)}</span>
+            <span className={`task-freq ${task.frequency}${task.custom_interval_enabled ? ' custom' : ''}`}>
+              {getIntervalLabel(task)}
+            </span>
           )}
         </div>
       </div>
@@ -53,9 +55,4 @@ function CheckIcon() {
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )
-}
-
-function getFreqLabel(f) {
-  const map = { daily: 'Quotidien', weekly: 'Hebdo', biweekly: '2 semaines', monthly: 'Mensuel' }
-  return map[f] || f
 }

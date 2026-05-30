@@ -1,4 +1,6 @@
 import { useCurrentUser } from '../hooks/useCurrentUser'
+import { useWeekSettings } from '../hooks/useWeekSettings'
+import { DAYS_OF_WEEK } from '../lib/taskUtils'
 import './SettingsPage.css'
 
 const THEMES = [
@@ -11,6 +13,9 @@ const THEMES = [
 
 export default function SettingsPage() {
   const { logout, theme, setTheme } = useCurrentUser()
+  const { settings, loading, setStartDayOfWeek, goToCurrentWeek } = useWeekSettings()
+
+  const startDay = settings?.start_day_of_week ?? 5
 
   return (
     <div className="settings-page">
@@ -18,6 +23,29 @@ export default function SettingsPage() {
         <h1>Réglages</h1>
         <div className="settings-mascot">🐱</div>
       </header>
+
+      <div className="settings-card">
+        <h2 className="settings-section-title">Semaine</h2>
+        <p className="settings-hint">Choisis le jour de début de ta semaine</p>
+        <div className="settings-days">
+          {loading ? (
+            <span>Chargement...</span>
+          ) : (
+            DAYS_OF_WEEK.map(day => (
+              <button
+                key={day.value}
+                className={`settings-day-btn${startDay === day.value ? ' active' : ''}`}
+                onClick={() => setStartDayOfWeek(day.value)}
+              >
+                {day.label}
+              </button>
+            ))
+          )}
+        </div>
+        <button className="settings-current-week" onClick={goToCurrentWeek}>
+          Retour à la semaine en cours
+        </button>
+      </div>
 
       <div className="settings-card">
         <h2 className="settings-section-title">Thème</h2>

@@ -91,14 +91,46 @@
   flex: 1;
 }
 
+.task-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-actions.visible {
+  opacity: 1;
+}
+
+.swipeable-task:hover .task-actions {
+  opacity: 1;
+}
+
+.task-edit-btn,
 .task-delete-btn {
   width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 183, 178, 0.1);
+  background: rgba(160, 196, 255, 0.1);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 14px;
+  color: var(--accent2);
+  transition: all 0.2s;
+}
+
+.task-edit-btn:hover {
+  background: rgba(160, 196, 255, 0.2);
+  border-color: var(--accent2);
+}
+
+.task-delete-btn {
+  background: rgba(255, 183, 178, 0.1);
   color: var(--accent);
+}
+
+.task-delete-btn:hover {
+  background: rgba(255, 183, 178, 0.2);
+  border-color: var(--accent);
 }
