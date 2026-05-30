@@ -1,9 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useCallback } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
-import TaskCard from '../components/TaskCard'
-import { isTaskDueToday, getNextDueDate } from '../lib/taskUtils'
+import TaskCardSwipe, { sortTasksByUrgency } from '../components/TaskCardSwipe'
+import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
 import './HomePage.css'
 
 export default function HomePage() {
@@ -23,8 +23,20 @@ export default function HomePage() {
 
   const dateStr = referenceDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
 
+  // Tâches du jour triées par urgence
   const todayTasks = useMemo(() => {
-    return tasks.filter(t => isTaskDueToday(t, referenceDate))
+    const dueTasks = tasks.filter(t => isTaskDueToday(t, referenceDate))
+    return sortTasksByUrgency(dueTasks)
+  }, [tasks, referenceDate])
+
+  // Tâches à venir triées par urgence
+  const upcomingTasks = useMemo(() => {
+    const futureTasks = tasks.filter(t => {
+      const daysSince = getDaysSinceLastDone(t, referenceDate)
+      const intervalDays = getTaskIntervalDays(t)
+      return daysSince < intervalDays // Pas encore en retard
+    })
+    return sortTasksByUrgency(futureTasks).slice(0, 5)
   }, [tasks, referenceDate])
 
   const todayStr = referenceDate.toISOString().split('T')[0]
@@ -38,6 +50,13 @@ export default function HomePage() {
   const remainingTasks = todayTasks.length - todayDone.length
 
   const isCurrentWeek = !settings || settings.current_week_offset === 0
+
+  // Handler pour reporter une tâche
+  const handleSnooze = useCallback((taskId, days) => {
+    // Créer une fausse completion avec une date future pour "reporter"
+    // Ou utiliser une logique personnalisée
+    console.log(`Task ${taskId} snoozed for ${days} days`)
+  }, [])
 
   if (tasksLoading || mealsLoading || settingsLoading) {
     return <div className="page-loading"><div className="spinner" /></div>
@@ -96,14 +115,13 @@ export default function HomePage() {
             <p>Rien à faire, profite !</p>
           </div>
         ) : (
-          <div className="task-list">
+          <div className="task-list-swipe">
             {todayTasks.map(task => (
-              <TaskCard
+              <TaskCardSwipe
                 key={task.id}
                 task={task}
                 onComplete={completeTask}
-                onUncomplete={uncompleteTask}
-                referenceDate={referenceDate}
+                onSnooze={handleSnooze}
               />
             ))}
           </div>
@@ -112,21 +130,15 @@ export default function HomePage() {
 
       <section className="home-section">
         <h2 className="section-title">À venir</h2>
-        <div className="task-list">
-          {tasks
-            .filter(t => !isTaskDueToday(t, referenceDate) && getNextDueDate(t, referenceDate) > referenceDate)
-            .sort((a, b) => getNextDueDate(a, referenceDate) - getNextDueDate(b, referenceDate))
-            .slice(0, 5)
-            .map(task => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onComplete={completeTask}
-                onUncomplete={uncompleteTask}
-                upcoming
-                referenceDate={referenceDate}
-              />
-            ))}
+        <div className="task-list-swipe">
+          {upcomingTasks.map(task => (
+            <TaskCardSwipe
+              key={task.id}
+              task={task}
+              onComplete={completeTask}
+              onSnooze={handleSnooze}
+            />
+          ))}
         </div>
       </section>
     </div>

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
 import './SweepyBar.css'
 
-export default function SweepyBar({ task, onNotify }) {
+export default function SweepyBar({ task, onNotify, compact = false }) {
   const [now, setNow] = useState(new Date())
 
   useEffect(() => {
@@ -61,19 +61,22 @@ export default function SweepyBar({ task, onNotify }) {
   }, [progressInfo.level, progressInfo.daysSince, task.name, onNotify])
 
   return (
-    <div className={`sweepy-bar ${progressInfo.colorClass}`}>
-      <div className="sweepy-header">
-        <span className="sweepy-label">
-          {progressInfo.isOverdue ? '⏰ EN RETARD' : 'PROGRESSION'}
-        </span>
-        <span className="sweepy-text">{progressInfo.text}</span>
-      </div>
+    <div className={`sweepy-bar ${progressInfo.colorClass} ${compact ? 'compact' : ''}`}>
+      {!compact && (
+        <div className="sweepy-header">
+          <span className="sweepy-label">
+            {progressInfo.isOverdue ? '⏰ EN RETARD' : 'PROGRESSION'}
+          </span>
+          <span className="sweepy-text">{progressInfo.text}</span>
+        </div>
+      )}
       <div className="sweepy-track">
         <div
           className="sweepy-fill"
           style={{ width: `${progressInfo.percentage}%` }}
         />
       </div>
+      {compact && <span className="sweepy-text-compact">{progressInfo.text}</span>}
     </div>
   )
 }

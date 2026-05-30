@@ -1,0 +1,283 @@
+.task-card-swipe-container {
+  position: relative;
+  width: 100%;
+  height: 80px;
+  margin-bottom: 12px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+/* Indicateurs de swipe (arrière-plan) */
+.swipe-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.swipe-indicator.left {
+  left: 0;
+  background: linear-gradient(90deg, #FFD97D 0%, #FFB347 100%);
+  padding-left: 20px;
+  align-items: flex-start;
+}
+
+.swipe-indicator.right {
+  right: 0;
+  background: linear-gradient(90deg, #98D8C8 0%, #7BC4A8 100%);
+  padding-right: 20px;
+  align-items: flex-end;
+}
+
+.swipe-indicator.active {
+  opacity: 1;
+}
+
+.indicator-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.indicator-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Carte principale */
+.task-card-swipe {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y; /* Permet le défilement vertical, capture horizontal */
+}
+
+.task-card-swipe.dragging {
+  cursor: grabbing;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+}
+
+.task-card-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 100%;
+  padding: 12px 16px;
+}
+
+.task-category-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.task-info-swipe {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-name {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-freq-badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-muted);
+  flex-shrink: 0;
+  max-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Menu contextuel (appui long) */
+.task-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.task-menu {
+  background: var(--bg-card);
+  width: 100%;
+  max-width: 420px;
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 20px;
+  padding-bottom: 32px;
+  animation: slideUp 0.3s ease;
+}
+
+.task-menu h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-align: center;
+  color: var(--text);
+}
+
+.menu-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.menu-btn:active {
+  transform: scale(0.98);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.menu-btn.primary {
+  background: linear-gradient(135deg, #98D8C8 0%, #7BC4A8 100%);
+  border: none;
+  color: white;
+  font-weight: 700;
+}
+
+.menu-btn.danger {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: #FF4757;
+}
+
+.menu-btn.cancel {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.menu-snooze {
+  margin: 12px 0;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: var(--radius-sm);
+}
+
+.menu-snooze > span {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.snooze-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.snooze-buttons button {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  background: white;
+  transition: all 0.2s;
+}
+
+.snooze-buttons button:active {
+  background: rgba(255, 183, 178, 0.2);
+  border-color: var(--accent);
+  color: #E8918C;
+  transform: scale(0.95);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Animation de succès quand on swipe */
+@keyframes successPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.task-completed {
+  animation: successPulse 0.3s ease;
+}
+
+/* Optimisations tactiles */
+@media (hover: none) and (pointer: coarse) {
+  .task-card-swipe {
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .menu-btn {
+    padding: 16px; /* Plus grand pour doigts */
+  }
+
+  .snooze-buttons button {
+    padding: 14px;
+    font-size: 15px;
+  }
+}
+
+/* Mode compact pour la liste */
+.task-card-swipe.compact {
+  height: 70px;
+}
+
+.task-card-swipe.compact .task-card-content {
+  padding: 10px 14px;
+}
+
+.task-card-swipe.compact .task-category-icon {
+  font-size: 20px;
+}
+
+.task-card-swipe.compact .task-name {
+  font-size: 14px;
+}

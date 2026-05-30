@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTasks } from '../hooks/useTasks'
-import TaskCard from '../components/TaskCard'
+import TaskCardSwipe, { sortTasksByUrgency } from '../components/TaskCardSwipe'
 import AddTaskModal from '../components/AddTaskModal'
-import { CATEGORIES, getIntervalLabel } from '../lib/taskUtils'
+import { CATEGORIES } from '../lib/taskUtils'
 import './TasksPage.css'
 
 export default function TasksPage() {
@@ -11,10 +11,14 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
 
-  const filtered = tasks.filter(t => {
-    if (filterCategory !== 'all' && t.category !== filterCategory) return false
-    return true
-  })
+  // Tâches filtrées ET triées par urgence
+  const filtered = useMemo(() => {
+    const filtered = tasks.filter(t => {
+      if (filterCategory !== 'all' && t.category !== filterCategory) return false
+      return true
+    })
+    return sortTasksByUrgency(filtered)
+  }, [tasks, filterCategory])
 
   async function handleAddOrUpdate(taskData, taskId) {
     if (taskId) {
@@ -28,6 +32,11 @@ export default function TasksPage() {
 
   function handleEditTask(task) {
     setEditingTask(task)
+  }
+
+  function handleSnooze(taskId, days) {
+    // Pour l'instant, on log seulement (à implémenter selon ta logique)
+    console.log(`Task ${taskId} snoozed for ${days} days`)
   }
 
   if (loading) {
@@ -71,15 +80,15 @@ export default function TasksPage() {
             <button className="btn-primary-sm" onClick={() => setShowAdd(true)}>+ Ajouter</button>
           </div>
         ) : (
-          <div className="task-list-full">
+          <div className="task-list-swipe-full">
             {filtered.map(task => (
-              <SwipeableTask
+              <TaskCardSwipe
                 key={task.id}
                 task={task}
                 onComplete={completeTask}
-                onUncomplete={uncompleteTask}
-                onDelete={deleteTask}
+                onSnooze={handleSnooze}
                 onEdit={handleEditTask}
+                onDelete={deleteTask}
               />
             ))}
           </div>
@@ -93,41 +102,6 @@ export default function TasksPage() {
           initialTask={editingTask}
         />
       )}
-    </div>
-  )
-}
-
-function SwipeableTask({ task, onComplete, onUncomplete, onDelete, onEdit }) {
-  const [showDelete, setShowDelete] = useState(false)
-  const [showActions, setShowActions] = useState(false)
-
-  return (
-    <div className="swipeable-task">
-      <TaskCard
-        task={task}
-        onComplete={onComplete}
-        onUncomplete={onUncomplete}
-      />
-      <div className={`task-actions${showActions ? ' visible' : ''}`}>
-        <button
-          className="task-edit-btn"
-          onClick={() => onEdit(task)}
-          title="Modifier"
-        >
-          ✎
-        </button>
-        <button
-          className="task-delete-btn"
-          onClick={() => {
-            if (showDelete) onDelete(task.id)
-            else setShowDelete(true)
-          }}
-          onBlur={() => setTimeout(() => setShowDelete(false), 200)}
-          title={showDelete ? 'Confirmer suppression' : 'Supprimer'}
-        >
-          {showDelete ? '✓' : '🗑'}
-        </button>
-      </div>
     </div>
   )
 }
