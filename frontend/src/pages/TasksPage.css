@@ -41,15 +41,18 @@
 .filter-row::-webkit-scrollbar { display: none; }
 
 .filter-chip {
-  padding: 9px 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  font-size: var(--fs-sm);
+  border: 1.5px solid var(--border);
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
-  transition: all var(--t-med);
-  background: var(--bg-card);
-  color: var(--text-muted);
+  transition: all 0.2s ease;
+  background: var(--surface);
+  color: var(--text-primary);
 }
 
 .filter-chip:active { transform: scale(0.95); }
@@ -57,8 +60,7 @@
 .filter-chip.active {
   background: var(--accent);
   border-color: var(--accent);
-  color: var(--on-accent);
-  box-shadow: var(--shadow-sm);
+  color: var(--on-accent, white);
 }
 
 .tasks-list-section {

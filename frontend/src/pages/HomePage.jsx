@@ -1,13 +1,26 @@
-import { useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
 import TaskCardSwipe, { sortTasksByUrgency } from '../components/TaskCardSwipe'
-import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
+import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays, CATEGORIES } from '../lib/taskUtils'
 import './HomePage.css'
+
+const CATEGORY_FILTERS = [
+  { value: 'all', label: 'Tout', icon: '🏠' },
+  { value: 'cuisine', label: 'Cuisine', icon: '🍳' },
+  { value: 'menage', label: 'Ménage', icon: '🧹' },
+  { value: 'linge', label: 'Linge', icon: '👕' },
+  { value: 'courses', label: 'Courses', icon: '🛒' },
+  { value: 'animaux', label: 'Animaux', icon: '🐾' },
+  { value: 'enfants', label: 'Enfants', icon: '👶' },
+  { value: 'jardin', label: 'Jardin', icon: '🌱' },
+  { value: 'autre', label: 'Autre', icon: '📦' },
+]
 
 export default function HomePage() {
   const { tasks, loading: tasksLoading, completeTask, snoozeTask } = useTasks()
+  const [filterCategory, setFilterCategory] = useState('all')
   const { plans, loading: mealsLoading } = useMeals()
   const { settings, loading: settingsLoading, getPeriodLabel } = useWeekSettings()
 
@@ -24,9 +37,12 @@ export default function HomePage() {
   const todayStr = referenceDate.toISOString().split('T')[0]
 
   const todayTasks = useMemo(() => {
-    const dueTasks = tasks.filter(t => isTaskDueToday(t, referenceDate))
+    let dueTasks = tasks.filter(t => isTaskDueToday(t, referenceDate))
+    if (filterCategory !== 'all') {
+      dueTasks = dueTasks.filter(t => t.category === filterCategory)
+    }
     return sortTasksByUrgency(dueTasks)
-  }, [tasks, referenceDate])
+  }, [tasks, referenceDate, filterCategory])
 
   const upcomingTasks = useMemo(() => {
     const futureTasks = tasks.filter(t => {
@@ -114,6 +130,28 @@ export default function HomePage() {
           )}
         </div>
       )}
+
+      {/* Filtres par catégorie style Sweepy */}
+      <div className="category-filters">
+        <div className="filter-chips">
+          {CATEGORY_FILTERS.map(cat => {
+            const count = cat.value === 'all' 
+              ? tasks.filter(t => isTaskDueToday(t, referenceDate)).length
+              : tasks.filter(t => isTaskDueToday(t, referenceDate) && t.category === cat.value).length
+            return (
+              <button
+                key={cat.value}
+                className={`filter-chip ${filterCategory === cat.value ? 'active' : ''}`}
+                onClick={() => setFilterCategory(cat.value)}
+              >
+                <span className="chip-icon">{cat.icon}</span>
+                <span className="chip-label">{cat.label}</span>
+                {count > 0 && <span className="chip-count">{count}</span>}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
       <section className="home-section">
         <h2 className="section-title">{isCurrentWeek ? "Aujourd'hui" : 'Cette période'}</h2>
