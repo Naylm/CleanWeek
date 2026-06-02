@@ -1,0 +1,355 @@
+.shopping-page {
+  padding: 16px;
+  padding-bottom: 100px;
+  min-height: 100vh;
+}
+
+.shopping-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.shopping-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.shopping-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+}
+
+.store-mode-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.store-mode-toggle.active {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+/* Mode magasin - interface simplifiée */
+.shopping-page.store-mode .shop-cat-title {
+  font-size: 14px;
+  padding: 8px 12px;
+}
+
+.shopping-page.store-mode .shop-item {
+  padding: 16px 12px;
+}
+
+.shopping-page.store-mode .shop-item-name {
+  font-size: 18px;
+}
+
+.shopping-page.store-mode .shop-item-actions {
+  display: none;
+}
+
+/* Contenu */
+.shopping-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Catégories */
+.shopping-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shop-category {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.shop-cat-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  padding: 12px 16px;
+  margin: 0;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Items */
+.shop-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s ease;
+}
+
+.shop-item:last-child {
+  border-bottom: none;
+}
+
+.shop-item:active {
+  background: var(--surface-2);
+}
+
+.shop-item.checked {
+  opacity: 0.5;
+}
+
+.shop-item.checked .shop-item-name {
+  text-decoration: line-through;
+}
+
+.shop-item-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+}
+
+.shop-item-label input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.shop-item-name {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.shop-item-qty {
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+/* Actions */
+.shop-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.shop-edit-btn,
+.shop-delete-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.shop-edit-btn:hover {
+  background: var(--surface-2);
+}
+
+.shop-delete-btn:hover {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* Mode édition */
+.shop-item-edit {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shop-item-edit input {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+.qty-edit-row {
+  display: flex;
+  gap: 8px;
+}
+
+.qty-input-small {
+  width: 80px !important;
+}
+
+.qty-edit-row select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+/* Articles cochés */
+.shop-checked-section {
+  margin-top: 8px;
+}
+
+.shop-toggle-checked {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* Barre d'ajout fixe */
+.shopping-add-bar {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  z-index: 100;
+}
+
+.shop-add-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.shop-qty-input {
+  width: 60px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--background);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.shop-unit-select,
+.shop-cat-select {
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: var(--background);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.shop-unit-select {
+  width: 80px;
+}
+
+.shop-cat-select {
+  width: 100px;
+}
+
+.shop-add-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 24px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-add-btn:disabled {
+  background: var(--border);
+  cursor: not-allowed;
+}
+
+.shop-add-btn:not(:disabled):hover {
+  background: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+}
+
+.empty-state span {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.empty-hint {
+  font-size: 14px !important;
+  opacity: 0.7;
+  margin-top: 8px !important;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .shopping-add-bar {
+    flex-wrap: wrap;
+  }
+  
+  .shop-add-input {
+    width: 100%;
+    order: -1;
+  }
+  
+  .shop-cat-select {
+    flex: 1;
+  }
+}

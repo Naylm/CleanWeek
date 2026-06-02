@@ -26,11 +26,38 @@ export function useShopping() {
 
   async function addItem(item) {
     try {
-      await api.post('/shopping', item)
+      await api.post('/shopping', {
+        name: item.name,
+        category: item.category,
+        quantity_number: item.quantity_number,
+        quantity_unit: item.quantity_unit,
+      })
       fetchItems()
       return true
     } catch (err) {
       console.error('Failed to add item:', err)
+      return false
+    }
+  }
+
+  async function updateItem(id, updates) {
+    try {
+      await api.patch(`/shopping/${id}`, updates)
+      fetchItems()
+      return true
+    } catch (err) {
+      console.error('Failed to update item:', err)
+      return false
+    }
+  }
+
+  async function reorderItem(id, sort_order) {
+    try {
+      await api.patch(`/shopping/${id}/reorder`, { sort_order })
+      fetchItems()
+      return true
+    } catch (err) {
+      console.error('Failed to reorder item:', err)
       return false
     }
   }
@@ -57,5 +84,5 @@ export function useShopping() {
     }
   }
 
-  return { items, loading, addItem, toggleItem, deleteItem, refetch: fetchItems }
+  return { items, loading, addItem, updateItem, toggleItem, deleteItem, reorderItem, refetch: fetchItems }
 }
