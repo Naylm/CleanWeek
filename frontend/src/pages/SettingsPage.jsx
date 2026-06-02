@@ -16,12 +16,6 @@ const THEMES = [
 
 const FEATURES_LIST = [
   {
-    key: 'shopping_page_enabled',
-    label: 'Page Shopping dédiée',
-    description: 'Sépare la liste de courses du planning',
-    icon: '🛒',
-  },
-  {
     key: 'offline_mode_enabled',
     label: 'Mode hors ligne',
     description: 'Fonctionne sans connexion, synchro différée',

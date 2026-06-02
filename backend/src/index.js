@@ -13,7 +13,9 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
-  cors: { origin: true, credentials: true }
+  cors: { origin: true, credentials: true },
+  pingInterval: 10000,
+  pingTimeout: 5000,
 })
 const PORT = 3001
 
