@@ -1,21 +1,7 @@
 import { useState, useMemo } from 'react'
-import { useShopping } from '../hooks/useShopping'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
-import { useFeatures } from '../hooks/FeaturesProvider.jsx'
 import './PlanningPage.css'
-
-const SHOP_CATEGORIES = [
-  { value: 'fruits_legumes', label: '🥬 Fruits & Légumes' },
-  { value: 'viandes', label: '🥩 Viandes & Poissons' },
-  { value: 'epicerie', label: '🥫 Épicerie' },
-  { value: 'laitages', label: '🧀 Laitages & Œufs' },
-  { value: 'boulangerie', label: '🥖 Boulangerie' },
-  { value: 'surgeles', label: '❄️ Surgelés' },
-  { value: 'boissons', label: '🥤 Boissons' },
-  { value: 'hygiene', label: '🧴 Hygiène' },
-  { value: 'autre', label: '📦 Autre' },
-]
 
 const MEAL_LABELS = {
   lunch: 'Déjeuner',
@@ -23,14 +9,9 @@ const MEAL_LABELS = {
 }
 
 export default function PlanningPage() {
-  const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping()
   const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS } = useMeals()
   const { settings, loading: loadingSettings, getWeekDays, getPeriodLabel, goToPreviousWeek, goToNextWeek, goToCurrentWeek } = useWeekSettings()
-  const { features } = useFeatures()
-  const [activeTab, setActiveTab] = useState('meals')
 
-  const [newItemName, setNewItemName] = useState('')
-  const [newItemCategory, setNewItemCategory] = useState('autre')
   const [addingMeal, setAddingMeal] = useState(null) // { date, meal }
   const [mealContent, setMealContent] = useState('')
   const [mealNotes, setMealNotes] = useState('')
@@ -41,23 +22,6 @@ export default function PlanningPage() {
     if (loadingSettings || !settings) return []
     return getWeekDays(9)
   }, [settings, getWeekDays, loadingSettings])
-
-  const groupedItems = useMemo(() => {
-    const byCat = {}
-    SHOP_CATEGORIES.forEach(c => { byCat[c.value] = { label: c.label, items: [] } })
-    items.forEach(item => {
-      const cat = byCat[item.category] ? item.category : 'autre'
-      byCat[cat].items.push(item)
-    })
-    return byCat
-  }, [items])
-
-  async function handleAddItem(e) {
-    e.preventDefault()
-    if (!newItemName.trim()) return
-    const ok = await addItem({ name: newItemName.trim(), category: newItemCategory })
-    if (ok) { setNewItemName(''); setNewItemCategory('autre') }
-  }
 
   async function handleSetMeal(date, meal) {
     if (!mealContent.trim()) return
@@ -91,20 +55,9 @@ export default function PlanningPage() {
           </button>
           <button className="week-nav-btn" onClick={goToNextWeek} title="Semaine suivante">→</button>
         </div>
-        <div className={`planning-tabs ${features.shopping_page_enabled ? 'single-tab' : ''}`}>
-          <button className={activeTab === 'meals' ? 'active' : ''} onClick={() => setActiveTab('meals')}>
-            Menus 🍽️
-          </button>
-          {!features.shopping_page_enabled && (
-            <button className={activeTab === 'shopping' ? 'active' : ''} onClick={() => setActiveTab('shopping')}>
-              Courses 🛒
-            </button>
-          )}
-        </div>
       </header>
 
-      {activeTab === 'meals' && (
-        <div className="meals-section">
+      <div className="meals-section">
           <div className="week-grid">
             {weekDays.map(day => (
               <div key={day.date} className={`day-card${day.isToday ? ' today' : ''}`}>
@@ -189,77 +142,7 @@ export default function PlanningPage() {
             ))}
           </div>
         </div>
-      )}
-
-      {activeTab === 'shopping' && (
-        <div className="shopping-section">
-          {/* Repas à prévoir */}
-          {(() => {
-            const pendingMeals = weekDays.flatMap(day =>
-              MEALS.map(meal => {
-                const m = getMeal(day.date, meal.value)
-                return m && !m.shopping_done ? { ...m, dayLabel: day.label, isToday: day.isToday, mealLabel: meal.label } : null
-              }).filter(Boolean)
-            ).slice(0, 3)
-
-            if (pendingMeals.length === 0) return null
-
-            return (
-              <div className="shop-meals-banner">
-                <span>🍽️ À prévoir :</span>
-                <div className="shop-meals-list">
-                  {pendingMeals.map((m, i) => (
-                    <span key={i} className={m.isToday ? 'today' : ''}>
-                      {m.dayLabel} {m.mealLabel.toLowerCase()}: <strong>{m.content}</strong>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )
-          })()}
-
-          {/* Formulaire d'ajout */}
-          <form className="shop-form" onSubmit={handleAddItem}>
-            <input
-              value={newItemName}
-              onChange={e => setNewItemName(e.target.value)}
-              placeholder="Ajouter un article..."
-            />
-            <select value={newItemCategory} onChange={e => setNewItemCategory(e.target.value)}>
-              {SHOP_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-            <button type="submit" disabled={!newItemName.trim()}>Ajouter</button>
-          </form>
-
-          {/* Liste par catégorie */}
-          <div className="shop-list">
-            {SHOP_CATEGORIES.map(cat => {
-              const { label, items } = groupedItems[cat.value]
-              if (items.length === 0) return null
-              return (
-                <div key={cat.value} className="shop-cat">
-                  <h4>{label}</h4>
-                  <ul>
-                    {items.map(item => (
-                      <li key={item.id} className={item.checked ? 'checked' : ''}>
-                        <label>
-                          <input
-                            type="checkbox"
-                            checked={item.checked}
-                            onChange={() => toggleItem(item.id, !item.checked)}
-                          />
-                          <span>{item.name}</span>
-                        </label>
-                        <button className="shop-delete-btn" onClick={() => deleteItem(item.id)}>✕</button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      </div>
 
       {/* Modal d'échange de repas */}
       {swappingMealId && (
