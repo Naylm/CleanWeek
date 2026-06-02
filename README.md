@@ -10,24 +10,24 @@ PWA mobile-first, installable sur iOS depuis Safari.
 
 - **Frontend** : React + Vite (PWA)
 - **Backend** : Node.js + Express
-- **Base de données** : Supabase (PostgreSQL)
+- **Base de données** : SQLite (fichier local sur le serveur)
 - **Notifications** : Web Push (node web-push)
 
 ---
 
 ## Installation
 
-### 1. Créer un projet Supabase
+### 1. Base de données SQLite
 
-1. Va sur [supabase.com](https://supabase.com) et crée un compte
-2. Crée un nouveau projet
-3. Dans **SQL Editor**, colle et exécute le contenu de `supabase_schema.sql`
-4. Dans **Project Settings > API**, note :
-   - `Project URL`
-   - `anon public key`
-   - `service_role key` (garder secret !)
+La base de données SQLite est créée automatiquement par le backend.
+Le fichier est stocké sur le serveur à l'emplacement configuré dans `DB_PATH`.
+Aucune configuration manuelle nécessaire !
 
-### 2. Générer les clés VAPID
+### 2. Configuration serveur
+
+Le backend utilise SQLite directement sur le serveur (pas besoin de Supabase).
+
+### 3. Générer les clés VAPID
 
 ```bash
 node generate-vapid.js
@@ -35,23 +35,25 @@ node generate-vapid.js
 
 Note les clés affichées (public + private).
 
-### 3. Configurer le frontend
+### 4. Configurer le frontend
 
 ```bash
 cd frontend
 cp .env.example .env
-# Remplis .env avec tes valeurs Supabase et VAPID_PUBLIC_KEY
+# Remplis .env avec l'URL de ton API backend et VAPID_PUBLIC_KEY
 ```
 
-### 4. Configurer le backend
+### 5. Configurer le backend
 
 ```bash
 cd backend
 cp .env.example .env
-# Remplis .env avec tes valeurs Supabase, VAPID keys, et email
+# Remplis .env avec les chemins de la DB, VAPID keys, et email
+# DB_PATH : chemin vers le fichier SQLite
+# FRONTEND_DIR : chemin vers le build du frontend
 ```
 
-### 5. Lancer en développement
+### 6. Lancer en développement
 
 Terminal 1 (backend) :
 ```bash
@@ -69,29 +71,51 @@ L'app est disponible sur `http://localhost:5173`
 
 ---
 
-## Déploiement
+## Déploiement sur ton VPS
 
-### Option recommandée : VPS (ton serveur)
+**Prérequis** : Node.js installé sur le serveur
 
-**Frontend** : Build + nginx
-```bash
-cd frontend
-npm run build
-# Copie le dossier dist/ dans ton nginx
-```
-
-**Backend** : PM2
+### Backend (PM2)
 ```bash
 cd backend
 npm install -g pm2
+npm install
+
+# Le fichier data/cleanweek.db sera créé automatiquement
 pm2 start src/index.js --name cleanweek-backend
 pm2 save
 ```
 
-### Option alternative : Vercel + Railway
+### Frontend (Build + nginx)
+```bash
+cd frontend
+npm install
+npm run build
 
-- Frontend sur **Vercel** (gratuit)
-- Backend sur **Railway** (petit plan payant)
+# Copie le dossier dist/ dans ton nginx
+sudo cp -r dist/* /var/www/cleanweek/frontend/
+```
+
+### Configuration nginx exemple
+```nginx
+server {
+    listen 80;
+    server_name ton-domaine.com;
+    
+    location / {
+        root /var/www/cleanweek/frontend;
+        try_files $uri $uri/ /index.html;
+    }
+    
+    location /api/ {
+        proxy_pass http://localhost:3001/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
 
 ---
 
@@ -104,14 +128,16 @@ pm2 save
 
 ---
 
-## Ajouter des membres (enfants plus tard)
+## Synchronisation entre appareils
 
-Il suffit de créer un compte avec leur email sur l'app.
-Leur profil apparaît automatiquement pour l'attribution des tâches.
+Les données sont stockées sur ton serveur SQLite.
+Tous les appareils connectés à ton serveur voient les mêmes données en temps réel.
+
+Les tâches se rafraîchissent automatiquement toutes les 20 secondes.
 
 ---
 
 ## Tâches par défaut
 
-Décommente les lignes dans `supabase_schema.sql` pour avoir des tâches exemples,
-ou crée-les directement depuis l'app.
+Des tâches exemples sont créées automatiquement si la base est vide.
+Tu peux aussi les créer directement depuis l'app.
