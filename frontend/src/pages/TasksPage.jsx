@@ -7,7 +7,6 @@ import './TasksPage.css'
 
 const SORT_OPTIONS = [
   { value: 'urgency', label: '⚡ Urgence', icon: '⚡' },
-  { value: 'name', label: '🔤 Nom', icon: '🔤' },
   { value: 'frequency', label: '🔄 Fréquence', icon: '🔄' },
   { value: 'created', label: '📅 Date création', icon: '📅' },
 ]
@@ -16,8 +15,6 @@ const SORT_OPTIONS = [
 function sortTasks(tasks, sortBy) {
   const list = [...tasks]
   switch (sortBy) {
-    case 'name':
-      return list.sort((a, b) => a.name.localeCompare(b.name))
     case 'frequency': {
       const freqOrder = { daily: 1, weekly: 2, biweekly: 3, monthly: 4 }
       return list.sort((a, b) => (freqOrder[a.frequency] || 5) - (freqOrder[b.frequency] || 5))
