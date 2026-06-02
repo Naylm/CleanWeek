@@ -40,7 +40,7 @@ export default function PlanningPage() {
     return plans.find(p => p.date === date && p.meal === meal)
   }
 
-  if (loadingShop || loadingMeals || loadingSettings) {
+  if (loadingMeals || loadingSettings) {
     return <div className="page-loading"><div className="spinner" /></div>
   }
 
@@ -142,7 +142,6 @@ export default function PlanningPage() {
             ))}
           </div>
         </div>
-      </div>
 
       {/* Modal d'échange de repas */}
       {swappingMealId && (
