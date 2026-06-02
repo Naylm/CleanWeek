@@ -210,11 +210,82 @@
   }
 }
 
-/* Desktop */
+/* Desktop (1025px+) */
 @media (min-width: 1025px) {
   .tasks-page {
     max-width: 900px;
     margin: 0 auto;
+  }
+  
+  .tasks-header {
+    padding: calc(var(--safe-top) + 32px) 40px 24px;
+  }
+  
+  .tasks-header h1 {
+    font-size: 36px;
+  }
+  
+  .sort-select-wrapper {
+    gap: 6px;
+  }
+  
+  .sort-label {
+    font-size: 12px;
+  }
+  
+  .sort-select {
+    padding: 12px 42px 12px 20px;
+    font-size: 15px;
+    min-width: 180px;
+  }
+  
+  .filters {
+    padding: 12px 0 20px;
+  }
+  
+  .filter-section {
+    margin-bottom: 16px;
+  }
+  
+  .filter-label {
+    font-size: 13px;
+    padding: 0 40px 10px;
+  }
+  
+  .filter-row {
+    padding: 6px 40px;
+    gap: 14px;
+  }
+  
+  .filter-chip {
+    padding: 14px 22px;
+    font-size: 15px;
+  }
+  
+  .chip-icon {
+    font-size: 20px;
+  }
+  
+  .chip-text {
+    font-size: 15px;
+  }
+  
+  .chip-badge {
+    min-width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+  
+  .tasks-list-section {
+    padding: 12px 40px 32px;
+  }
+  
+  .fab {
+    right: 40px;
+    bottom: calc(100px + var(--safe-bottom));
+    width: 64px;
+    height: 64px;
+    font-size: 32px;
   }
 }
 

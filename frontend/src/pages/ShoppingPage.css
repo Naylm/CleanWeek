@@ -500,3 +500,169 @@
     font-size: 13px;
   }
 }
+
+/* iPad / Tablettes (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .shopping-page {
+    padding: 24px 32px 200px;
+  }
+  
+  .shopping-header h1 {
+    font-size: 28px;
+  }
+  
+  .shopping-subtitle {
+    font-size: 16px;
+  }
+  
+  .store-mode-fab {
+    top: calc(24px + env(safe-area-inset-top, 0px));
+    right: 32px;
+    width: 64px;
+    height: 64px;
+  }
+  
+  .store-counter-number {
+    font-size: 48px;
+  }
+  
+  .store-counter-label {
+    font-size: 16px;
+  }
+  
+  .shop-cat-title {
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+  
+  .shop-item {
+    padding: 16px 20px;
+  }
+  
+  .shop-item-name {
+    font-size: 17px;
+  }
+  
+  .shop-checkbox {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .shopping-add-bar {
+    left: 32px;
+    right: 32px;
+    padding: 16px;
+    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .shop-autocomplete .autocomplete-input {
+    padding: 14px 16px;
+    font-size: 17px;
+  }
+  
+  .shop-qty-input {
+    width: 80px;
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  .shop-unit-select,
+  .shop-cat-select {
+    padding: 12px;
+    font-size: 15px;
+  }
+  
+  .shop-unit-select {
+    width: 100px;
+  }
+  
+  .shop-add-btn {
+    width: 52px;
+    height: 52px;
+    font-size: 30px;
+  }
+}
+
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+  .shopping-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 40px 220px;
+  }
+  
+  .shopping-header h1 {
+    font-size: 32px;
+  }
+  
+  .shopping-subtitle {
+    font-size: 16px;
+  }
+  
+  .store-mode-fab {
+    top: calc(32px + env(safe-area-inset-top, 0px));
+    right: 40px;
+    width: 68px;
+    height: 68px;
+  }
+  
+  .store-counter-number {
+    font-size: 52px;
+  }
+  
+  .shop-cat-title {
+    font-size: 17px;
+    padding: 14px 20px;
+  }
+  
+  .shop-item {
+    padding: 18px 24px;
+  }
+  
+  .shop-item-name {
+    font-size: 18px;
+  }
+  
+  .shop-checkbox {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .shop-checkbox.checked::after {
+    font-size: 22px;
+  }
+  
+  .shopping-add-bar {
+    left: 40px;
+    right: 40px;
+    padding: 18px;
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+  
+  .shop-autocomplete .autocomplete-input {
+    padding: 16px 18px;
+    font-size: 18px;
+  }
+  
+  .shop-qty-input {
+    width: 90px;
+    padding: 14px;
+    font-size: 17px;
+  }
+  
+  .shop-unit-select,
+  .shop-cat-select {
+    padding: 14px;
+    font-size: 16px;
+  }
+  
+  .shop-unit-select {
+    width: 110px;
+  }
+  
+  .shop-add-btn {
+    width: 56px;
+    height: 56px;
+    font-size: 32px;
+  }
+}

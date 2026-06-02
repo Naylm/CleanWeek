@@ -276,3 +276,123 @@
 .empty-state span {
   font-size: 34px;
 }
+
+/* iPad / Tablettes (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .home-header {
+    padding: calc(var(--safe-top) + 24px) 32px 24px;
+  }
+  
+  .home-header h1 {
+    font-size: 28px;
+  }
+  
+  .tonight-card {
+    margin: 20px 32px 0;
+    padding: 20px 24px;
+  }
+  
+  .tonight-label {
+    font-size: 12px;
+  }
+  
+  .tonight-content {
+    font-size: 18px;
+  }
+  
+  .tonight-count {
+    font-size: 20px;
+  }
+  
+  .category-filters {
+    padding: 0 32px 20px;
+  }
+  
+  .filter-chips {
+    gap: 12px;
+  }
+  
+  .filter-chip {
+    padding: 14px 20px;
+    font-size: 16px;
+    border-width: 2px;
+  }
+  
+  .chip-icon {
+    font-size: 20px;
+  }
+  
+  .chip-label {
+    font-size: 15px;
+  }
+  
+  .chip-count {
+    min-width: 24px;
+    height: 24px;
+    font-size: 13px;
+  }
+  
+  .home-section {
+    padding: 28px 32px 0;
+  }
+  
+  .section-title {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  .task-list {
+    gap: 12px;
+  }
+  
+  .empty-state {
+    padding: 48px 32px;
+  }
+}
+
+/* Desktop (1025px+) */
+@media (min-width: 1025px) {
+  .home-page {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .home-header {
+    padding: calc(var(--safe-top) + 32px) 40px 28px;
+  }
+  
+  .home-header h1 {
+    font-size: 32px;
+  }
+  
+  .tonight-card {
+    margin: 24px 40px 0;
+    padding: 24px 32px;
+    max-width: 600px;
+  }
+  
+  .category-filters {
+    padding: 0 40px 24px;
+  }
+  
+  .filter-chip {
+    padding: 14px 22px;
+    font-size: 16px;
+  }
+  
+  .chip-icon {
+    font-size: 20px;
+  }
+  
+  .home-section {
+    padding: 32px 40px 0;
+  }
+  
+  .section-title {
+    font-size: 14px;
+  }
+  
+  .task-list {
+    gap: 14px;
+  }
+}
