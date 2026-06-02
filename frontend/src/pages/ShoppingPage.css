@@ -239,12 +239,12 @@
   right: 16px;
   display: flex;
   gap: 8px;
-  padding: 12px;
+  padding: 14px;
   background: var(--surface);
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border);
-  z-index: 100;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid var(--accent);
+  z-index: 1000;
 }
 
 .shop-autocomplete {

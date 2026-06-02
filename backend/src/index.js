@@ -279,16 +279,27 @@ app.delete('/api/reminders/:id', (req, res) => {
 })
 
 // ============ FOOD DATABASE (Autocomplete) ============
+// Normalize string for accent-insensitive search
+function normalizeSearch(str) {
+  return str.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/œ/g, 'oe')
+    .replace(/æ/g, 'ae')
+    .replace(/ø/g, 'o')
+}
+
 app.get('/api/foods/search', (req, res) => {
   const { q, limit = 10 } = req.query
   if (!q || q.trim().length < 2) {
     return res.json([])
   }
   
-  const searchTerm = `%${q.trim().toLowerCase()}%`
+  const searchTerm = `%${normalizeSearch(q.trim())}%`
   const rows = db.prepare(`
     SELECT * FROM food_items 
-    WHERE LOWER(name) LIKE ? OR LOWER(keywords) LIKE ?
+    WHERE LOWER(REPLACE(REPLACE(REPLACE(name, 'œ', 'oe'), 'æ', 'ae'), 'ø', 'o')) LIKE ? 
+       OR LOWER(REPLACE(REPLACE(REPLACE(keywords, 'œ', 'oe'), 'æ', 'ae'), 'ø', 'o')) LIKE ?
     ORDER BY 
       CASE WHEN LOWER(name) LIKE ? THEN 0 ELSE 1 END,
       name

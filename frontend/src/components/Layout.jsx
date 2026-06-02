@@ -5,7 +5,7 @@ import './Layout.css'
 const baseNavItems = [
   { to: '/', label: 'Accueil', icon: '🏠' },
   { to: '/tasks', label: 'Tâches', icon: '🧹' },
-  { to: '/planning', label: 'Planning', icon: '📅' },
+  { to: '/planning', label: 'Menu', icon: '📅' },
 ]
 
 const settingsItem = { to: '/settings', label: 'Réglages', icon: '⚙️' }

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react'
 import { useShopping } from '../hooks/useShopping'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
+import { useFeatures } from '../hooks/FeaturesProvider.jsx'
 import './PlanningPage.css'
 
 const SHOP_CATEGORIES = [
@@ -10,6 +11,7 @@ const SHOP_CATEGORIES = [
   { value: 'epicerie', label: '🥫 Épicerie' },
   { value: 'laitages', label: '🧀 Laitages & Œufs' },
   { value: 'boulangerie', label: '🥖 Boulangerie' },
+  { value: 'surgeles', label: '❄️ Surgelés' },
   { value: 'boissons', label: '🥤 Boissons' },
   { value: 'hygiene', label: '🧴 Hygiène' },
   { value: 'autre', label: '📦 Autre' },
@@ -24,6 +26,7 @@ export default function PlanningPage() {
   const { items, loading: loadingShop, addItem, toggleItem, deleteItem } = useShopping()
   const { plans, loading: loadingMeals, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS } = useMeals()
   const { settings, loading: loadingSettings, getWeekDays, getPeriodLabel, goToPreviousWeek, goToNextWeek, goToCurrentWeek } = useWeekSettings()
+  const { features } = useFeatures()
   const [activeTab, setActiveTab] = useState('meals')
 
   const [newItemName, setNewItemName] = useState('')
@@ -80,7 +83,7 @@ export default function PlanningPage() {
   return (
     <div className="planning-page">
       <header className="planning-header">
-        <h1>Planning</h1>
+        <h1>Menu</h1>
         <div className="week-navigation">
           <button className="week-nav-btn" onClick={goToPreviousWeek} title="Semaine précédente">←</button>
           <button className="week-current-btn" onClick={goToCurrentWeek}>
@@ -88,13 +91,15 @@ export default function PlanningPage() {
           </button>
           <button className="week-nav-btn" onClick={goToNextWeek} title="Semaine suivante">→</button>
         </div>
-        <div className="planning-tabs">
+        <div className={`planning-tabs ${features.shopping_page_enabled ? 'single-tab' : ''}`}>
           <button className={activeTab === 'meals' ? 'active' : ''} onClick={() => setActiveTab('meals')}>
             Menus 🍽️
           </button>
-          <button className={activeTab === 'shopping' ? 'active' : ''} onClick={() => setActiveTab('shopping')}>
-            Courses 🛒
-          </button>
+          {!features.shopping_page_enabled && (
+            <button className={activeTab === 'shopping' ? 'active' : ''} onClick={() => setActiveTab('shopping')}>
+              Courses 🛒
+            </button>
+          )}
         </div>
       </header>
 
