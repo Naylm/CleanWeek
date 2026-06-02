@@ -49,6 +49,8 @@ export default function ShoppingPage() {
 
   const uncheckedCount = items.filter(i => !i.checked).length
   const checkedCount = items.filter(i => i.checked).length
+  const totalCount = items.length
+  const progressPercent = totalCount > 0 ? Math.round((checkedCount / totalCount) * 100) : 0
 
   async function handleAdd(e) {
     e.preventDefault()
@@ -80,15 +82,42 @@ export default function ShoppingPage() {
     <div className={`shopping-page ${storeMode ? 'store-mode' : ''}`}>
       <header className="shopping-header">
         <div>
-          <p className="shopping-subtitle">{uncheckedCount} article{uncheckedCount > 1 ? 's' : ''} à acheter</p>
-          <h1>Courses 🛒</h1>
+          {storeMode ? (
+            <div className="store-counter">
+              <span className="store-counter-number">{uncheckedCount}</span>
+              <span className="store-counter-label">article{uncheckedCount > 1 ? 's' : ''} restant{uncheckedCount > 1 ? 's' : ''}</span>
+            </div>
+          ) : (
+            <>
+              <p className="shopping-subtitle">{uncheckedCount} article{uncheckedCount > 1 ? 's' : ''} à acheter</p>
+              <h1>Courses 🛒</h1>
+            </>
+          )}
         </div>
+        {/* FAB avec anneau de progression */}
         <button 
-          className={`store-mode-toggle ${storeMode ? 'active' : ''}`}
+          className={`store-mode-fab ${storeMode ? 'active' : ''}`}
           onClick={() => setStoreMode(!storeMode)}
           title={storeMode ? 'Mode normal' : 'Mode magasin'}
         >
-          {storeMode ? '🏪' : '🛍️'}
+          <svg className="fab-progress-ring" viewBox="0 0 56 56">
+            <circle
+              className="fab-progress-bg"
+              cx="28"
+              cy="28"
+              r="24"
+            />
+            <circle
+              className="fab-progress-fill"
+              cx="28"
+              cy="28"
+              r="24"
+              strokeDasharray={`${2 * Math.PI * 24}`}
+              strokeDashoffset={`${2 * Math.PI * 24 * (1 - progressPercent / 100)}`}
+            />
+          </svg>
+          <span className="fab-icon">{storeMode ? '🏪' : '🛍️'}</span>
+          <span className="fab-count">{uncheckedCount}</span>
         </button>
       </header>
 
@@ -164,17 +193,16 @@ export default function ShoppingPage() {
                           </div>
                         ) : (
                           <>
-                            <label className="shop-item-label">
-                              <input
-                                type="checkbox"
-                                checked={item.checked}
-                                onChange={() => toggleItem(item.id, item.checked)}
-                              />
+                            <div 
+                              className="shop-item-content"
+                              onClick={() => !editingItem && toggleItem(item.id, item.checked)}
+                            >
+                              <span className={`shop-checkbox ${item.checked ? 'checked' : ''}`}></span>
                               <span className="shop-item-name">{item.name}</span>
                               {item.quantity_number && (
                                 <span className="shop-item-qty">{formatQuantity(item)}</span>
                               )}
-                            </label>
+                            </div>
                             <div className="shop-item-actions">
                               <button 
                                 className="shop-edit-btn"

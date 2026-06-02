@@ -24,38 +24,154 @@
   margin: 0 0 4px 0;
 }
 
-.store-mode-toggle {
-  width: 44px;
-  height: 44px;
+/* FAB Mode Magasin */
+.store-mode-fab {
+  position: fixed;
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  right: 16px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  border: 2px solid var(--border);
-  background: var(--surface);
-  font-size: 20px;
+  border: none;
+  background: var(--accent);
   cursor: pointer;
   transition: all 0.2s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  padding: 0;
 }
 
-.store-mode-toggle.active {
-  background: var(--primary);
-  border-color: var(--primary);
+.store-mode-fab:active {
+  transform: scale(0.92);
+}
+
+.fab-progress-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.fab-progress-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 3;
+}
+
+.fab-progress-fill {
+  fill: none;
+  stroke: white;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+
+.fab-icon {
+  font-size: 24px;
+  z-index: 1;
+}
+
+.fab-count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--danger, #ff5252);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.fab-count:empty,
+.fab-count[data-count="0"] {
+  display: none;
 }
 
 /* Mode magasin - interface simplifiée */
+.store-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.store-counter-number {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.store-counter-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .shopping-page.store-mode .shop-cat-title {
   font-size: 14px;
   padding: 8px 12px;
 }
 
 .shopping-page.store-mode .shop-item {
-  padding: 16px 12px;
+  padding: 20px 16px;
 }
 
 .shopping-page.store-mode .shop-item-name {
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .shopping-page.store-mode .shop-item-actions {
   display: none;
+}
+
+/* Checkbox personnalisée */
+.shop-checkbox {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  background: var(--background);
+}
+
+.shop-checkbox.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.shop-checkbox.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.shop-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.shop-item-content:active {
+  opacity: 0.7;
 }
 
 /* Contenu */
