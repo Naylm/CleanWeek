@@ -5,16 +5,42 @@ import AddTaskModal from '../components/AddTaskModal'
 import { CATEGORIES } from '../lib/taskUtils'
 import './TasksPage.css'
 
+const SORT_OPTIONS = [
+  { value: 'urgency', label: '⚡ Urgence', icon: '⚡' },
+  { value: 'name', label: '🔤 Nom', icon: '🔤' },
+  { value: 'frequency', label: '🔄 Fréquence', icon: '🔄' },
+  { value: 'created', label: '📅 Date création', icon: '📅' },
+]
+
+function sortTasks(tasks, sortBy) {
+  const list = [...tasks]
+  switch (sortBy) {
+    case 'name':
+      return list.sort((a, b) => a.name.localeCompare(b.name))
+    case 'frequency': {
+      const freqOrder = { daily: 1, weekly: 2, biweekly: 3, monthly: 4 }
+      return list.sort((a, b) => (freqOrder[a.frequency] || 5) - (freqOrder[b.frequency] || 5))
+    }
+    case 'created':
+      return list.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    case 'urgency':
+    default:
+      return sortTasksByUrgency(list)
+  }
+}
+
 export default function TasksPage() {
   const { tasks, loading, completeTask, snoozeTask, addTask, updateTask, deleteTask } = useTasks()
   const [showAdd, setShowAdd] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
+  const [sortBy, setSortBy] = useState('urgency')
+  const [showSortMenu, setShowSortMenu] = useState(false)
 
   const filtered = useMemo(() => {
     const list = tasks.filter(t => filterCategory === 'all' || t.category === filterCategory)
-    return sortTasksByUrgency(list)
-  }, [tasks, filterCategory])
+    return sortTasks(list, sortBy)
+  }, [tasks, filterCategory, sortBy])
 
   async function handleAddOrUpdate(taskData, taskId) {
     if (taskId) {
@@ -44,6 +70,31 @@ export default function TasksPage() {
         <div>
           <p className="tasks-subtitle">{tasks.length} tâche{tasks.length > 1 ? 's' : ''} au total</p>
           <h1>Toutes les tâches</h1>
+        </div>
+        <div className="sort-dropdown">
+          <button 
+            className="sort-btn"
+            onClick={() => setShowSortMenu(!showSortMenu)}
+            title="Trier par"
+          >
+            {SORT_OPTIONS.find(o => o.value === sortBy)?.icon || '⚡'} ↓
+          </button>
+          {showSortMenu && (
+            <div className="sort-menu">
+              {SORT_OPTIONS.map(option => (
+                <button
+                  key={option.value}
+                  className={`sort-option ${sortBy === option.value ? 'active' : ''}`}
+                  onClick={() => {
+                    setSortBy(option.value)
+                    setShowSortMenu(false)
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
