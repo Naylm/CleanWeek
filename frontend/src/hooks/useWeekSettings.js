@@ -16,7 +16,8 @@ export function useWeekSettings() {
   }, [])
 
   useEffect(() => {
-    fetchSettings()
+    const t = setTimeout(fetchSettings, 0)
+    return () => clearTimeout(t)
   }, [fetchSettings])
 
   async function updateSettings(updates) {

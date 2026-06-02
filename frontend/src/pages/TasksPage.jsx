@@ -11,13 +11,9 @@ export default function TasksPage() {
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
 
-  // Tâches filtrées ET triées par urgence
   const filtered = useMemo(() => {
-    const filtered = tasks.filter(t => {
-      if (filterCategory !== 'all' && t.category !== filterCategory) return false
-      return true
-    })
-    return sortTasksByUrgency(filtered)
+    const list = tasks.filter(t => filterCategory === 'all' || t.category === filterCategory)
+    return sortTasksByUrgency(list)
   }, [tasks, filterCategory])
 
   async function handleAddOrUpdate(taskData, taskId) {
@@ -45,10 +41,10 @@ export default function TasksPage() {
   return (
     <div className="tasks-page">
       <header className="tasks-header">
-        <h1>Toutes les tâches</h1>
-        <button className="btn-add" onClick={() => setShowAdd(true)} aria-label="Ajouter une tâche">
-          <span>+</span>
-        </button>
+        <div>
+          <p className="tasks-subtitle">{tasks.length} tâche{tasks.length > 1 ? 's' : ''} au total</p>
+          <h1>Toutes les tâches</h1>
+        </div>
       </header>
 
       <div className="filters">
@@ -79,7 +75,7 @@ export default function TasksPage() {
             <button className="btn-primary-sm" onClick={() => setShowAdd(true)}>+ Ajouter</button>
           </div>
         ) : (
-          <div className="task-list-swipe-full">
+          <div className="task-list">
             {filtered.map(task => (
               <TaskCardSwipe
                 key={task.id}
@@ -93,6 +89,10 @@ export default function TasksPage() {
           </div>
         )}
       </div>
+
+      <button className="fab" onClick={() => setShowAdd(true)} aria-label="Ajouter une tâche">
+        <span>+</span>
+      </button>
 
       {(showAdd || editingTask) && (
         <AddTaskModal

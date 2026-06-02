@@ -16,9 +16,12 @@ export function useShopping() {
   }, [])
 
   useEffect(() => {
-    fetchItems()
+    const t = setTimeout(fetchItems, 0)
     const interval = setInterval(fetchItems, 30000)
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(t)
+      clearInterval(interval)
+    }
   }, [fetchItems])
 
   async function addItem(item) {

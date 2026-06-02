@@ -1,16 +1,16 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 
 export function useNotifications() {
-  const [permission, setPermission] = useState('default')
+  const [permission, setPermission] = useState(() => {
+    if ('Notification' in window) return Notification.permission
+    return 'default'
+  })
   const notifiedTasks = useRef(new Set())
 
   // Request permission on mount
   useEffect(() => {
-    if ('Notification' in window) {
-      setPermission(Notification.permission)
-      if (Notification.permission === 'default') {
-        Notification.requestPermission().then(setPermission)
-      }
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(setPermission)
     }
   }, [])
 
@@ -21,7 +21,7 @@ export function useNotifications() {
     return result === 'granted'
   }, [])
 
-  const sendNotification = useCallback(({ title, body, icon = '📋' }) => {
+  const sendNotification = useCallback(({ title, body }) => {
     if (!('Notification' in window)) return
     if (Notification.permission !== 'granted') return
 

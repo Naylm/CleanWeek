@@ -1,4 +1,4 @@
-import { startOfDay, addDays, addWeeks, addMonths, isSameDay, isAfter, isBefore, getDay, differenceInDays } from 'date-fns'
+import { startOfDay, addDays, addWeeks, addMonths, isSameDay, isBefore, getDay, differenceInDays } from 'date-fns'
 
 /**
  * Calcule si une tache est due aujourd'hui en fonction de sa derniere completion et sa frequence.

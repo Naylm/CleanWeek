@@ -11,7 +11,6 @@ export default function HomePage() {
   const { plans, loading: mealsLoading } = useMeals()
   const { settings, loading: settingsLoading, getPeriodLabel } = useWeekSettings()
 
-  // Calculer la date de référence basée sur le décalage de semaine
   const referenceDate = useMemo(() => {
     if (!settings) return new Date()
     const today = new Date()
@@ -24,20 +23,15 @@ export default function HomePage() {
   const dateStr = referenceDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })
   const todayStr = referenceDate.toISOString().split('T')[0]
 
-  // Tâches du jour triées par urgence
   const todayTasks = useMemo(() => {
     const dueTasks = tasks.filter(t => isTaskDueToday(t, referenceDate))
     return sortTasksByUrgency(dueTasks)
   }, [tasks, referenceDate])
 
-  // Tâches à venir (inclut les fraîchement faites avec barre à 0%)
   const upcomingTasks = useMemo(() => {
     const futureTasks = tasks.filter(t => {
-      // Vérifier si la tâche a été faite aujourd'hui
       const doneToday = t.completions?.some(c => c.completed_at === todayStr)
-      // Si faite aujourd'hui, elle va dans "À venir" avec barre à 0%
       if (doneToday) return true
-      // Sinon, inclure si pas encore dûe
       const daysSince = getDaysSinceLastDone(t, referenceDate)
       const intervalDays = getTaskIntervalDays(t)
       return daysSince < intervalDays && !isTaskDueToday(t, referenceDate)
@@ -45,18 +39,13 @@ export default function HomePage() {
     return sortTasksByUrgency(futureTasks).slice(0, 5)
   }, [tasks, referenceDate, todayStr])
 
-  const todayDone = todayTasks.filter(t => {
-    return t.completions?.some(c => c.completed_at === todayStr)
-  })
-
+  const todayDone = todayTasks.filter(t => t.completions?.some(c => c.completed_at === todayStr))
   const progress = todayTasks.length > 0 ? Math.round((todayDone.length / todayTasks.length) * 100) : 0
 
   const tonightMeal = plans.find(p => p.date === todayStr && p.meal === 'dinner')
   const remainingTasks = todayTasks.length - todayDone.length
-
   const isCurrentWeek = !settings || settings.current_week_offset === 0
 
-  // Handler pour reporter une tâche
   const handleSnooze = useCallback((taskId, days) => {
     snoozeTask(taskId, days)
   }, [snoozeTask])
@@ -65,85 +54,93 @@ export default function HomePage() {
     return <div className="page-loading"><div className="spinner" /></div>
   }
 
+  // Jauge circulaire
+  const R = 26
+  const C = 2 * Math.PI * R
+  const dash = C * (progress / 100)
+
   return (
     <div className="home-page">
       <header className="home-header">
         <div className="home-header-top">
           <div>
             <p className="home-date">{dateStr}</p>
-            <h1 className="home-greeting">{isCurrentWeek ? "Bonjour 🏠" : `Semaine ${getPeriodLabel()} 🏠`}</h1>
+            <h1 className="home-greeting">{isCurrentWeek ? 'Bonjour' : `Semaine ${getPeriodLabel()}`}</h1>
           </div>
-          <div className="home-mascot">🐱</div>
+          <div className="home-mascot">🧺</div>
         </div>
 
         <div className="progress-card">
-          <div className="progress-header">
-            <span>On avance bien ?</span>
-            <span className="progress-count">{todayDone.length}/{todayTasks.length}</span>
+          <div className="progress-ring-wrap">
+            <svg className="progress-ring" width="68" height="68" viewBox="0 0 68 68">
+              <circle className="ring-bg" cx="34" cy="34" r={R} />
+              <circle
+                className="ring-fill"
+                cx="34" cy="34" r={R}
+                strokeDasharray={`${dash} ${C}`}
+                transform="rotate(-90 34 34)"
+              />
+            </svg>
+            <span className="progress-ring-pct">{progress}%</span>
           </div>
-          <div className="progress-bar-bg">
-            <div className="progress-bar-fill" style={{ width: `${progress}%` }} />
+          <div className="progress-info">
+            <span className="progress-title">
+              {progress === 100 && todayTasks.length > 0 ? 'Tout est fait !' : 'On avance bien ?'}
+            </span>
+            <span className="progress-sub">
+              {todayTasks.length === 0
+                ? 'Rien de prévu aujourd\'hui'
+                : `${todayDone.length} sur ${todayTasks.length} ${todayTasks.length > 1 ? 'tâches' : 'tâche'}`}
+            </span>
           </div>
-          {progress === 100 && todayTasks.length > 0 && (
-            <p className="progress-done">Tout est fait ! Bravo 🎉</p>
-          )}
+          {progress === 100 && todayTasks.length > 0 && <span className="progress-party">🎉</span>}
         </div>
       </header>
 
       {(tonightMeal || remainingTasks > 0) && (
         <div className="tonight-card">
-          <div className="tonight-row">
-            {tonightMeal && (
-              <div className="tonight-meal">
-                <span className="tonight-label">Ce soir 🍽️</span>
-                <span className="tonight-content">{tonightMeal.content}</span>
-                {tonightMeal.notes && <span className="tonight-notes">{tonightMeal.notes}</span>}
-              </div>
-            )}
-            {remainingTasks > 0 && (
-              <div className="tonight-tasks">
-                <span className="tonight-label">Reste à faire</span>
-                <span className="tonight-count">{remainingTasks} tâche{remainingTasks > 1 ? 's' : ''}</span>
-              </div>
-            )}
-          </div>
+          {tonightMeal && (
+            <div className="tonight-meal">
+              <span className="tonight-label">Ce soir 🍽️</span>
+              <span className="tonight-content">{tonightMeal.content}</span>
+              {tonightMeal.notes && <span className="tonight-notes">{tonightMeal.notes}</span>}
+            </div>
+          )}
+          {remainingTasks > 0 && (
+            <div className="tonight-tasks">
+              <span className="tonight-label">Reste à faire</span>
+              <span className="tonight-count">{remainingTasks} tâche{remainingTasks > 1 ? 's' : ''}</span>
+            </div>
+          )}
         </div>
       )}
 
       <section className="home-section">
-        <h2 className="section-title">{isCurrentWeek ? "Aujourd'hui" : "Cette période"}</h2>
+        <h2 className="section-title">{isCurrentWeek ? "Aujourd'hui" : 'Cette période'}</h2>
         {todayTasks.length === 0 ? (
           <div className="empty-state">
             <span>✨</span>
             <p>Rien à faire, profite !</p>
           </div>
         ) : (
-          <div className="task-list-swipe">
+          <div className="task-list">
             {todayTasks.map(task => (
-              <TaskCardSwipe
-                key={task.id}
-                task={task}
-                onComplete={completeTask}
-                onSnooze={handleSnooze}
-              />
+              <TaskCardSwipe key={task.id} task={task} onComplete={completeTask} onSnooze={handleSnooze} />
             ))}
           </div>
         )}
       </section>
 
-      <section className="home-section">
-        <h2 className="section-title">À venir</h2>
-        <div className="task-list-swipe">
-          {upcomingTasks.map(task => (
-            <TaskCardSwipe
-              key={task.id}
-              task={task}
-              onComplete={completeTask}
-              onSnooze={handleSnooze}
-            />
-          ))}
-        </div>
-      </section>
+      {upcomingTasks.length > 0 && (
+        <section className="home-section">
+          <h2 className="section-title">À venir</h2>
+          <div className="task-list">
+            {upcomingTasks.map(task => (
+              <TaskCardSwipe key={task.id} task={task} onComplete={completeTask} onSnooze={handleSnooze} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 .home-page {
-  padding-bottom: 24px;
+  padding-bottom: 8px;
 }
 
 .page-loading {
@@ -10,8 +10,8 @@
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: 3px solid var(--border);
   border-top-color: var(--accent);
   border-radius: 50%;
@@ -23,113 +23,136 @@
 }
 
 .home-header {
-  background: linear-gradient(160deg, var(--bg-card2) 0%, var(--bg-card) 100%);
-  padding: 20px 20px 24px;
-  border-bottom: 1px solid var(--border);
+  padding: calc(var(--safe-top) + 16px) 20px 20px;
 }
 
 .home-header-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .home-date {
   color: var(--text-muted);
-  font-size: 13px;
+  font-size: var(--fs-sm);
   text-transform: capitalize;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  font-weight: 500;
 }
 
 .home-greeting {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: var(--fs-2xl);
+  font-weight: 800;
+  letter-spacing: -0.4px;
   color: var(--text);
 }
 
 .home-mascot {
-  font-size: 36px;
+  font-size: 38px;
   line-height: 1;
 }
 
+/* Carte de progression avec anneau */
 .progress-card {
-  background: rgba(255, 183, 178, 0.15);
-  border: 1px solid rgba(255, 183, 178, 0.3);
-  border-radius: var(--radius);
-  padding: 16px;
-}
-
-.progress-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.progress-count {
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.progress-bar-bg {
-  height: 8px;
-  background: rgba(0,0,0,0.04);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent3));
-  border-radius: 999px;
-  transition: width 0.5s ease;
-}
-
-.progress-done {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--accent);
-  text-align: center;
-  font-weight: 600;
-}
-
-.tonight-card {
+  gap: 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  margin: 12px 16px 0;
-  padding: 12px 14px;
+  padding: 16px 18px;
   box-shadow: var(--shadow);
 }
 
-.tonight-row {
+.progress-ring-wrap {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+}
+
+.progress-ring { display: block; }
+
+.ring-bg {
+  fill: none;
+  stroke: var(--bg-soft);
+  stroke-width: 7;
+}
+
+.ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke-dasharray 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.progress-ring-pct {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.progress-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.progress-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+
+.progress-sub {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.progress-party {
+  font-size: 28px;
+  animation: cardPulse 0.6s ease;
+}
+
+/* Carte "ce soir" */
+.tonight-card {
+  display: flex;
+  gap: 14px;
   flex-wrap: wrap;
+  background: var(--bg-card2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 14px 16px 0;
+  padding: 14px 16px;
 }
 
 .tonight-meal,
 .tonight-tasks {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-width: 0;
 }
 
 .tonight-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   color: var(--text-muted);
 }
 
 .tonight-content {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 600;
 }
 
@@ -139,22 +162,23 @@
 }
 
 .tonight-count {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--accent);
+  font-size: var(--fs-md);
+  font-weight: 800;
+  color: var(--accent-strong);
 }
 
 .home-section {
-  padding: 20px 16px 0;
+  padding: 22px 16px 0;
 }
 
 .section-title {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.9px;
   color: var(--text-muted);
   margin-bottom: 12px;
+  padding-left: 2px;
 }
 
 .task-list {
@@ -167,13 +191,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 32px 16px;
+  gap: 10px;
+  padding: 38px 16px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: var(--fs-md);
   text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
 }
 
 .empty-state span {
-  font-size: 28px;
+  font-size: 34px;
 }

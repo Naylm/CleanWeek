@@ -21,9 +21,12 @@ export function useMeals() {
   }, [])
 
   useEffect(() => {
-    fetchPlans()
+    const t = setTimeout(fetchPlans, 0)
     const interval = setInterval(fetchPlans, 30000)
-    return () => clearInterval(interval)
+    return () => {
+      clearTimeout(t)
+      clearInterval(interval)
+    }
   }, [fetchPlans])
 
   async function setMeal({ date, meal, content, notes, created_by }) {

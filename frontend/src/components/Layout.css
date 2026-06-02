@@ -3,6 +3,24 @@
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
+  width: 100%;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  position: relative;
+  background: var(--bg);
+  background-image: var(--bg-grad);
+}
+
+/* Cadre "appareil" visible sur grands écrans (iPad) */
+@media (min-width: 700px) {
+  .layout {
+    height: calc(100dvh - 32px);
+    margin: 16px auto;
+    border-radius: 34px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+  }
 }
 
 .layout-main {
@@ -10,43 +28,66 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-top: var(--safe-top);
+  /* Laisse la place à la barre flottante */
+  padding-bottom: calc(96px + var(--safe-bottom));
   -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
 }
 
 .layout-nav {
+  position: absolute;
+  left: 50%;
+  bottom: calc(12px + var(--safe-bottom));
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border);
-  padding: 8px 0;
-  padding-bottom: calc(8px + var(--safe-bottom));
-  position: relative;
+  gap: 2px;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  padding: 8px;
+  background: var(--bg-card); background: color-mix(in srgb, var(--bg-card) 82%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 26px;
   z-index: 100;
-  flex-shrink: 0;
-  box-shadow: 0 -4px 20px rgba(0,0,0,0.04);
+  box-shadow: var(--shadow-lg);
 }
 
 .nav-item {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 6px;
+  border-radius: 18px;
   color: var(--text-muted);
-  transition: color 0.2s;
+  transition: color var(--t-med), background var(--t-med), transform var(--t-fast);
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.3px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
   flex: 1;
+  min-height: 52px;
+}
+
+.nav-item:active {
+  transform: scale(0.92);
 }
 
 .nav-icon {
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1;
+  transition: transform var(--t-spring);
 }
 
 .nav-item.active {
-  color: var(--accent);
+  color: var(--accent-strong);
+  background: var(--bg-soft);
+}
+
+.nav-item.active .nav-icon {
+  transform: translateY(-1px) scale(1.12);
 }

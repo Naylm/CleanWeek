@@ -4,15 +4,15 @@ import { DAYS_OF_WEEK } from '../lib/taskUtils'
 import './SettingsPage.css'
 
 const THEMES = [
-  { key: 'rose', label: 'Rose', color: '#FFB7B2', preview: '🌸' },
-  { key: 'bleu', label: 'Bleu', color: '#A0C4FF', preview: '🦋' },
-  { key: 'vert', label: 'Vert', color: '#98D8C8', preview: '🌿' },
-  { key: 'jaune', label: 'Jaune', color: '#FFD97D', preview: '🌻' },
-  { key: 'lavande', label: 'Lavande', color: '#C9B1FF', preview: '💜' },
+  { key: 'rose', label: 'Rose', color: '#FF9E97', preview: '🌸' },
+  { key: 'bleu', label: 'Bleu', color: '#6FA8FF', preview: '🦋' },
+  { key: 'vert', label: 'Vert', color: '#5BBF97', preview: '🌿' },
+  { key: 'jaune', label: 'Jaune', color: '#F2C14E', preview: '🌻' },
+  { key: 'lavande', label: 'Lavande', color: '#B398FF', preview: '💜' },
 ]
 
 export default function SettingsPage() {
-  const { logout, theme, setTheme } = useCurrentUser()
+  const { theme, setTheme } = useCurrentUser()
   const { settings, loading, setStartDayOfWeek, goToCurrentWeek } = useWeekSettings()
 
   const startDay = settings?.start_day_of_week ?? 5
@@ -20,8 +20,11 @@ export default function SettingsPage() {
   return (
     <div className="settings-page">
       <header className="settings-header">
-        <h1>Réglages</h1>
-        <div className="settings-mascot">🐱</div>
+        <div>
+          <p className="settings-subtitle">Personnalise ton CleanWeek</p>
+          <h1>Réglages</h1>
+        </div>
+        <div className="settings-mascot">🧺</div>
       </header>
 
       <div className="settings-card">
@@ -37,7 +40,7 @@ export default function SettingsPage() {
                 className={`settings-day-btn${startDay === day.value ? ' active' : ''}`}
                 onClick={() => setStartDayOfWeek(day.value)}
               >
-                {day.label}
+                {day.short}
               </button>
             ))
           )}
@@ -64,18 +67,12 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="settings-card">
-        <h2 className="settings-section-title">À propos</h2>
-        <p className="settings-text">
-          CleanWeek — l'application pour gérer la maison ensemble, tout en douceur.
-        </p>
-      </div>
-
-      <div className="settings-card">
-        <button className="settings-logout" onClick={logout}>
-          <span>🚪</span>
-          <span>Se déconnecter</span>
-        </button>
+      <div className="settings-card settings-about">
+        <span className="settings-about-emoji">🏠</span>
+        <div>
+          <p className="settings-about-title">CleanWeek</p>
+          <p className="settings-text">La maison ensemble, tout en douceur. Données partagées entre tous les appareils.</p>
+        </div>
       </div>
     </div>
   )

@@ -1,14 +1,19 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 
-const SWIPE_THRESHOLD = 80 // Distance minimum pour valider un swipe
-const LONG_PRESS_DURATION = 500 // ms pour appui long
+const SWIPE_THRESHOLD = 50
+const LONG_PRESS_DURATION = 500
 
 export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
   const [offset, setOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const offsetRef = useRef(0)
   const touchStart = useRef({ x: 0, y: 0, time: 0 })
   const longPressTimer = useRef(null)
   const isLongPress = useRef(false)
+
+  useEffect(() => {
+    offsetRef.current = offset
+  }, [offset])
 
   const handleTouchStart = useCallback((e) => {
     const touch = e.touches[0]
@@ -16,12 +21,10 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
     isLongPress.current = false
     setIsDragging(true)
 
-    // Démarrer le timer pour l'appui long
     longPressTimer.current = setTimeout(() => {
       isLongPress.current = true
       if (onLongPress) {
         onLongPress()
-        // Vibration tactile si dispo
         if (navigator.vibrate) navigator.vibrate(50)
       }
     }, LONG_PRESS_DURATION)
@@ -34,7 +37,6 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
     const deltaX = touch.clientX - touchStart.current.x
     const deltaY = touch.clientY - touchStart.current.y
 
-    // Annuler l'appui long si on bouge trop
     if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
       if (longPressTimer.current) {
         clearTimeout(longPressTimer.current)
@@ -42,12 +44,10 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
       }
     }
 
-    // Verrouiller le défilement horizontal
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
       e.preventDefault()
     }
 
-    // Limiter le déplacement visuel
     const maxOffset = 150
     const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
     setOffset(limitedOffset)
@@ -56,45 +56,39 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
   const handleTouchEnd = useCallback(() => {
     setIsDragging(false)
 
-    // Nettoyer le timer
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current)
       longPressTimer.current = null
     }
 
-    // Ignorer si c'était un appui long
     if (isLongPress.current) {
       setOffset(0)
       return
     }
 
     const deltaTime = Date.now() - touchStart.current.time
+    const currentOffset = offsetRef.current
 
-    // Tap rapide (moins de 200ms et peu de déplacement)
-    if (deltaTime < 200 && Math.abs(offset) < 10) {
+    if (deltaTime < 200 && Math.abs(currentOffset) < 10) {
       if (onTap) onTap()
       setOffset(0)
       return
     }
 
-    // Swipe droit (fait)
-    if (offset > SWIPE_THRESHOLD) {
+    if (currentOffset > SWIPE_THRESHOLD) {
       if (onSwipeRight) {
         onSwipeRight()
         if (navigator.vibrate) navigator.vibrate(20)
       }
-    }
-    // Swipe gauche (reporter)
-    else if (offset < -SWIPE_THRESHOLD) {
+    } else if (currentOffset < -SWIPE_THRESHOLD) {
       if (onSwipeLeft) {
         onSwipeLeft()
         if (navigator.vibrate) navigator.vibrate(20)
       }
     }
 
-    // Revenir à la position initiale avec animation
     setOffset(0)
-  }, [offset, onSwipeRight, onSwipeLeft, onTap])
+  }, [onSwipeRight, onSwipeLeft, onTap])
 
   const handleMouseDown = useCallback((e) => {
     touchStart.current = { x: e.clientX, y: e.clientY, time: Date.now() }

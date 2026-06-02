@@ -190,7 +190,6 @@ export default function PlanningPage() {
         <div className="shopping-section">
           {/* Repas à prévoir */}
           {(() => {
-            const todayStr = new Date().toISOString().split('T')[0]
             const pendingMeals = weekDays.flatMap(day =>
               MEALS.map(meal => {
                 const m = getMeal(day.date, meal.value)

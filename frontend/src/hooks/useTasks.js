@@ -20,7 +20,18 @@ export function useTasks() {
   }, [])
 
   useEffect(() => {
-    fetchTasks()
+    const t = setTimeout(fetchTasks, 0)
+    // Mode partagé : garder les données synchronisées entre appareils
+    const interval = setInterval(fetchTasks, 20000)
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchTasks() }
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', fetchTasks)
+    return () => {
+      clearTimeout(t)
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', fetchTasks)
+    }
   }, [fetchTasks])
 
   const addTask = useCallback(async (taskData) => {
