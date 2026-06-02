@@ -154,29 +154,127 @@ app.patch('/api/week-settings', (req, res) => {
 
 // ============ SHOPPING ============
 app.get('/api/shopping', (_req, res) => {
-  const rows = db.prepare('SELECT * FROM shopping_items ORDER BY checked, created_at DESC').all()
+  const rows = db.prepare('SELECT * FROM shopping_items ORDER BY checked, sort_order, created_at DESC').all()
   res.json(rows)
 })
 
 app.post('/api/shopping', (req, res) => {
-  const { name, category } = req.body
+  const { name, category, quantity_number, quantity_unit } = req.body
   if (!name?.trim()) return res.status(400).json({ error: 'name required' })
   const id = randomUUID()
-  db.prepare('INSERT INTO shopping_items (id, name, category) VALUES (?, ?, ?)')
-    .run(id, name.trim(), category || 'autre')
+  db.prepare(`INSERT INTO shopping_items 
+    (id, name, category, quantity_number, quantity_unit) 
+    VALUES (?, ?, ?, ?, ?)`)
+    .run(id, name.trim(), category || 'autre', quantity_number || null, quantity_unit || 'unit')
   const item = db.prepare('SELECT * FROM shopping_items WHERE id = ?').get(id)
   res.status(201).json(item)
 })
 
 app.patch('/api/shopping/:id', (req, res) => {
-  const { checked } = req.body
-  db.prepare('UPDATE shopping_items SET checked = COALESCE(?, checked) WHERE id = ?')
-    .run(checked !== undefined ? (checked ? 1 : 0) : undefined, req.params.id)
+  const { checked, name, category, quantity_number, quantity_unit } = req.body
+  db.prepare(`UPDATE shopping_items SET 
+    checked = COALESCE(?, checked),
+    name = COALESCE(?, name),
+    category = COALESCE(?, category),
+    quantity_number = COALESCE(?, quantity_number),
+    quantity_unit = COALESCE(?, quantity_unit)
+    WHERE id = ?`)
+    .run(
+      checked !== undefined ? (checked ? 1 : 0) : undefined,
+      name,
+      category,
+      quantity_number,
+      quantity_unit,
+      req.params.id
+    )
+  res.json({ ok: true })
+})
+
+// Reorder shopping item
+app.patch('/api/shopping/:id/reorder', (req, res) => {
+  const { sort_order } = req.body
+  if (sort_order === undefined) return res.status(400).json({ error: 'sort_order required' })
+  db.prepare('UPDATE shopping_items SET sort_order = ? WHERE id = ?').run(sort_order, req.params.id)
   res.json({ ok: true })
 })
 
 app.delete('/api/shopping/:id', (req, res) => {
   db.prepare('DELETE FROM shopping_items WHERE id = ?').run(req.params.id)
+  res.json({ ok: true })
+})
+
+// ============ USER FEATURES ============
+app.get('/api/user/features', (_req, res) => {
+  const features = db.prepare('SELECT * FROM user_features WHERE id = 1').get()
+  if (!features) {
+    db.prepare('INSERT INTO user_features DEFAULT VALUES').run()
+    const newFeatures = db.prepare('SELECT * FROM user_features WHERE id = 1').get()
+    return res.json(newFeatures)
+  }
+  res.json(features)
+})
+
+app.patch('/api/user/features', (req, res) => {
+  const { shopping_page_enabled, offline_mode_enabled, reminders_enabled } = req.body
+  db.prepare(`
+    UPDATE user_features SET
+      shopping_page_enabled = COALESCE(?, shopping_page_enabled),
+      offline_mode_enabled = COALESCE(?, offline_mode_enabled),
+      reminders_enabled = COALESCE(?, reminders_enabled),
+      updated_at = (unixepoch() * 1000)
+    WHERE id = 1
+  `).run(
+    shopping_page_enabled !== undefined ? (shopping_page_enabled ? 1 : 0) : undefined,
+    offline_mode_enabled !== undefined ? (offline_mode_enabled ? 1 : 0) : undefined,
+    reminders_enabled !== undefined ? (reminders_enabled ? 1 : 0) : undefined
+  )
+  const features = db.prepare('SELECT * FROM user_features WHERE id = 1').get()
+  res.json(features)
+})
+
+// ============ REMINDER SLOTS ============
+app.get('/api/reminders', (_req, res) => {
+  const slots = db.prepare('SELECT * FROM reminder_slots ORDER BY time').all()
+  res.json(slots)
+})
+
+app.post('/api/reminders', (req, res) => {
+  const { label, time, days_of_week, message_template } = req.body
+  if (!label?.trim() || !time?.trim()) {
+    return res.status(400).json({ error: 'label and time required' })
+  }
+  const id = randomUUID()
+  db.prepare(`INSERT INTO reminder_slots 
+    (id, label, time, days_of_week, message_template) 
+    VALUES (?, ?, ?, ?, ?)`)
+    .run(id, label.trim(), time, days_of_week ? JSON.stringify(days_of_week) : null, message_template || 'Il reste {remaining} tâches')
+  const slot = db.prepare('SELECT * FROM reminder_slots WHERE id = ?').get(id)
+  res.status(201).json(slot)
+})
+
+app.patch('/api/reminders/:id', (req, res) => {
+  const { label, time, days_of_week, enabled, message_template } = req.body
+  db.prepare(`
+    UPDATE reminder_slots SET
+      label = COALESCE(?, label),
+      time = COALESCE(?, time),
+      days_of_week = COALESCE(?, days_of_week),
+      enabled = COALESCE(?, enabled),
+      message_template = COALESCE(?, message_template)
+    WHERE id = ?
+  `).run(
+    label,
+    time,
+    days_of_week ? JSON.stringify(days_of_week) : undefined,
+    enabled !== undefined ? (enabled ? 1 : 0) : undefined,
+    message_template,
+    req.params.id
+  )
+  res.json({ ok: true })
+})
+
+app.delete('/api/reminders/:id', (req, res) => {
+  db.prepare('DELETE FROM reminder_slots WHERE id = ?').run(req.params.id)
   res.json({ ok: true })
 })
 
