@@ -69,30 +69,23 @@ export default function TasksPage() {
           <p className="tasks-subtitle">{tasks.length} tâche{tasks.length > 1 ? 's' : ''} au total</p>
           <h1>Toutes les tâches</h1>
         </div>
-        <div className="sort-dropdown">
-          <button 
-            className="sort-btn"
-            onClick={() => setShowSortMenu(!showSortMenu)}
-            title="Trier par"
-          >
-            {SORT_OPTIONS.find(o => o.value === sortBy)?.icon || '⚡'} ↓
-          </button>
-          {showSortMenu && (
-            <div className="sort-menu">
+        {/* Liste déroulante de tri */}
+        <div className="sort-select-wrapper">
+          <label className="sort-label">Trier par</label>
+          <div className="sort-select-container">
+            <select 
+              className="sort-select"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
               {SORT_OPTIONS.map(option => (
-                <button
-                  key={option.value}
-                  className={`sort-option ${sortBy === option.value ? 'active' : ''}`}
-                  onClick={() => {
-                    setSortBy(option.value)
-                    setShowSortMenu(false)
-                  }}
-                >
-                  {option.label}
-                </button>
+                <option key={option.value} value={option.value}>
+                  {option.icon} {option.label}
+                </option>
               ))}
-            </div>
-          )}
+            </select>
+            <span className="sort-select-arrow">▼</span>
+          </div>
         </div>
       </header>
 
