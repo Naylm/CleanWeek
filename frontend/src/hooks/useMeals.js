@@ -84,5 +84,5 @@ export function useMeals() {
     }
   }
 
-  return { plans, loading, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS, refetch: fetchPlans }
+  return { plans, loading, setMeal, updateMeal, deleteMeal, toggleShoppingDone, swapMeals, MEALS, refresh: fetchPlans }
 }

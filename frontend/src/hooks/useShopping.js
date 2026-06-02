@@ -84,5 +84,5 @@ export function useShopping() {
     }
   }
 
-  return { items, loading, addItem, updateItem, toggleItem, deleteItem, reorderItem, refetch: fetchItems }
+  return { items, loading, addItem, updateItem, toggleItem, deleteItem, reorderItem, refresh: fetchItems }
 }

@@ -102,6 +102,6 @@ export function useWeekSettings() {
     goToPreviousWeek,
     goToNextWeek,
     goToCurrentWeek,
-    refetch: fetchSettings,
+    refresh: fetchSettings,
   }
 }

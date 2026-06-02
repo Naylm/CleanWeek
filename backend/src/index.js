@@ -3,13 +3,30 @@ import cors from 'cors'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import { fileURLToPath } from 'url'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import db from './db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const app = express()
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+  cors: { origin: true, credentials: true }
+})
 const PORT = 3001
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id)
+  socket.on('disconnect', () => console.log('Client disconnected:', socket.id))
+})
+
+// Helper to broadcast updates
+function broadcastUpdate(type, data) {
+  io.emit('update', { type, data, timestamp: Date.now() })
+}
 
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
@@ -53,6 +70,7 @@ app.post('/api/tasks', (req, res) => {
   }
 
   const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id)
+  broadcastUpdate('task_added', task)
   res.status(201).json(task)
 })
 
@@ -81,19 +99,25 @@ app.patch('/api/tasks/:id', (req, res) => {
     }
   }
 
+  const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(req.params.id)
+  broadcastUpdate('task_updated', updatedTask)
   res.json({ ok: true })
 })
 
 app.delete('/api/tasks/:id', (req, res) => {
-  db.prepare('DELETE FROM tasks WHERE id = ?').run(req.params.id)
+  const taskId = req.params.id
+  db.prepare('DELETE FROM tasks WHERE id = ?').run(taskId)
+  broadcastUpdate('task_deleted', { id: taskId })
   res.json({ ok: true })
 })
 
 app.post('/api/completions', (req, res) => {
   const { task_id, completed_by, completed_at } = req.body
   try {
-    db.prepare('INSERT INTO completions (task_id, completed_by, completed_at) VALUES (?, ?, ?)')
-      .run(task_id, completed_by || null, completed_at)
+    const id = randomUUID()
+    db.prepare('INSERT INTO completions (id, task_id, completed_by, completed_at) VALUES (?, ?, ?, ?)')
+      .run(id, task_id, completed_by || null, completed_at)
+    broadcastUpdate('completion_added', { id, task_id, completed_by, completed_at })
     res.status(201).json({ ok: true })
   } catch (err) {
     res.status(400).json({ error: 'Already completed today' })
@@ -101,7 +125,9 @@ app.post('/api/completions', (req, res) => {
 })
 
 app.delete('/api/completions/:id', (req, res) => {
-  db.prepare('DELETE FROM completions WHERE id = ?').run(req.params.id)
+  const completionId = req.params.id
+  db.prepare('DELETE FROM completions WHERE id = ?').run(completionId)
+  broadcastUpdate('completion_deleted', { id: completionId })
   res.json({ ok: true })
 })
 
@@ -149,6 +175,7 @@ app.patch('/api/week-settings', (req, res) => {
     currentWeekOffset !== undefined ? currentWeekOffset : null
   )
   const settings = db.prepare('SELECT * FROM week_settings WHERE id = 1').get()
+  broadcastUpdate('week_settings_updated', settings)
   res.json(settings)
 })
 
@@ -167,6 +194,7 @@ app.post('/api/shopping', (req, res) => {
     VALUES (?, ?, ?, ?, ?)`)
     .run(id, name.trim(), category || 'autre', quantity_number || null, quantity_unit || 'unit')
   const item = db.prepare('SELECT * FROM shopping_items WHERE id = ?').get(id)
+  broadcastUpdate('shopping_added', item)
   res.status(201).json(item)
 })
 
@@ -187,6 +215,8 @@ app.patch('/api/shopping/:id', (req, res) => {
       quantity_unit,
       req.params.id
     )
+  const updatedItem = db.prepare('SELECT * FROM shopping_items WHERE id = ?').get(req.params.id)
+  broadcastUpdate('shopping_updated', updatedItem)
   res.json({ ok: true })
 })
 
@@ -199,7 +229,9 @@ app.patch('/api/shopping/:id/reorder', (req, res) => {
 })
 
 app.delete('/api/shopping/:id', (req, res) => {
-  db.prepare('DELETE FROM shopping_items WHERE id = ?').run(req.params.id)
+  const itemId = req.params.id
+  db.prepare('DELETE FROM shopping_items WHERE id = ?').run(itemId)
+  broadcastUpdate('shopping_deleted', { id: itemId })
   res.json({ ok: true })
 })
 
@@ -322,6 +354,7 @@ app.post('/api/meals', (req, res) => {
   db.prepare('INSERT INTO meal_plans (id, date, meal, content, notes) VALUES (?, ?, ?, ?, ?)')
     .run(id, date, meal, content || '', notes || null)
   const item = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id)
+  broadcastUpdate('meal_added', item)
   res.status(201).json(item)
 })
 
@@ -329,11 +362,15 @@ app.patch('/api/meals/:id', (req, res) => {
   const { content, notes, shopping_done } = req.body
   db.prepare('UPDATE meal_plans SET content = COALESCE(?, content), notes = COALESCE(?, notes), shopping_done = COALESCE(?, shopping_done) WHERE id = ?')
     .run(content, notes, shopping_done !== undefined ? (shopping_done ? 1 : 0) : undefined, req.params.id)
+  const updatedMeal = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(req.params.id)
+  broadcastUpdate('meal_updated', updatedMeal)
   res.json({ ok: true })
 })
 
 app.delete('/api/meals/:id', (req, res) => {
-  db.prepare('DELETE FROM meal_plans WHERE id = ?').run(req.params.id)
+  const mealId = req.params.id
+  db.prepare('DELETE FROM meal_plans WHERE id = ?').run(mealId)
+  broadcastUpdate('meal_deleted', { id: mealId })
   res.json({ ok: true })
 })
 
@@ -350,6 +387,10 @@ app.post('/api/meals/swap', (req, res) => {
   db.prepare('UPDATE meal_plans SET content = ?, notes = ? WHERE id = ?')
     .run(m1.content, m1.notes, m2.id)
 
+  const updatedM1 = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id1)
+  const updatedM2 = db.prepare('SELECT * FROM meal_plans WHERE id = ?').get(id2)
+  broadcastUpdate('meal_swapped', { m1: updatedM1, m2: updatedM2 })
+
   res.json({ ok: true })
 })
 
@@ -358,6 +399,7 @@ app.use((_req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'))
 })
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`CleanWeek backend running on port ${PORT}`)
+  console.log(`Socket.IO ready for real-time sync`)
 })

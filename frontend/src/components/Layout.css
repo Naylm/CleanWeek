@@ -91,3 +91,31 @@
 .nav-item.active .nav-icon {
   transform: translateY(-1px) scale(1.12);
 }
+
+/* Indicateur temps réel */
+.realtime-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+
+.realtime-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff5252;
+  transition: background 0.3s ease;
+}
+
+.realtime-indicator.connected .realtime-dot {
+  background: #4caf50;
+  box-shadow: 0 0 6px #4caf50;
+}

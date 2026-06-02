@@ -1,5 +1,6 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { useFeatures } from '../hooks/FeaturesProvider.jsx'
+import { useRealtimeStatus } from '../contexts/RealtimeContext.jsx'
 import './Layout.css'
 
 const baseNavItems = [
@@ -12,6 +13,7 @@ const settingsItem = { to: '/settings', label: 'Réglages', icon: '⚙️' }
 
 export default function Layout() {
   const { features, loading } = useFeatures()
+  const { isConnected } = useRealtimeStatus() || {}
 
   const navItems = [...baseNavItems]
   
@@ -33,6 +35,10 @@ export default function Layout() {
             <span>{label}</span>
           </NavLink>
         ))}
+        {/* Indicateur temps réel */}
+        <div className={`realtime-indicator${isConnected ? ' connected' : ''}`} title={isConnected ? 'Temps réel connecté' : 'Temps réel déconnecté'}>
+          <span className="realtime-dot" />
+        </div>
       </nav>
     </div>
   )
