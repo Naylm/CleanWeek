@@ -258,7 +258,7 @@ export const FOODS_DATABASE = [
   { name: 'Film alimentaire', category: 'hygiene', keywords: 'film alimentaire transparent' },
   { name: 'Papier aluminium', category: 'hygiene', keywords: 'papier aluminium alu' },
   { name: 'Sacs de congélation', category: 'hygiene', keywords: 'sac congélation congélateur' },
-  { name: 'Charbon de bois', category: 'hygiene', keywords: 'charbon bois barbecue' },
-  { name: 'Allume-feu', category: 'hygiene', keywords: 'allume feu barbecue' },
-  { name: 'Glace', category: 'boissons', keywords: 'glace glaçon' },
+  { name: 'Charbon de bois', category: 'autre', keywords: 'charbon bois barbecue' },
+  { name: 'Allume-feu', category: 'autre', keywords: 'allume feu barbecue' },
+  { name: 'Glace', category: 'autre', keywords: 'glace glaçon' },
 ]
