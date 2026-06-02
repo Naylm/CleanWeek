@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
+import { onRefresh } from '../lib/events'
 
 const MEALS = [
   { value: 'lunch', label: 'Déjeuner' },
@@ -23,9 +24,11 @@ export function useMeals() {
   useEffect(() => {
     const t = setTimeout(fetchPlans, 0)
     const interval = setInterval(fetchPlans, 30000)
+    const unsub = onRefresh((type) => { if (type === 'meals') fetchPlans() })
     return () => {
       clearTimeout(t)
       clearInterval(interval)
+      unsub()
     }
   }, [fetchPlans])
 

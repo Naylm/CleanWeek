@@ -1,9 +1,6 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
-import { useTasks } from '../hooks/useTasks'
-import { useMeals } from '../hooks/useMeals'
-import { useShopping } from '../hooks/useShopping'
-import { useWeekSettings } from '../hooks/useWeekSettings'
+import { emitRefresh } from '../lib/events'
 
 const SOCKET_URL = import.meta.env.VITE_API_URL || window.location.origin
 
@@ -11,14 +8,6 @@ const RealtimeContext = createContext(null)
 
 export function RealtimeProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false)
-  const { refresh: refreshTasks } = useTasks()
-  const { refresh: refreshMeals } = useMeals()
-  const { refresh: refreshShopping } = useShopping()
-  const { refresh: refreshSettings } = useWeekSettings()
-
-  // Ref pour garder les callbacks à jour sans reconnecter le socket
-  const refreshersRef = useRef({})
-  refreshersRef.current = { refreshTasks, refreshMeals, refreshShopping, refreshSettings }
 
   useEffect(() => {
     const socket = io(SOCKET_URL, {
@@ -30,31 +19,26 @@ export function RealtimeProvider({ children }) {
     })
 
     socket.on('connect', () => {
-      console.log('Temps réel connecté')
       setIsConnected(true)
     })
 
-    socket.on('disconnect', (reason) => {
-      console.log('Temps réel déconnecté:', reason)
+    socket.on('disconnect', () => {
       setIsConnected(false)
     })
 
     socket.on('reconnect', () => {
-      console.log('Temps réel reconnecté')
-      const r = refreshersRef.current
-      r.refreshTasks?.()
-      r.refreshMeals?.()
-      r.refreshShopping?.()
-      r.refreshSettings?.()
+      emitRefresh('tasks')
+      emitRefresh('meals')
+      emitRefresh('shopping')
+      emitRefresh('settings')
     })
 
     socket.on('update', (update) => {
       const { type } = update
-      const r = refreshersRef.current
-      if (type?.startsWith('task_') || type?.startsWith('completion_')) r.refreshTasks?.()
-      if (type?.startsWith('meal_')) r.refreshMeals?.()
-      if (type?.startsWith('shopping_')) r.refreshShopping?.()
-      if (type === 'week_settings_updated') r.refreshSettings?.()
+      if (type?.startsWith('task_') || type?.startsWith('completion_')) emitRefresh('tasks')
+      if (type?.startsWith('meal_')) emitRefresh('meals')
+      if (type?.startsWith('shopping_')) emitRefresh('shopping')
+      if (type === 'week_settings_updated') emitRefresh('settings')
     })
 
     return () => {

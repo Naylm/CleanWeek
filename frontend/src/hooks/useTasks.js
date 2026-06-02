@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { onRefresh } from '../lib/events'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -21,16 +22,17 @@ export function useTasks() {
 
   useEffect(() => {
     const t = setTimeout(fetchTasks, 0)
-    // Mode partagé : garder les données synchronisées entre appareils
-    const interval = setInterval(fetchTasks, 20000)
+    const interval = setInterval(fetchTasks, 30000)
     const onVisible = () => { if (document.visibilityState === 'visible') fetchTasks() }
     document.addEventListener('visibilitychange', onVisible)
     window.addEventListener('focus', fetchTasks)
+    const unsub = onRefresh((type) => { if (type === 'tasks') fetchTasks() })
     return () => {
       clearTimeout(t)
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener('focus', fetchTasks)
+      unsub()
     }
   }, [fetchTasks])
 

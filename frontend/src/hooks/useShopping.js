@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
+import { onRefresh } from '../lib/events'
 
 export function useShopping() {
   const [items, setItems] = useState([])
@@ -18,9 +19,11 @@ export function useShopping() {
   useEffect(() => {
     const t = setTimeout(fetchItems, 0)
     const interval = setInterval(fetchItems, 30000)
+    const unsub = onRefresh((type) => { if (type === 'shopping') fetchItems() })
     return () => {
       clearTimeout(t)
       clearInterval(interval)
+      unsub()
     }
   }, [fetchItems])
 

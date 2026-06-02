@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../lib/api'
+import { onRefresh } from '../lib/events'
 
 export function useWeekSettings() {
   const [settings, setSettings] = useState(null)
@@ -17,7 +18,11 @@ export function useWeekSettings() {
 
   useEffect(() => {
     const t = setTimeout(fetchSettings, 0)
-    return () => clearTimeout(t)
+    const unsub = onRefresh((type) => { if (type === 'settings') fetchSettings() })
+    return () => {
+      clearTimeout(t)
+      unsub()
+    }
   }, [fetchSettings])
 
   async function updateSettings(updates) {
