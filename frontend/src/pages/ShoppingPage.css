@@ -1,6 +1,6 @@
 .shopping-page {
   padding: 16px;
-  padding-bottom: 100px;
+  padding-bottom: 180px; /* Plus d'espace pour la barre fixe */
   min-height: 100vh;
 }
 
@@ -234,17 +234,17 @@
 /* Barre d'ajout fixe */
 .shopping-add-bar {
   position: fixed;
-  bottom: 80px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* iPhone notch support */
   left: 16px;
   right: 16px;
   display: flex;
   gap: 8px;
-  padding: 14px;
+  padding: 16px;
   background: var(--surface);
   border-radius: var(--radius-lg);
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 2px solid var(--accent);
-  z-index: 1000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 3px solid var(--accent);
+  z-index: 9999;
 }
 
 .shop-autocomplete {
