@@ -23,15 +23,34 @@
 }
 
 .filters {
-  padding: 4px 0 12px;
+  padding: 8px 0 16px;
   position: sticky;
   top: 0;
   z-index: 5;
+  background: var(--background);
+}
+
+.filter-section {
+  margin-bottom: 12px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 16px 8px;
 }
 
 .filter-row {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   padding: 4px 16px;
@@ -43,16 +62,17 @@
 .filter-chip {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 10px 16px;
   border-radius: 999px;
-  border: 1.5px solid var(--border);
+  border: 2px solid var(--border);
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   transition: all 0.2s ease;
   background: var(--surface);
   color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .filter-chip:active { transform: scale(0.95); }
@@ -61,10 +81,96 @@
   background: var(--accent);
   border-color: var(--accent);
   color: var(--on-accent, white);
+  box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.3);
+}
+
+.chip-icon {
+  font-size: 16px;
+}
+
+.chip-text {
+  font-size: 14px;
+}
+
+.chip-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.filter-chip.active .chip-badge {
+  background: rgba(255,255,255,0.3);
+  color: white;
+}
+
+/* iPad / Tablettes */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tasks-header {
+    padding: calc(var(--safe-top) + 24px) 32px 20px;
+  }
+  
+  .tasks-header h1 {
+    font-size: 32px;
+  }
+  
+  .filter-label {
+    font-size: 13px;
+    padding: 0 32px 10px;
+  }
+  
+  .filter-row {
+    padding: 4px 32px;
+    gap: 12px;
+  }
+  
+  .filter-chip {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+  
+  .chip-icon {
+    font-size: 18px;
+  }
+  
+  .chip-text {
+    font-size: 15px;
+  }
+  
+  .chip-badge {
+    min-width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+  
+  .tasks-list-section {
+    padding: 8px 32px 24px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .tasks-page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
 }
 
 .tasks-list-section {
   padding: 4px 16px 16px;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .tasks-list-section {
+    padding: 8px 32px 24px;
+  }
 }
 
 .btn-primary-sm {

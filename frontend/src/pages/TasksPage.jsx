@@ -12,6 +12,14 @@ const SORT_OPTIONS = [
   { value: 'created', label: '📅 Date création', icon: '📅' },
 ]
 
+const FREQUENCY_FILTERS = [
+  { value: 'all', label: 'Toutes', icon: '🔔' },
+  { value: 'daily', label: 'Quotidien', icon: '📅' },
+  { value: 'weekly', label: 'Hebdo', icon: '📆' },
+  { value: 'biweekly', label: 'Bi-hebdo', icon: '2️⃣' },
+  { value: 'monthly', label: 'Mensuel', icon: '📊' },
+]
+
 function sortTasks(tasks, sortBy) {
   const list = [...tasks]
   switch (sortBy) {
@@ -34,13 +42,17 @@ export default function TasksPage() {
   const [showAdd, setShowAdd] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
+  const [filterFrequency, setFilterFrequency] = useState('all')
   const [sortBy, setSortBy] = useState('urgency')
   const [showSortMenu, setShowSortMenu] = useState(false)
 
   const filtered = useMemo(() => {
-    const list = tasks.filter(t => filterCategory === 'all' || t.category === filterCategory)
+    let list = tasks.filter(t => filterCategory === 'all' || t.category === filterCategory)
+    if (filterFrequency !== 'all') {
+      list = list.filter(t => t.frequency === filterFrequency)
+    }
     return sortTasks(list, sortBy)
-  }, [tasks, filterCategory, sortBy])
+  }, [tasks, filterCategory, filterFrequency, sortBy])
 
   async function handleAddOrUpdate(taskData, taskId) {
     if (taskId) {
@@ -99,22 +111,55 @@ export default function TasksPage() {
       </header>
 
       <div className="filters">
-        <div className="filter-row">
-          <button
-            className={`filter-chip${filterCategory === 'all' ? ' active' : ''}`}
-            onClick={() => setFilterCategory('all')}
-          >
-            Tout
-          </button>
-          {CATEGORIES.map(cat => (
+        {/* Filtre par catégorie */}
+        <div className="filter-section">
+          <span className="filter-label">Catégorie</span>
+          <div className="filter-row category-row">
             <button
-              key={cat.value}
-              className={`filter-chip${filterCategory === cat.value ? ' active' : ''}`}
-              onClick={() => setFilterCategory(cat.value)}
+              className={`filter-chip${filterCategory === 'all' ? ' active' : ''}`}
+              onClick={() => setFilterCategory('all')}
             >
-              {cat.icon} {cat.label}
+              🏠 Tout
             </button>
-          ))}
+            {CATEGORIES.map(cat => {
+              const count = tasks.filter(t => t.category === cat.value).length
+              return (
+                <button
+                  key={cat.value}
+                  className={`filter-chip${filterCategory === cat.value ? ' active' : ''}`}
+                  onClick={() => setFilterCategory(cat.value)}
+                >
+                  <span className="chip-icon">{cat.icon}</span>
+                  <span className="chip-text">{cat.label}</span>
+                  {count > 0 && <span className="chip-badge">{count}</span>}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+        
+        {/* Filtre par fréquence */}
+        <div className="filter-section">
+          <span className="filter-label">Fréquence</span>
+          <div className="filter-row frequency-row">
+            {FREQUENCY_FILTERS.map(freq => {
+              const count = tasks.filter(t => 
+                (filterCategory === 'all' || t.category === filterCategory) && 
+                (freq.value === 'all' || t.frequency === freq.value)
+              ).length
+              return (
+                <button
+                  key={freq.value}
+                  className={`filter-chip${filterFrequency === freq.value ? ' active' : ''}`}
+                  onClick={() => setFilterFrequency(freq.value)}
+                >
+                  <span className="chip-icon">{freq.icon}</span>
+                  <span className="chip-text">{freq.label}</span>
+                  {count > 0 && freq.value !== 'all' && <span className="chip-badge">{count}</span>}
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
