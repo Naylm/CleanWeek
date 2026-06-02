@@ -9,6 +9,7 @@ const SHOP_CATEGORIES = [
   { value: 'epicerie', label: '🥫 Épicerie' },
   { value: 'laitages', label: '🧀 Laitages & Œufs' },
   { value: 'boulangerie', label: '🥖 Boulangerie' },
+  { value: 'surgeles', label: '❄️ Surgelés' },
   { value: 'boissons', label: '🥤 Boissons' },
   { value: 'hygiene', label: '🧴 Hygiène' },
   { value: 'autre', label: '📦 Autre' },

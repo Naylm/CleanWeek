@@ -10,6 +10,7 @@ const CATEGORY_LABELS = {
   boulangerie: '🥖 Boulangerie',
   boissons: '🥤 Boissons',
   hygiene: '🧴 Hygiène',
+  surgeles: '❄️ Surgelés',
   autre: '📦 Autre',
 }
 
