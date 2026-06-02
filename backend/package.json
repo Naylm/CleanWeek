@@ -11,6 +11,7 @@
     "better-sqlite3": "^12.1.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "socket.io": "^4.8.1",
     "web-push": "^3.6.7"
   }
 }
