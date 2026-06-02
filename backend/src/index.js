@@ -278,6 +278,26 @@ app.delete('/api/reminders/:id', (req, res) => {
   res.json({ ok: true })
 })
 
+// ============ FOOD DATABASE (Autocomplete) ============
+app.get('/api/foods/search', (req, res) => {
+  const { q, limit = 10 } = req.query
+  if (!q || q.trim().length < 2) {
+    return res.json([])
+  }
+  
+  const searchTerm = `%${q.trim().toLowerCase()}%`
+  const rows = db.prepare(`
+    SELECT * FROM food_items 
+    WHERE LOWER(name) LIKE ? OR LOWER(keywords) LIKE ?
+    ORDER BY 
+      CASE WHEN LOWER(name) LIKE ? THEN 0 ELSE 1 END,
+      name
+    LIMIT ?
+  `).all(searchTerm, searchTerm, `${q.trim().toLowerCase()}%`, parseInt(limit))
+  
+  res.json(rows)
+})
+
 // ============ MEAL PLANS ============
 app.get('/api/meals', (_req, res) => {
   const rows = db.prepare('SELECT * FROM meal_plans ORDER BY date, meal').all()

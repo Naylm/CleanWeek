@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useShopping } from '../hooks/useShopping'
+import FoodAutocomplete from '../components/FoodAutocomplete'
 import './ShoppingPage.css'
 
 const SHOP_CATEGORIES = [
@@ -213,12 +214,15 @@ export default function ShoppingPage() {
 
       {/* Barre d'ajout fixe en bas */}
       <form className="shopping-add-bar" onSubmit={handleAdd}>
-        <input
-          type="text"
+        <FoodAutocomplete
           value={newItemName}
-          onChange={e => setNewItemName(e.target.value)}
-          placeholder="Ajouter un article..."
-          className="shop-add-input"
+          onChange={setNewItemName}
+          onSelect={(food) => {
+            setNewItemName(food.name)
+            setNewItemCategory(food.category)
+          }}
+          placeholder="Chercher un aliment..."
+          className="shop-autocomplete"
         />
         <input
           type="number"

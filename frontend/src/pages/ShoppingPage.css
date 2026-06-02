@@ -247,6 +247,21 @@
   z-index: 100;
 }
 
+.shop-autocomplete {
+  flex: 1;
+  min-width: 0;
+}
+
+.shop-autocomplete .autocomplete-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 15px;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
 .shop-add-input {
   flex: 1;
   min-width: 0;

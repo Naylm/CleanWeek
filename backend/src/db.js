@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import { mkdirSync } from 'fs'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { FOODS_DATABASE } from './foods_data.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DB_PATH = process.env.DB_PATH || `${__dirname}/../data/cleanweek.db`
@@ -91,6 +92,19 @@ function init() {
       message_template TEXT DEFAULT 'Il reste {remaining} tâches',
       created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
+
+    -- Food database for autocomplete
+    CREATE TABLE IF NOT EXISTS food_items (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      name TEXT NOT NULL,
+      category TEXT NOT NULL DEFAULT 'autre',
+      keywords TEXT,
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
+    );
+
+    -- Index for fast search
+    CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name);
+    CREATE INDEX IF NOT EXISTS idx_food_keywords ON food_items(keywords);
   `)
 
   // Insert default week settings if none exist
@@ -111,6 +125,16 @@ function init() {
     db.prepare(`INSERT INTO reminder_slots (label, time, days_of_week, message_template) VALUES
       ('Bonjour', '09:00', '[0,1,2,3,4,5,6]', 'Aujourd''hui : {count} tâches'),
       ('Soirée', '20:00', '[0,1,2,3,4,5,6]', 'Il reste {remaining} tâches !')`).run()
+  }
+
+  // Insert food database if empty
+  const foodCount = db.prepare('SELECT count(*) as c FROM food_items').get().c
+  if (foodCount === 0) {
+    const foodStmt = db.prepare('INSERT INTO food_items (name, category, keywords) VALUES (?, ?, ?)')
+    for (const food of FOODS_DATABASE) {
+      foodStmt.run(food.name, food.category, food.keywords)
+    }
+    console.log(`✅ ${FOODS_DATABASE.length} aliments importés dans la base de données`)
   }
 
   // Insert default tasks if none exist
