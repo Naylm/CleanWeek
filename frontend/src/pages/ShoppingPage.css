@@ -234,17 +234,26 @@
 /* Barre d'ajout fixe */
 .shopping-add-bar {
   position: fixed;
-  bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* iPhone notch support */
-  left: 16px;
-  right: 16px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--border);
+  z-index: 9999;
+}
+
+/* Lignes de la barre */
+.add-bar-row {
   display: flex;
   gap: 8px;
-  padding: 16px;
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15);
-  border: 3px solid var(--accent);
-  z-index: 9999;
+  align-items: center;
+  width: 100%;
 }
 
 .shop-autocomplete {
@@ -254,30 +263,24 @@
 
 .shop-autocomplete .autocomplete-input {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 15px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 16px; /* 16px évite le zoom auto sur iOS */
   background: var(--background);
   color: var(--text-primary);
 }
 
-.shop-add-input {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 15px;
-  background: var(--background);
-  color: var(--text-primary);
+.shop-autocomplete .autocomplete-input:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 
 .shop-qty-input {
-  width: 60px;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  width: 70px;
+  padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   font-size: 15px;
   background: var(--background);
   color: var(--text-primary);
@@ -286,47 +289,54 @@
 
 .shop-unit-select,
 .shop-cat-select {
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 10px 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
   font-size: 14px;
   background: var(--background);
   color: var(--text-primary);
   cursor: pointer;
+  min-width: 0;
 }
 
 .shop-unit-select {
-  width: 80px;
+  flex: 0 0 auto;
+  width: 90px;
 }
 
 .shop-cat-select {
-  width: 100px;
+  flex: 1;
+  min-width: 0;
 }
 
 .shop-add-btn {
-  width: 44px;
-  height: 44px;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: none;
-  background: var(--primary);
-  color: white;
-  font-size: 24px;
-  font-weight: 300;
+  background: var(--accent);
+  color: var(--on-accent, white);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .shop-add-btn:disabled {
   background: var(--border);
   cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
 }
 
-.shop-add-btn:not(:disabled):hover {
-  background: var(--primary-dark);
-  transform: scale(1.05);
+.shop-add-btn:not(:disabled):active {
+  transform: scale(0.92);
 }
 
 /* Empty state */
@@ -353,18 +363,24 @@
   margin-top: 8px !important;
 }
 
-/* Responsive */
-@media (max-width: 400px) {
+/* Responsive mobile */
+@media (max-width: 480px) {
   .shopping-add-bar {
-    flex-wrap: wrap;
+    left: 8px;
+    right: 8px;
+    padding: 10px;
   }
   
-  .shop-add-input {
-    width: 100%;
-    order: -1;
+  .shop-unit-select {
+    width: 80px;
+    font-size: 13px;
+  }
+  
+  .shop-qty-input {
+    width: 60px;
   }
   
   .shop-cat-select {
-    flex: 1;
+    font-size: 13px;
   }
 }

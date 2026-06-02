@@ -215,50 +215,55 @@ export default function ShoppingPage() {
 
       {/* Barre d'ajout fixe en bas */}
       <form className="shopping-add-bar" onSubmit={handleAdd}>
-        <FoodAutocomplete
-          value={newItemName}
-          onChange={setNewItemName}
-          onSelect={(food) => {
-            setNewItemName(food.name)
-            setNewItemCategory(food.category)
-          }}
-          placeholder="Chercher un aliment..."
-          className="shop-autocomplete"
-        />
-        <input
-          type="number"
-          value={newItemQty}
-          onChange={e => setNewItemQty(e.target.value)}
-          placeholder="Qté"
-          className="shop-qty-input"
-          step="0.1"
-          min="0"
-        />
-        <select
-          value={newItemUnit}
-          onChange={e => setNewItemUnit(e.target.value)}
-          className="shop-unit-select"
-        >
-          {QUANTITY_UNITS.map(u => (
-            <option key={u.value} value={u.value}>{u.label}</option>
-          ))}
-        </select>
-        <select
-          value={newItemCategory}
-          onChange={e => setNewItemCategory(e.target.value)}
-          className="shop-cat-select"
-        >
-          {SHOP_CATEGORIES.map(c => (
-            <option key={c.value} value={c.value}>{c.label}</option>
-          ))}
-        </select>
-        <button 
-          type="submit" 
-          className="shop-add-btn"
-          disabled={!newItemName.trim()}
-        >
-          +
-        </button>
+        <div className="add-bar-row add-bar-row-search">
+          <FoodAutocomplete
+            value={newItemName}
+            onChange={setNewItemName}
+            onSelect={(food) => {
+              setNewItemName(food.name)
+              setNewItemCategory(food.category)
+            }}
+            placeholder="Chercher un aliment..."
+            className="shop-autocomplete"
+          />
+          <button 
+            type="submit" 
+            className="shop-add-btn"
+            disabled={!newItemName.trim()}
+            aria-label="Ajouter"
+          >
+            +
+          </button>
+        </div>
+        <div className="add-bar-row add-bar-row-options">
+          <input
+            type="number"
+            value={newItemQty}
+            onChange={e => setNewItemQty(e.target.value)}
+            placeholder="Qté"
+            className="shop-qty-input"
+            step="0.1"
+            min="0"
+          />
+          <select
+            value={newItemUnit}
+            onChange={e => setNewItemUnit(e.target.value)}
+            className="shop-unit-select"
+          >
+            {QUANTITY_UNITS.map(u => (
+              <option key={u.value} value={u.value}>{u.label}</option>
+            ))}
+          </select>
+          <select
+            value={newItemCategory}
+            onChange={e => setNewItemCategory(e.target.value)}
+            className="shop-cat-select"
+          >
+            {SHOP_CATEGORIES.map(c => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+        </div>
       </form>
     </div>
   )
