@@ -5,7 +5,4 @@ frontend/dist/
 .env
 frontend/.env
 backend/.env
-backend/data/
-*.db
-*.db-shm
-*.db-wal
+# SQLite DB files tracked (food database + categories)
