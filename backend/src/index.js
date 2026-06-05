@@ -396,6 +396,50 @@ app.post('/api/meals/swap', (req, res) => {
   res.json({ ok: true })
 })
 
+// ============ SHOP CATEGORIES ============
+app.get('/api/shop-categories', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM shop_categories ORDER BY sort_order, label').all()
+  res.json(rows)
+})
+
+app.post('/api/shop-categories', (req, res) => {
+  const { value, label, emoji, sort_order } = req.body
+  if (!value?.trim() || !label?.trim()) {
+    return res.status(400).json({ error: 'value and label required' })
+  }
+  const id = randomUUID()
+  try {
+    db.prepare('INSERT INTO shop_categories (id, value, label, emoji, sort_order) VALUES (?, ?, ?, ?, ?)')
+      .run(id, value.trim().toLowerCase().replace(/\s+/g, '_'), label.trim(), emoji || '📦', sort_order ?? 0)
+    const cat = db.prepare('SELECT * FROM shop_categories WHERE id = ?').get(id)
+    broadcastUpdate('shop_category_added', cat)
+    res.status(201).json(cat)
+  } catch (err) {
+    res.status(400).json({ error: 'Category value already exists' })
+  }
+})
+
+app.patch('/api/shop-categories/:id', (req, res) => {
+  const { label, emoji, sort_order } = req.body
+  db.prepare(`
+    UPDATE shop_categories SET
+      label = COALESCE(?, label),
+      emoji = COALESCE(?, emoji),
+      sort_order = COALESCE(?, sort_order)
+    WHERE id = ?
+  `).run(label, emoji, sort_order, req.params.id)
+  const cat = db.prepare('SELECT * FROM shop_categories WHERE id = ?').get(req.params.id)
+  broadcastUpdate('shop_category_updated', cat)
+  res.json({ ok: true })
+})
+
+app.delete('/api/shop-categories/:id', (req, res) => {
+  const catId = req.params.id
+  db.prepare('DELETE FROM shop_categories WHERE id = ?').run(catId)
+  broadcastUpdate('shop_category_deleted', { id: catId })
+  res.json({ ok: true })
+})
+
 // Catch-all: serve React app
 app.use((_req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'))

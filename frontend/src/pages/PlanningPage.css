@@ -168,12 +168,15 @@
   font-size: var(--fs-sm);
   font-weight: 600;
   padding-right: 70px;
+  overflow-wrap: break-word;
 }
 
 .meal-notes {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 2px;
+  padding-right: 70px;
+  overflow-wrap: break-word;
 }
 
 .meal-actions {

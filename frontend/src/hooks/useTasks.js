@@ -71,7 +71,7 @@ export function useTasks() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ task_id: taskId, completed_at: today }),
     })
-    if (!res.ok) throw new Error('Failed to complete task')
+    if (!res.ok && res.status !== 400) throw new Error('Failed to complete task')
     await fetchTasks()
   }, [fetchTasks])
 
@@ -90,7 +90,7 @@ export function useTasks() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ days }),
     })
-    if (!res.ok) throw new Error('Failed to snooze task')
+    if (!res.ok && res.status !== 400) throw new Error('Failed to snooze task')
     await fetchTasks()
   }, [fetchTasks])
 

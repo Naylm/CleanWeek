@@ -102,6 +102,16 @@ function init() {
       created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
 
+    -- Custom shopping categories
+    CREATE TABLE IF NOT EXISTS shop_categories (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      value TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      emoji TEXT NOT NULL DEFAULT '📦',
+      sort_order INTEGER DEFAULT 0,
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
+    );
+
     -- Index for fast search
     CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name);
     CREATE INDEX IF NOT EXISTS idx_food_keywords ON food_items(keywords);
@@ -135,6 +145,24 @@ function init() {
       foodStmt.run(food.name, food.category, food.keywords)
     }
     console.log(`✅ ${FOODS_DATABASE.length} aliments importés dans la base de données`)
+  }
+
+  // Insert default shopping categories if none exist
+  const shopCatCount = db.prepare('SELECT count(*) as c FROM shop_categories').get().c
+  if (shopCatCount === 0) {
+    const catStmt = db.prepare('INSERT INTO shop_categories (value, label, emoji, sort_order) VALUES (?, ?, ?, ?)')
+    const defaultCats = [
+      ['fruits_legumes', 'Fruits & Légumes', '🥬', 0],
+      ['viandes', 'Viandes & Poissons', '🥩', 1],
+      ['epicerie', 'Épicerie', '🥫', 2],
+      ['laitages', 'Laitages & Œufs', '🧀', 3],
+      ['boulangerie', 'Boulangerie', '🥖', 4],
+      ['surgeles', 'Surgelés', '❄️', 5],
+      ['boissons', 'Boissons', '🥤', 6],
+      ['hygiene', 'Hygiène', '🧴', 7],
+      ['autre', 'Autre', '📦', 99],
+    ]
+    for (const c of defaultCats) catStmt.run(...c)
   }
 
   // Insert default tasks if none exist

@@ -3,7 +3,9 @@ import { useCurrentUser } from '../hooks/useCurrentUser'
 import { useWeekSettings } from '../hooks/useWeekSettings'
 import { useFeatures } from '../hooks/FeaturesProvider.jsx'
 import { useReminders } from '../hooks/useReminders'
+import { useShopCategories } from '../hooks/useShopCategories'
 import { DAYS_OF_WEEK } from '../lib/taskUtils'
+import EmojiPicker from '../components/EmojiPicker'
 import './SettingsPage.css'
 
 const THEMES = [
@@ -36,7 +38,8 @@ export default function SettingsPage() {
   const { settings, loading, setStartDayOfWeek, goToCurrentWeek } = useWeekSettings()
   const { features, loading: featuresLoading, toggleFeature } = useFeatures()
   const { slots, loading: remindersLoading, addSlot, updateSlot, deleteSlot } = useReminders()
-  
+  const { categories: shopCategories, addCategory, updateCategory, deleteCategory } = useShopCategories()
+
   const [addingReminder, setAddingReminder] = useState(false)
   const [newReminder, setNewReminder] = useState({
     label: '',
@@ -44,6 +47,11 @@ export default function SettingsPage() {
     days_of_week: [0, 1, 2, 3, 4, 5, 6],
     message_template: 'Il reste {remaining} tâches',
   })
+
+  const [editingCat, setEditingCat] = useState(null)
+  const [newCatValue, setNewCatValue] = useState('')
+  const [newCatLabel, setNewCatLabel] = useState('')
+  const [newCatEmoji, setNewCatEmoji] = useState('📦')
 
   const startDay = settings?.start_day_of_week ?? 5
 
@@ -146,6 +154,115 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Catégories de courses */}
+      <div className="settings-card">
+        <div className="settings-section-header">
+          <h2 className="settings-section-title">Catégories de courses</h2>
+        </div>
+        <ul className="shop-cat-list">
+          {shopCategories.map(cat => (
+            <li key={cat.id} className="shop-cat-row">
+              {editingCat?.id === cat.id ? (
+                <>
+                  <EmojiPicker
+                    value={editingCat.emoji}
+                    onChange={emoji => setEditingCat({ ...editingCat, emoji })}
+                  />
+                  <input
+                    value={editingCat.label}
+                    onChange={e => setEditingCat({ ...editingCat, label: e.target.value })}
+                    className="shop-cat-label-input"
+                  />
+                  <input
+                    type="number"
+                    value={editingCat.sort_order ?? 0}
+                    onChange={e => setEditingCat({ ...editingCat, sort_order: parseInt(e.target.value) || 0 })}
+                    className="shop-cat-order-input"
+                  />
+                  <button
+                    type="button"
+                    className="shop-edit-save"
+                    onClick={() => {
+                      updateCategory(cat.id, {
+                        label: editingCat.label,
+                        emoji: editingCat.emoji,
+                        sort_order: editingCat.sort_order,
+                      })
+                      setEditingCat(null)
+                    }}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    type="button"
+                    className="shop-edit-cancel"
+                    onClick={() => setEditingCat(null)}
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="shop-cat-emoji">{cat.emoji}</span>
+                  <span className="shop-cat-name">{cat.label}</span>
+                  <button
+                    type="button"
+                    className="shop-edit-btn"
+                    onClick={() => setEditingCat(cat)}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    type="button"
+                    className="shop-delete-btn"
+                    onClick={() => deleteCategory(cat.id)}
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+        <div className="shop-cat-add-row">
+          <EmojiPicker
+            value={newCatEmoji}
+            onChange={setNewCatEmoji}
+          />
+          <input
+            value={newCatLabel}
+            onChange={e => setNewCatLabel(e.target.value)}
+            placeholder="Nom de la catégorie"
+            className="shop-cat-label-input"
+          />
+          <button
+            type="button"
+            className="shop-add-btn-small"
+            disabled={!newCatLabel.trim() || !newCatValue.trim()}
+            onClick={async () => {
+              await addCategory({
+                value: newCatValue,
+                label: newCatLabel,
+                emoji: newCatEmoji,
+              })
+              setNewCatValue('')
+              setNewCatLabel('')
+              setNewCatEmoji('📦')
+            }}
+          >
+            +
+          </button>
+        </div>
+        <div className="shop-cat-add-row">
+          <input
+            value={newCatValue}
+            onChange={e => setNewCatValue(e.target.value)}
+            placeholder="Identifiant (ex: fruits secs)"
+            className="shop-cat-value-input"
+          />
+        </div>
       </div>
 
       {/* Rappels programmés */}

@@ -45,7 +45,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
     }
 
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      e.preventDefault()
+      // e.preventDefault() ne fonctionne pas sur les passive listeners React
     }
 
     const maxOffset = 150

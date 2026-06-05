@@ -379,6 +379,182 @@
   font-style: italic;
 }
 
+/* Catégories de courses */
+.shop-cat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shop-cat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: var(--bg-card2);
+  border-radius: var(--radius-sm);
+}
+
+.shop-cat-emoji {
+  font-size: 18px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.shop-cat-name {
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.shop-cat-label-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.shop-cat-order-input {
+  width: 56px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  text-align: center;
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.shop-cat-value-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+.shop-cat-add-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.shop-edit-save,
+.shop-edit-cancel {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.shop-edit-save {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.shop-edit-save:active {
+  transform: scale(0.9);
+}
+
+.shop-edit-cancel {
+  background: var(--bg-card2);
+  color: var(--text-muted);
+}
+
+.shop-edit-cancel:active {
+  background: #ffebee;
+  color: #c62828;
+  transform: scale(0.9);
+}
+
+.shop-edit-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.shop-edit-btn:hover {
+  background: var(--bg-soft);
+  color: var(--accent);
+}
+
+.shop-delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.shop-delete-btn:hover {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.shop-add-btn-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.shop-add-btn-small:disabled {
+  background: var(--border);
+  cursor: not-allowed;
+}
+
+.shop-add-btn-small:active:not(:disabled) {
+  transform: scale(0.9);
+}
+
 /* Reminder Form */
 .reminder-form {
   margin-top: 16px;
@@ -412,6 +588,8 @@
   background: var(--bg-card);
   color: var(--text);
   font-variant-numeric: tabular-nums;
+  width: 110px;
+  flex-shrink: 0;
 }
 
 .reminder-days-selector {
