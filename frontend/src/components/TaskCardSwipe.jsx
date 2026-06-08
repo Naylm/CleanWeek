@@ -25,8 +25,8 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
   }, [onComplete, task.id])
 
   const handleSwipeRight = () => {
-    // Au lieu de valider directement, on ouvre le sélecteur de date
-    setShowSwipeDatePicker(true)
+    // Ne rien faire ici - la validation est gérée manuellement
+    // pour permettre la sélection de date
   }
 
   const confirmSwipeWithDate = () => {
@@ -102,7 +102,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
               </div>
             ) : (
               <>
-                <button className="swipe-action-btn" onClick={() => setShowSwipeDatePicker(true)}>
+                <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(true); }}>
                   <span className="indicator-icon">✓</span>
                   <span className="indicator-text">Valider</span>
                 </button>
