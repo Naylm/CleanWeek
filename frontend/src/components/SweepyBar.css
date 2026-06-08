@@ -105,27 +105,41 @@
 /* Mode compact */
 .sweepy-bar.compact {
   padding: 0;
-  gap: 4px;
-  flex-direction: row;
-  align-items: center;
+  gap: 5px;
 }
 
 .sweepy-bar.compact .sweepy-track {
   height: 6px;
-  flex: 1;
 }
 
-.sweepy-text-compact {
+.sweepy-compact-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sweepy-cycle-text,
+.sweepy-due-text {
   font-size: 11px;
   font-weight: 700;
   white-space: nowrap;
-  color: var(--text-muted);
-  min-width: 64px;
-  text-align: right;
 }
 
-.sweepy-bar.compact.normal .sweepy-text-compact { color: var(--success-2); }
-.sweepy-bar.compact.caution .sweepy-text-compact { color: #C99A2E; }
-.sweepy-bar.compact.warning .sweepy-text-compact { color: #D77E2E; }
-.sweepy-bar.compact.urgent .sweepy-text-compact { color: var(--danger); }
-.sweepy-bar.compact.overdue .sweepy-text-compact { color: var(--danger-2); }
+.sweepy-cycle-text {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sweepy-due-text {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sweepy-bar.compact.normal .sweepy-due-text { color: var(--success-2); }
+.sweepy-bar.compact.caution .sweepy-due-text { color: #C99A2E; }
+.sweepy-bar.compact.warning .sweepy-due-text { color: #D77E2E; }
+.sweepy-bar.compact.urgent .sweepy-due-text { color: var(--danger); }
+.sweepy-bar.compact.overdue .sweepy-due-text { color: var(--danger-2); }

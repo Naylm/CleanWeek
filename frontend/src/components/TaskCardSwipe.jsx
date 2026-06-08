@@ -1,6 +1,12 @@
 import { useState, useCallback } from 'react'
 import { useTaskCategories } from '../hooks/useTaskCategories'
-import { getCategoryIconDynamic, getIntervalLabel, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
+import {
+  getCategoryIconDynamic,
+  getDaysSinceLastDone,
+  getIntervalLabel,
+  getIntervalShortLabel,
+  getTaskIntervalDays,
+} from '../lib/taskUtils'
 import { useSwipe } from '../hooks/useSwipe'
 import SweepyBar from './SweepyBar'
 import './TaskCardSwipe.css'
@@ -107,7 +113,9 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
             {revealedAction ? (
               <span className="task-cancel-hint">↩ Annuler</span>
             ) : (
-              <span className="task-freq-badge">{getIntervalLabel(task)}</span>
+              <span className="task-freq-badge" title={getIntervalLabel(task)}>
+                {getIntervalShortLabel(task)}
+              </span>
             )}
           </div>
 

@@ -243,6 +243,26 @@ export function getIntervalLabel(task) {
   return FREQUENCIES.find(f => f.value === task.frequency)?.label || task.frequency
 }
 
+export function getIntervalShortLabel(task) {
+  if (task.custom_interval_enabled && task.customInterval) {
+    const interval = task.customInterval
+
+    if (interval.interval_type === 'days_of_week' && interval.days_of_week) {
+      const days = JSON.parse(interval.days_of_week)
+      return days
+        .map(day => DAYS_OF_WEEK.find(item => item.value === day)?.short)
+        .filter(Boolean)
+        .join(' · ')
+    }
+
+    if (interval.interval_type === 'month_interval' && interval.month_interval) {
+      return `${parseInt(interval.month_interval) * 30} j`
+    }
+  }
+
+  return `${getTaskIntervalDays(task)} j`
+}
+
 /**
  * Calcule le nombre de jours ecoules depuis la derniere execution d'une tache.
  * Retourne 0 si jamais fait.

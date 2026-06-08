@@ -274,7 +274,7 @@
 
 .task-card-content {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   padding: 14px 16px;
 }
@@ -289,6 +289,7 @@
   justify-content: center;
   background: var(--bg-soft);
   border-radius: 14px;
+  margin-top: 2px;
 }
 
 .task-info-swipe {
@@ -308,20 +309,22 @@
 }
 
 .task-freq-badge {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 4px 9px;
+  letter-spacing: 0.3px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: var(--bg-soft);
   color: var(--text-muted);
   flex-shrink: 0;
-  max-width: 84px;
+  min-width: 48px;
+  max-width: 92px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  align-self: flex-start;
+  text-align: center;
+  margin-top: 1px;
 }
 
 /* Overlay de célébration à la complétion */
