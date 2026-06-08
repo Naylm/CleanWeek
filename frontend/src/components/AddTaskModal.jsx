@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { CATEGORIES, FREQUENCIES, DAYS_OF_WEEK, MONTH_INTERVALS } from '../lib/taskUtils'
+import { useTaskCategories } from '../hooks/useTaskCategories'
+import { FREQUENCIES, DAYS_OF_WEEK, MONTH_INTERVALS } from '../lib/taskUtils'
 import './AddTaskModal.css'
 
 export default function AddTaskModal({ onAdd, onClose, initialTask = null }) {
   const isEditing = !!initialTask
+  const { categories: taskCategories, loading: categoriesLoading } = useTaskCategories()
 
   const [name, setName] = useState(initialTask?.name || '')
   const [category, setCategory] = useState(initialTask?.category || 'autre')
@@ -86,19 +88,23 @@ export default function AddTaskModal({ onAdd, onClose, initialTask = null }) {
 
           <div className="field">
             <label>Catégorie</label>
-            <div className="icon-grid">
-              {CATEGORIES.map(cat => (
-                <button
-                  key={cat.value}
-                  type="button"
-                  className={`icon-btn${category === cat.value ? ' active' : ''}`}
-                  onClick={() => setCategory(cat.value)}
-                >
-                  <span>{cat.icon}</span>
-                  <span className="icon-btn-label">{cat.label}</span>
-                </button>
-              ))}
-            </div>
+            {categoriesLoading ? (
+              <span>Chargement...</span>
+            ) : (
+              <div className="icon-grid">
+                {taskCategories.map(cat => (
+                  <button
+                    key={cat.value}
+                    type="button"
+                    className={`icon-btn${category === cat.value ? ' active' : ''}`}
+                    onClick={() => setCategory(cat.value)}
+                  >
+                    <span>{cat.icon}</span>
+                    <span className="icon-btn-label">{cat.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="field">

@@ -1,24 +1,38 @@
 import { useState, useCallback } from 'react'
-import { getCategoryIcon, getIntervalLabel, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
+import { useTaskCategories } from '../hooks/useTaskCategories'
+import { getCategoryIconDynamic, getIntervalLabel, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
 import { useSwipe } from '../hooks/useSwipe'
 import SweepyBar from './SweepyBar'
 import './TaskCardSwipe.css'
 
-export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDelete }) {
+export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDelete, onCompleteWithDate }) {
   const [showMenu, setShowMenu] = useState(false)
   const [celebrate, setCelebrate] = useState(false)
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showSwipeDatePicker, setShowSwipeDatePicker] = useState(false)
+  const [swipeDate, setSwipeDate] = useState(new Date().toISOString().split('T')[0])
+  const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0])
+  const { categories: taskCategories } = useTaskCategories()
 
-  const triggerComplete = useCallback(() => {
+  const triggerComplete = useCallback((date = null) => {
     setCelebrate(true)
     if (navigator.vibrate) navigator.vibrate(30)
     // Laisse l'animation jouer avant de remonter l'action
     setTimeout(() => {
-      onComplete(task.id)
+      onComplete(task.id, date)
       setCelebrate(false)
     }, 420)
   }, [onComplete, task.id])
 
-  const handleSwipeRight = () => triggerComplete()
+  const handleSwipeRight = () => {
+    // Au lieu de valider directement, on ouvre le sélecteur de date
+    setShowSwipeDatePicker(true)
+  }
+
+  const confirmSwipeWithDate = () => {
+    setShowSwipeDatePicker(false)
+    triggerComplete(swipeDate)
+  }
 
   const handleSwipeLeft = () => {
     if (onSnooze) onSnooze(task.id, 1)
@@ -27,14 +41,15 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
   const handleLongPress = () => setShowMenu(true)
   const handleTap = () => {}
 
-  const { offset, isDragging, handlers } = useSwipe({
+  const { offset, isDragging, revealedAction, confirmAction, cancelAction, handlers } = useSwipe({
     onSwipeRight: handleSwipeRight,
     onSwipeLeft: handleSwipeLeft,
     onLongPress: handleLongPress,
     onTap: handleTap,
+    requireConfirmation: true,
   })
 
-  const action = offset > 50 ? 'done' : offset < -50 ? 'snooze' : null
+  const action = revealedAction === 'right' ? 'done' : revealedAction === 'left' ? 'snooze' : null
 
   const cardStyle = {
     transform: `translateX(${offset}px)`,
@@ -45,21 +60,74 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
     <>
       <div className={`task-card-swipe-container ${celebrate ? 'celebrate' : ''}`}>
         <div className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}>
-          <span className="indicator-icon">⏰</span>
-          <span className="indicator-text">Reporter</span>
+          {action === 'snooze' ? (
+            <>
+              <button className="swipe-action-btn cancel-btn" onClick={cancelAction}>
+                <span className="indicator-icon">↩</span>
+                <span className="indicator-text">Annuler</span>
+              </button>
+              <button className="swipe-action-btn" onClick={confirmAction}>
+                <span className="indicator-icon">⏰</span>
+                <span className="indicator-text">Reporter</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="indicator-icon">⏰</span>
+              <span className="indicator-text">Reporter</span>
+            </>
+          )}
         </div>
         <div className={`swipe-indicator right ${action === 'done' ? 'active' : ''}`}>
-          <span className="indicator-icon">✓</span>
-          <span className="indicator-text">Fait !</span>
+          {action === 'done' ? (
+            showSwipeDatePicker ? (
+              <div className="swipe-date-picker">
+                <span>Date de réalisation</span>
+                <input
+                  type="date"
+                  value={swipeDate}
+                  onChange={(e) => setSwipeDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                <div className="swipe-date-actions">
+                  <button className="swipe-action-btn cancel-btn" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
+                    <span className="indicator-icon">↩</span>
+                    <span className="indicator-text">Annuler</span>
+                  </button>
+                  <button className="swipe-action-btn" onClick={confirmSwipeWithDate}>
+                    <span className="indicator-icon">✓</span>
+                    <span className="indicator-text">Valider</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <button className="swipe-action-btn" onClick={() => setShowSwipeDatePicker(true)}>
+                  <span className="indicator-icon">✓</span>
+                  <span className="indicator-text">Valider</span>
+                </button>
+                <button className="swipe-action-btn cancel-btn" onClick={cancelAction}>
+                  <span className="indicator-icon">↩</span>
+                  <span className="indicator-text">Annuler</span>
+                </button>
+              </>
+            )
+          ) : (
+            <>
+              <span className="indicator-icon">✓</span>
+              <span className="indicator-text">Fait !</span>
+            </>
+          )}
         </div>
 
         <div
-          className={`task-card-swipe ${isDragging ? 'dragging' : ''}`}
+          className={`task-card-swipe ${isDragging ? 'dragging' : ''} ${revealedAction ? 'action-revealed' : ''}`}
           style={cardStyle}
           {...handlers}
+          onClick={() => revealedAction && cancelAction()}
         >
           <div className="task-card-content">
-            <span className="task-category-icon">{getCategoryIcon(task.category)}</span>
+            <span className="task-category-icon">{getCategoryIconDynamic(task.category, taskCategories)}</span>
             <div className="task-info-swipe">
               <span className="task-name">{task.name}</span>
               <SweepyBar task={task} compact />
@@ -80,12 +148,47 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
           <div className="task-menu" onClick={(e) => e.stopPropagation()}>
             <div className="task-menu-handle" />
             <div className="task-menu-head">
-              <span className="task-menu-emoji">{getCategoryIcon(task.category)}</span>
+              <span className="task-menu-emoji">{getCategoryIconDynamic(task.category, taskCategories)}</span>
               <h4>{task.name}</h4>
             </div>
             <button className="menu-btn primary" onClick={() => { triggerComplete(); setShowMenu(false); }}>
-              <span>✓</span> Marquer comme fait
+              <span>✓</span> Marquer comme fait aujourd'hui
             </button>
+            
+            {!showDatePicker ? (
+              <button className="menu-btn" onClick={() => setShowDatePicker(true)}>
+                <span>📅</span> Marquer comme fait le...
+              </button>
+            ) : (
+              <div className="menu-date-picker">
+                <span>Date de réalisation</span>
+                <input
+                  type="date"
+                  value={customDate}
+                  onChange={(e) => setCustomDate(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                <div className="date-picker-actions">
+                  <button onClick={() => setShowDatePicker(false)}>Annuler</button>
+                  <button 
+                    className="btn-confirm"
+                    onClick={() => {
+                      if (onCompleteWithDate) {
+                        onCompleteWithDate(task.id, customDate)
+                      } else if (onComplete) {
+                        // Fallback si onCompleteWithDate n'est pas fourni
+                        onComplete(task.id, customDate)
+                      }
+                      setShowDatePicker(false)
+                      setShowMenu(false)
+                    }}
+                  >
+                    Valider
+                  </button>
+                </div>
+              </div>
+            )}
+            
             <div className="menu-snooze">
               <span>Reporter</span>
               <div className="snooze-buttons">

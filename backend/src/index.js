@@ -440,6 +440,50 @@ app.delete('/api/shop-categories/:id', (req, res) => {
   res.json({ ok: true })
 })
 
+// ============ TASK CATEGORIES (Custom rooms/pieces) ============
+app.get('/api/task-categories', (_req, res) => {
+  const rows = db.prepare('SELECT * FROM task_categories ORDER BY sort_order, label').all()
+  res.json(rows)
+})
+
+app.post('/api/task-categories', (req, res) => {
+  const { value, label, icon, sort_order } = req.body
+  if (!value?.trim() || !label?.trim()) {
+    return res.status(400).json({ error: 'value and label required' })
+  }
+  const id = randomUUID()
+  try {
+    db.prepare('INSERT INTO task_categories (id, value, label, icon, sort_order) VALUES (?, ?, ?, ?, ?)')
+      .run(id, value.trim().toLowerCase().replace(/\s+/g, '_'), label.trim(), icon || '📋', sort_order ?? 0)
+    const cat = db.prepare('SELECT * FROM task_categories WHERE id = ?').get(id)
+    broadcastUpdate('task_category_added', cat)
+    res.status(201).json(cat)
+  } catch (err) {
+    res.status(400).json({ error: 'Category value already exists' })
+  }
+})
+
+app.patch('/api/task-categories/:id', (req, res) => {
+  const { label, icon, sort_order } = req.body
+  db.prepare(`
+    UPDATE task_categories SET
+      label = COALESCE(?, label),
+      icon = COALESCE(?, icon),
+      sort_order = COALESCE(?, sort_order)
+    WHERE id = ?
+  `).run(label, icon, sort_order, req.params.id)
+  const cat = db.prepare('SELECT * FROM task_categories WHERE id = ?').get(req.params.id)
+  broadcastUpdate('task_category_updated', cat)
+  res.json({ ok: true })
+})
+
+app.delete('/api/task-categories/:id', (req, res) => {
+  const catId = req.params.id
+  db.prepare('DELETE FROM task_categories WHERE id = ?').run(catId)
+  broadcastUpdate('task_category_deleted', { id: catId })
+  res.json({ ok: true })
+})
+
 // Catch-all: serve React app
 app.use((_req, res) => {
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'))

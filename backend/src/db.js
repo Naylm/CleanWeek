@@ -112,6 +112,16 @@ function init() {
       created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
 
+    -- Custom task categories (rooms/pieces)
+    CREATE TABLE IF NOT EXISTS task_categories (
+      id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+      value TEXT NOT NULL UNIQUE,
+      label TEXT NOT NULL,
+      icon TEXT NOT NULL DEFAULT '📋',
+      sort_order INTEGER DEFAULT 0,
+      created_at INTEGER DEFAULT (unixepoch() * 1000)
+    );
+
     -- Index for fast search
     CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name);
     CREATE INDEX IF NOT EXISTS idx_food_keywords ON food_items(keywords);
@@ -163,6 +173,23 @@ function init() {
       ['autre', 'Autre', '📦', 99],
     ]
     for (const c of defaultCats) catStmt.run(...c)
+  }
+
+  // Insert default task categories if none exist
+  const taskCatCount = db.prepare('SELECT count(*) as c FROM task_categories').get().c
+  if (taskCatCount === 0) {
+    const taskCatStmt = db.prepare('INSERT INTO task_categories (value, label, icon, sort_order) VALUES (?, ?, ?, ?)')
+    const defaultTaskCats = [
+      ['cuisine', 'Cuisine', '🍳', 0],
+      ['salon', 'Salon', '🛋️', 1],
+      ['chambre', 'Chambre', '🛏️', 2],
+      ['salle_de_bain', 'Salle de bain', '🚿', 3],
+      ['linge', 'Linge', '👕', 4],
+      ['courses', 'Courses', '🛒', 5],
+      ['exterieur', 'Extérieur', '🌿', 6],
+      ['autre', 'Autre', '📋', 99],
+    ]
+    for (const c of defaultTaskCats) taskCatStmt.run(...c)
   }
 
   // Insert default tasks if none exist

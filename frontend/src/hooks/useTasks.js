@@ -64,12 +64,12 @@ export function useTasks() {
     await fetchTasks()
   }, [fetchTasks])
 
-  const completeTask = useCallback(async (taskId) => {
-    const today = new Date().toISOString().split('T')[0]
+  const completeTask = useCallback(async (taskId, date = null) => {
+    const completedAt = date || new Date().toISOString().split('T')[0]
     const res = await fetch(`${API_URL}/api/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ task_id: taskId, completed_at: today }),
+      body: JSON.stringify({ task_id: taskId, completed_at: completedAt }),
     })
     if (!res.ok && res.status !== 400) throw new Error('Failed to complete task')
     await fetchTasks()

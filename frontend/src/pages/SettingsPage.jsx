@@ -4,6 +4,7 @@ import { useWeekSettings } from '../hooks/useWeekSettings'
 import { useFeatures } from '../hooks/FeaturesProvider.jsx'
 import { useReminders } from '../hooks/useReminders'
 import { useShopCategories } from '../hooks/useShopCategories'
+import { useTaskCategories } from '../hooks/useTaskCategories'
 import { DAYS_OF_WEEK } from '../lib/taskUtils'
 import EmojiPicker from '../components/EmojiPicker'
 import './SettingsPage.css'
@@ -39,6 +40,7 @@ export default function SettingsPage() {
   const { features, loading: featuresLoading, toggleFeature } = useFeatures()
   const { slots, loading: remindersLoading, addSlot, updateSlot, deleteSlot } = useReminders()
   const { categories: shopCategories, addCategory, updateCategory, deleteCategory } = useShopCategories()
+  const { categories: taskCategories, addCategory: addTaskCategory, updateCategory: updateTaskCategory, deleteCategory: deleteTaskCategory } = useTaskCategories()
 
   const [addingReminder, setAddingReminder] = useState(false)
   const [newReminder, setNewReminder] = useState({
@@ -52,6 +54,11 @@ export default function SettingsPage() {
   const [newCatValue, setNewCatValue] = useState('')
   const [newCatLabel, setNewCatLabel] = useState('')
   const [newCatEmoji, setNewCatEmoji] = useState('📦')
+
+  const [editingTaskCat, setEditingTaskCat] = useState(null)
+  const [newTaskCatValue, setNewTaskCatValue] = useState('')
+  const [newTaskCatLabel, setNewTaskCatLabel] = useState('')
+  const [newTaskCatIcon, setNewTaskCatIcon] = useState('🏠')
 
   const startDay = settings?.start_day_of_week ?? 5
 
@@ -260,6 +267,115 @@ export default function SettingsPage() {
             value={newCatValue}
             onChange={e => setNewCatValue(e.target.value)}
             placeholder="Identifiant (ex: fruits secs)"
+            className="shop-cat-value-input"
+          />
+        </div>
+      </div>
+
+      {/* Catégories de tâches (Pièces) */}
+      <div className="settings-card">
+        <div className="settings-section-header">
+          <h2 className="settings-section-title">Pièces de la maison</h2>
+        </div>
+        <ul className="shop-cat-list">
+          {taskCategories.map(cat => (
+            <li key={cat.id} className="shop-cat-row">
+              {editingTaskCat?.id === cat.id ? (
+                <>
+                  <EmojiPicker
+                    value={editingTaskCat.icon}
+                    onChange={icon => setEditingTaskCat({ ...editingTaskCat, icon })}
+                  />
+                  <input
+                    value={editingTaskCat.label}
+                    onChange={e => setEditingTaskCat({ ...editingTaskCat, label: e.target.value })}
+                    className="shop-cat-label-input"
+                  />
+                  <input
+                    type="number"
+                    value={editingTaskCat.sort_order ?? 0}
+                    onChange={e => setEditingTaskCat({ ...editingTaskCat, sort_order: parseInt(e.target.value) || 0 })}
+                    className="shop-cat-order-input"
+                  />
+                  <button
+                    type="button"
+                    className="shop-edit-save"
+                    onClick={() => {
+                      updateTaskCategory(cat.id, {
+                        label: editingTaskCat.label,
+                        icon: editingTaskCat.icon,
+                        sort_order: editingTaskCat.sort_order,
+                      })
+                      setEditingTaskCat(null)
+                    }}
+                  >
+                    ✓
+                  </button>
+                  <button
+                    type="button"
+                    className="shop-edit-cancel"
+                    onClick={() => setEditingTaskCat(null)}
+                  >
+                    ✕
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span className="shop-cat-emoji">{cat.icon}</span>
+                  <span className="shop-cat-name">{cat.label}</span>
+                  <button
+                    type="button"
+                    className="shop-edit-btn"
+                    onClick={() => setEditingTaskCat(cat)}
+                  >
+                    ✎
+                  </button>
+                  <button
+                    type="button"
+                    className="shop-delete-btn"
+                    onClick={() => deleteTaskCategory(cat.id)}
+                  >
+                    ✕
+                  </button>
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+        <div className="shop-cat-add-row">
+          <EmojiPicker
+            value={newTaskCatIcon}
+            onChange={setNewTaskCatIcon}
+          />
+          <input
+            value={newTaskCatLabel}
+            onChange={e => setNewTaskCatLabel(e.target.value)}
+            placeholder="Nom de la pièce (ex: Bureau)"
+            className="shop-cat-label-input"
+          />
+          <button
+            type="button"
+            className="shop-add-btn-small"
+            disabled={!newTaskCatLabel.trim() || !newTaskCatValue.trim()}
+            onClick={async () => {
+              await addTaskCategory({
+                value: newTaskCatValue,
+                label: newTaskCatLabel,
+                icon: newTaskCatIcon,
+              })
+              setNewTaskCatValue('')
+              setNewTaskCatLabel('')
+              setNewTaskCatIcon('🏠')
+            }}
+          >
+            +
+          </button>
+        </div>
+        <div className="shop-cat-add-row">
+          <input
+            value={newTaskCatValue}
+            onChange={e => setNewTaskCatValue(e.target.value)}
+            placeholder="Identifiant (ex: bureau)"
             className="shop-cat-value-input"
           />
         </div>

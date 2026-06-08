@@ -1,11 +1,13 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 
-const SWIPE_THRESHOLD = 50
+const SWIPE_THRESHOLD = 80
+const REVEAL_THRESHOLD = 60
 const LONG_PRESS_DURATION = 500
 
-export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
+export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requireConfirmation = true }) {
   const [offset, setOffset] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [revealedAction, setRevealedAction] = useState(null)
   const offsetRef = useRef(0)
   const touchStart = useRef({ x: 0, y: 0, time: 0 })
   const longPressTimer = useRef(null)
@@ -63,6 +65,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
 
     if (isLongPress.current) {
       setOffset(0)
+      setRevealedAction(null)
       return
     }
 
@@ -72,23 +75,57 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
     if (deltaTime < 200 && Math.abs(currentOffset) < 10) {
       if (onTap) onTap()
       setOffset(0)
+      setRevealedAction(null)
       return
     }
 
-    if (currentOffset > SWIPE_THRESHOLD) {
-      if (onSwipeRight) {
-        onSwipeRight()
-        if (navigator.vibrate) navigator.vibrate(20)
+    // Mode confirmation : révéler l'action au lieu de l'exécuter
+    if (requireConfirmation) {
+      if (currentOffset > REVEAL_THRESHOLD) {
+        setRevealedAction('right')
+        setOffset(100) // Position fixe pour le bouton
+        if (navigator.vibrate) navigator.vibrate(10)
+      } else if (currentOffset < -REVEAL_THRESHOLD) {
+        setRevealedAction('left')
+        setOffset(-100) // Position fixe pour le bouton
+        if (navigator.vibrate) navigator.vibrate(10)
+      } else {
+        setRevealedAction(null)
+        setOffset(0)
       }
-    } else if (currentOffset < -SWIPE_THRESHOLD) {
-      if (onSwipeLeft) {
-        onSwipeLeft()
-        if (navigator.vibrate) navigator.vibrate(20)
+    } else {
+      // Mode direct (ancien comportement)
+      if (currentOffset > SWIPE_THRESHOLD) {
+        if (onSwipeRight) {
+          onSwipeRight()
+          if (navigator.vibrate) navigator.vibrate(20)
+        }
+      } else if (currentOffset < -SWIPE_THRESHOLD) {
+        if (onSwipeLeft) {
+          onSwipeLeft()
+          if (navigator.vibrate) navigator.vibrate(20)
+        }
       }
+      setOffset(0)
     }
+  }, [onSwipeRight, onSwipeLeft, onTap, requireConfirmation])
 
+  const confirmAction = useCallback(() => {
+    if (revealedAction === 'right' && onSwipeRight) {
+      onSwipeRight()
+      if (navigator.vibrate) navigator.vibrate(20)
+    } else if (revealedAction === 'left' && onSwipeLeft) {
+      onSwipeLeft()
+      if (navigator.vibrate) navigator.vibrate(20)
+    }
+    setRevealedAction(null)
     setOffset(0)
-  }, [onSwipeRight, onSwipeLeft, onTap])
+  }, [revealedAction, onSwipeRight, onSwipeLeft])
+
+  const cancelAction = useCallback(() => {
+    setRevealedAction(null)
+    setOffset(0)
+  }, [])
 
   const handleMouseDown = useCallback((e) => {
     touchStart.current = { x: e.clientX, y: e.clientY, time: Date.now() }
@@ -136,6 +173,9 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap }) {
   return {
     offset,
     isDragging,
+    revealedAction,
+    confirmAction,
+    cancelAction,
     handlers: {
       onTouchStart: handleTouchStart,
       onTouchMove: handleTouchMove,

@@ -203,6 +203,13 @@ export function getCategoryIcon(category) {
   return CATEGORIES.find(c => c.value === category)?.icon || '📋'
 }
 
+export function getCategoryIconDynamic(category, categories) {
+  if (!categories || categories.length === 0) {
+    return CATEGORIES.find(c => c.value === category)?.icon || '📋'
+  }
+  return categories.find(c => c.value === category)?.icon || '📋'
+}
+
 export function formatNextDue(task, referenceDate = new Date()) {
   const next = getNextDueDate(task, referenceDate)
   const today = startOfDay(referenceDate)
