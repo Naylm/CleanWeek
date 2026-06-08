@@ -1,0 +1,48 @@
+export const RESTORED_MEAL_PLANS = [
+  { date: '2026-06-05', meal: 'lunch', content: 'Carte TR' },
+  { date: '2026-06-05', meal: 'dinner', content: 'Tortillas' },
+  {
+    date: '2026-06-06',
+    meal: 'lunch',
+    content: 'Gnocchis parmesan',
+    notes: 'Poulet crème épinards',
+  },
+  { date: '2026-06-06', meal: 'dinner', content: 'Tacos' },
+  {
+    date: '2026-06-07',
+    meal: 'lunch',
+    content: 'Laura :',
+    notes: 'Melvin : Sandwichs',
+  },
+  { date: '2026-06-07', meal: 'dinner', content: 'Riz poulet curry coco' },
+  { date: '2026-06-08', meal: 'lunch', content: 'Restes du soir' },
+  {
+    date: '2026-06-08',
+    meal: 'dinner',
+    content: 'Quiche saumon',
+    notes: 'Épinards chèvre',
+  },
+  { date: '2026-06-09', meal: 'lunch', content: 'Restes du soir' },
+  {
+    date: '2026-06-09',
+    meal: 'dinner',
+    content: 'Pâtes steaks',
+    notes: 'Régressif',
+  },
+  { date: '2026-06-10', meal: 'lunch', content: 'Restes du soir' },
+  {
+    date: '2026-06-10',
+    meal: 'dinner',
+    content: 'Riz poulet crème',
+    notes: 'Lardons échalotes parmesan',
+  },
+  { date: '2026-06-11', meal: 'lunch', content: 'Restes du soir' },
+  {
+    date: '2026-06-11',
+    meal: 'dinner',
+    content: 'Riz',
+    notes: 'Poulet sauce rouge',
+  },
+  { date: '2026-06-12', meal: 'lunch', content: 'Restes du soir' },
+  { date: '2026-06-12', meal: 'dinner', content: 'Courses' },
+]

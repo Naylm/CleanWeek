@@ -3,6 +3,8 @@ import { mkdirSync } from 'fs'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { FOODS_DATABASE } from './foods_data.js'
+import { HOUSEHOLD_TASKS } from './household_tasks.js'
+import { RESTORED_MEAL_PLANS } from './restored_meal_plans.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DB_PATH = process.env.DB_PATH || `${__dirname}/../data/cleanweek.db`
@@ -11,6 +13,91 @@ mkdirSync(dirname(DB_PATH), { recursive: true })
 
 const db = new Database(DB_PATH)
 db.pragma('journal_mode = WAL')
+
+function importHouseholdTasks() {
+  const migrationId = '20260608_household_tasks'
+  const migrationApplied = db.prepare('SELECT 1 FROM app_migrations WHERE id = ?').get(migrationId)
+  if (migrationApplied) return
+
+  const findTask = db.prepare(`
+    SELECT id
+    FROM tasks
+    WHERE category = ? AND name = ?
+    ORDER BY created_at
+    LIMIT 1
+  `)
+  const insertTask = db.prepare(`
+    INSERT INTO tasks (name, category, frequency, custom_interval_enabled)
+    VALUES (?, ?, ?, ?)
+  `)
+  const updateTask = db.prepare(`
+    UPDATE tasks
+    SET frequency = ?, custom_interval_enabled = ?
+    WHERE id = ?
+  `)
+  const deleteInterval = db.prepare('DELETE FROM task_intervals WHERE task_id = ?')
+  const upsertInterval = db.prepare(`
+    INSERT INTO task_intervals (task_id, interval_type, days_of_week, month_interval)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(task_id) DO UPDATE SET
+      interval_type = excluded.interval_type,
+      days_of_week = excluded.days_of_week,
+      month_interval = excluded.month_interval
+  `)
+
+  db.transaction(() => {
+    // Keep the completion history attached to the original salon dusting task.
+    const legacyDusting = findTask.get('salon', 'Enlever la poussiere')
+    const currentDusting = findTask.get('salon', 'Retirer la poussière')
+    if (legacyDusting && !currentDusting) {
+      db.prepare('UPDATE tasks SET name = ? WHERE id = ?')
+        .run('Retirer la poussière', legacyDusting.id)
+    }
+
+    for (const task of HOUSEHOLD_TASKS) {
+      let existing = findTask.get(task.category, task.name)
+      const customIntervalEnabled = task.interval ? 1 : 0
+
+      if (!existing) {
+        insertTask.run(task.name, task.category, task.frequency, customIntervalEnabled)
+        existing = findTask.get(task.category, task.name)
+      } else {
+        updateTask.run(task.frequency, customIntervalEnabled, existing.id)
+      }
+
+      if (task.interval?.type === 'days_of_week') {
+        upsertInterval.run(existing.id, task.interval.type, JSON.stringify(task.interval.days), null)
+      } else if (task.interval?.type === 'month_interval') {
+        upsertInterval.run(existing.id, task.interval.type, null, task.interval.months)
+      } else {
+        deleteInterval.run(existing.id)
+      }
+    }
+
+    db.prepare('INSERT INTO app_migrations (id) VALUES (?)').run(migrationId)
+  })()
+}
+
+function importRestoredMealPlans() {
+  const migrationId = '20260608_restored_meal_plans'
+  const migrationApplied = db.prepare('SELECT 1 FROM app_migrations WHERE id = ?').get(migrationId)
+  if (migrationApplied) return
+
+  const upsertMeal = db.prepare(`
+    INSERT INTO meal_plans (date, meal, content, notes)
+    VALUES (?, ?, ?, ?)
+    ON CONFLICT(date, meal) DO UPDATE SET
+      content = excluded.content,
+      notes = excluded.notes
+  `)
+
+  db.transaction(() => {
+    for (const plan of RESTORED_MEAL_PLANS) {
+      upsertMeal.run(plan.date, plan.meal, plan.content, plan.notes || null)
+    }
+    db.prepare('INSERT INTO app_migrations (id) VALUES (?)').run(migrationId)
+  })()
+}
 
 // Init tables
 function init() {
@@ -122,6 +209,11 @@ function init() {
       created_at INTEGER DEFAULT (unixepoch() * 1000)
     );
 
+    CREATE TABLE IF NOT EXISTS app_migrations (
+      id TEXT PRIMARY KEY,
+      applied_at INTEGER DEFAULT (unixepoch() * 1000)
+    );
+
     -- Index for fast search
     CREATE INDEX IF NOT EXISTS idx_food_name ON food_items(name);
     CREATE INDEX IF NOT EXISTS idx_food_keywords ON food_items(keywords);
@@ -192,21 +284,8 @@ function init() {
     for (const c of defaultTaskCats) taskCatStmt.run(...c)
   }
 
-  // Insert default tasks if none exist
-  const count = db.prepare('SELECT count(*) as c FROM tasks').get().c
-  if (count === 0) {
-    const tStmt = db.prepare('INSERT INTO tasks (name, category, frequency) VALUES (?, ?, ?)')
-    const defaultTasks = [
-      ['Enlever la poussiere', 'salon', 'weekly'],
-      ['Aspirer le sol', 'salon', 'weekly'],
-      ['Nettoyer sous le lit', 'chambre', 'weekly'],
-      ['Nettoyer les tables de chevet', 'chambre', 'weekly'],
-      ['Changer les draps', 'chambre', 'biweekly'],
-      ['Ranger la garde-robe', 'chambre', 'monthly'],
-      ['Rangement global', 'salon', 'monthly'],
-    ]
-    for (const t of defaultTasks) tStmt.run(...t)
-  }
+  importHouseholdTasks()
+  importRestoredMealPlans()
 }
 
 init()
