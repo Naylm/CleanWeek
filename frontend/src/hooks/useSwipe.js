@@ -84,11 +84,11 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
       if (currentOffset > REVEAL_THRESHOLD) {
         setRevealedAction('right')
         setOffset(100) // Position fixe pour le bouton
-        if (navigator.vibrate) navigator.vibrate(10)
+        if (navigator.vibrate) navigator.vibrate(20)
       } else if (currentOffset < -REVEAL_THRESHOLD) {
         setRevealedAction('left')
         setOffset(-100) // Position fixe pour le bouton
-        if (navigator.vibrate) navigator.vibrate(10)
+        if (navigator.vibrate) navigator.vibrate(20)
       } else {
         setRevealedAction(null)
         setOffset(0)

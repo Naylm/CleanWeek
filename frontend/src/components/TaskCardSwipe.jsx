@@ -62,14 +62,15 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
         <div className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}>
           {action === 'snooze' ? (
             <>
-              <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); }}>
+              <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); if (navigator.vibrate) navigator.vibrate(15); }}>
                 <span className="indicator-icon">↩</span>
                 <span className="indicator-text">Annuler</span>
               </button>
-              <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmAction(); }}>
+              <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmAction(); if (navigator.vibrate) navigator.vibrate([20, 30]); }}>
                 <span className="indicator-icon">⏰</span>
                 <span className="indicator-text">Reporter</span>
               </button>
+              <span className="swipe-hint">↔ Glisser pour annuler</span>
             </>
           ) : (
             <>
@@ -102,14 +103,15 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
               </div>
             ) : (
               <>
-                <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(true); }}>
+                <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(true); if (navigator.vibrate) navigator.vibrate([20, 30]); }}>
                   <span className="indicator-icon">✓</span>
                   <span className="indicator-text">Valider</span>
                 </button>
-                <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); }}>
+                <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); if (navigator.vibrate) navigator.vibrate(15); }}>
                   <span className="indicator-icon">↩</span>
                   <span className="indicator-text">Annuler</span>
                 </button>
+                <span className="swipe-hint">↔ Glisser pour annuler</span>
               </>
             )
           ) : (
