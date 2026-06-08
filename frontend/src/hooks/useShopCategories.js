@@ -7,7 +7,7 @@ export function useShopCategories() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch('/api/shop-categories')
+      const res = await fetch('/api/shop-categories', { cache: 'no-store' })
       const data = await res.json()
       setCategories(data)
     } catch (err) {
@@ -18,13 +18,23 @@ export function useShopCategories() {
   }, [])
 
   useEffect(() => {
-    fetchCategories()
+    const t = setTimeout(fetchCategories, 0)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchCategories()
+    }
+    window.addEventListener('focus', fetchCategories)
+    document.addEventListener('visibilitychange', onVisible)
     const unsub1 = onRefresh((type) => {
-      if (type === 'shop_category_added' || type === 'shop_category_updated' || type === 'shop_category_deleted') {
+      if (type === 'shop-categories') {
         fetchCategories()
       }
     })
-    return unsub1
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('focus', fetchCategories)
+      document.removeEventListener('visibilitychange', onVisible)
+      unsub1()
+    }
   }, [fetchCategories])
 
   async function addCategory(category) {

@@ -1,7 +1,7 @@
 const API_BASE = '/api'
 
 async function get(path) {
-  const r = await fetch(API_BASE + path)
+  const r = await fetch(API_BASE + path, { cache: 'no-store' })
   if (!r.ok) throw new Error(await r.text())
   return r.json()
 }

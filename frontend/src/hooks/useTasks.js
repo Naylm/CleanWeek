@@ -9,7 +9,7 @@ export function useTasks() {
 
   const fetchTasks = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/tasks`)
+      const res = await fetch(`${API_URL}/api/tasks`, { cache: 'no-store' })
       if (!res.ok) throw new Error('Failed to fetch')
       const data = await res.json()
       setTasks(data)

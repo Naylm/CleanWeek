@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { onRefresh } from '../lib/events'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -8,7 +9,7 @@ export function useReminders() {
 
   const fetchSlots = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/reminders`)
+      const res = await fetch(`${API_URL}/api/reminders`, { cache: 'no-store' })
       if (!res.ok) throw new Error('Failed to fetch reminders')
       const data = await res.json()
       setSlots(data.map(slot => ({
@@ -24,7 +25,21 @@ export function useReminders() {
   }, [])
 
   useEffect(() => {
-    fetchSlots()
+    const t = setTimeout(fetchSlots, 0)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchSlots()
+    }
+    window.addEventListener('focus', fetchSlots)
+    document.addEventListener('visibilitychange', onVisible)
+    const unsub = onRefresh((type) => {
+      if (type === 'reminders') fetchSlots()
+    })
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('focus', fetchSlots)
+      document.removeEventListener('visibilitychange', onVisible)
+      unsub()
+    }
   }, [fetchSlots])
 
   const addSlot = useCallback(async (slotData) => {

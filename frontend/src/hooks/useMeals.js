@@ -24,10 +24,17 @@ export function useMeals() {
   useEffect(() => {
     const t = setTimeout(fetchPlans, 0)
     const interval = setInterval(fetchPlans, 30000)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchPlans()
+    }
+    window.addEventListener('focus', fetchPlans)
+    document.addEventListener('visibilitychange', onVisible)
     const unsub = onRefresh((type) => { if (type === 'meals') fetchPlans() })
     return () => {
       clearTimeout(t)
       clearInterval(interval)
+      window.removeEventListener('focus', fetchPlans)
+      document.removeEventListener('visibilitychange', onVisible)
       unsub()
     }
   }, [fetchPlans])

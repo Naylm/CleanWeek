@@ -10,6 +10,17 @@ export function RealtimeProvider({ children }) {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
+    const refreshSharedData = () => {
+      emitRefresh('tasks')
+      emitRefresh('meals')
+      emitRefresh('shopping')
+      emitRefresh('settings')
+      emitRefresh('features')
+      emitRefresh('reminders')
+      emitRefresh('task-categories')
+      emitRefresh('shop-categories')
+    }
+
     const socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
       reconnection: true,
@@ -26,22 +37,26 @@ export function RealtimeProvider({ children }) {
       setIsConnected(false)
     })
 
-    socket.on('reconnect', () => {
-      emitRefresh('tasks')
-      emitRefresh('meals')
-      emitRefresh('shopping')
-      emitRefresh('settings')
-    })
+    socket.io.on('reconnect', refreshSharedData)
 
     socket.on('update', (update) => {
       const { type } = update
-      if (type?.startsWith('task_') || type?.startsWith('completion_')) emitRefresh('tasks')
+      emitRefresh(type)
+
+      if ((type?.startsWith('task_') && !type.startsWith('task_category_')) || type?.startsWith('completion_')) {
+        emitRefresh('tasks')
+      }
       if (type?.startsWith('meal_')) emitRefresh('meals')
       if (type?.startsWith('shopping_')) emitRefresh('shopping')
       if (type === 'week_settings_updated') emitRefresh('settings')
+      if (type === 'features_updated') emitRefresh('features')
+      if (type?.startsWith('reminder_')) emitRefresh('reminders')
+      if (type?.startsWith('task_category_')) emitRefresh('task-categories')
+      if (type?.startsWith('shop_category_')) emitRefresh('shop-categories')
     })
 
     return () => {
+      socket.io.off('reconnect', refreshSharedData)
       socket.disconnect()
     }
   }, []) // socket créé une seule fois
@@ -53,4 +68,5 @@ export function RealtimeProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useRealtimeStatus = () => useContext(RealtimeContext)

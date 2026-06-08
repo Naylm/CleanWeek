@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { onRefresh } from '../lib/events'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -14,7 +15,7 @@ export function FeaturesProvider({ children }) {
 
   const fetchFeatures = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/user/features`)
+      const res = await fetch(`${API_URL}/api/user/features`, { cache: 'no-store' })
       if (!res.ok) throw new Error('Failed to fetch features')
       const data = await res.json()
       setFeatures({
@@ -30,7 +31,21 @@ export function FeaturesProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    fetchFeatures()
+    const t = setTimeout(fetchFeatures, 0)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchFeatures()
+    }
+    window.addEventListener('focus', fetchFeatures)
+    document.addEventListener('visibilitychange', onVisible)
+    const unsub = onRefresh((type) => {
+      if (type === 'features') fetchFeatures()
+    })
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('focus', fetchFeatures)
+      document.removeEventListener('visibilitychange', onVisible)
+      unsub()
+    }
   }, [fetchFeatures])
 
   const toggleFeature = useCallback(async (featureKey) => {
@@ -51,7 +66,7 @@ export function FeaturesProvider({ children }) {
       if (featureKey === 'offline_mode_enabled' && newValue) {
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registered'))
+            .then(() => console.log('SW registered'))
             .catch(err => console.error('SW registration failed', err))
         }
       }
@@ -75,6 +90,7 @@ export function FeaturesProvider({ children }) {
   )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useFeatures() {
   const context = useContext(FeaturesContext)
   if (!context) {

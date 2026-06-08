@@ -19,10 +19,17 @@ export function useShopping() {
   useEffect(() => {
     const t = setTimeout(fetchItems, 0)
     const interval = setInterval(fetchItems, 30000)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchItems()
+    }
+    window.addEventListener('focus', fetchItems)
+    document.addEventListener('visibilitychange', onVisible)
     const unsub = onRefresh((type) => { if (type === 'shopping') fetchItems() })
     return () => {
       clearTimeout(t)
       clearInterval(interval)
+      window.removeEventListener('focus', fetchItems)
+      document.removeEventListener('visibilitychange', onVisible)
       unsub()
     }
   }, [fetchItems])

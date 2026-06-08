@@ -18,9 +18,16 @@ export function useWeekSettings() {
 
   useEffect(() => {
     const t = setTimeout(fetchSettings, 0)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchSettings()
+    }
+    window.addEventListener('focus', fetchSettings)
+    document.addEventListener('visibilitychange', onVisible)
     const unsub = onRefresh((type) => { if (type === 'settings') fetchSettings() })
     return () => {
       clearTimeout(t)
+      window.removeEventListener('focus', fetchSettings)
+      document.removeEventListener('visibilitychange', onVisible)
       unsub()
     }
   }, [fetchSettings])

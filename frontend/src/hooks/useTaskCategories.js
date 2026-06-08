@@ -9,7 +9,7 @@ export function useTaskCategories() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/task-categories`)
+      const res = await fetch(`${API_URL}/api/task-categories`, { cache: 'no-store' })
       if (!res.ok) throw new Error('Failed to fetch task categories')
       const data = await res.json()
       setCategories(data)
@@ -21,13 +21,23 @@ export function useTaskCategories() {
   }, [])
 
   useEffect(() => {
-    fetchCategories()
+    const t = setTimeout(fetchCategories, 0)
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') fetchCategories()
+    }
+    window.addEventListener('focus', fetchCategories)
+    document.addEventListener('visibilitychange', onVisible)
     const unsub1 = onRefresh((type) => {
-      if (type === 'task_category_added' || type === 'task_category_updated' || type === 'task_category_deleted') {
+      if (type === 'task-categories') {
         fetchCategories()
       }
     })
-    return unsub1
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('focus', fetchCategories)
+      document.removeEventListener('visibilitychange', onVisible)
+      unsub1()
+    }
   }, [fetchCategories])
 
   async function addCategory(category) {

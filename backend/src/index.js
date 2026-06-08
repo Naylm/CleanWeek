@@ -32,6 +32,14 @@ function broadcastUpdate(type, data) {
 
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
+app.use('/api', (_req, res, next) => {
+  res.set({
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    Pragma: 'no-cache',
+    Expires: '0',
+  })
+  next()
+})
 
 const FRONTEND_DIR = process.env.FRONTEND_DIR || path.join(__dirname, '../../frontend/dist')
 app.use(express.static(FRONTEND_DIR))
@@ -145,6 +153,7 @@ app.post('/api/tasks/:id/snooze', (req, res) => {
   try {
     db.prepare('INSERT INTO completions (id, task_id, completed_at) VALUES (?, ?, ?)')
       .run(completionId, req.params.id, today)
+    broadcastUpdate('task_snoozed', { id: req.params.id, completed_at: today })
     res.json({ ok: true, snoozed: today, days: snoozeDays })
   } catch (err) {
     res.status(400).json({ error: err.message })
@@ -227,6 +236,7 @@ app.patch('/api/shopping/:id/reorder', (req, res) => {
   const { sort_order } = req.body
   if (sort_order === undefined) return res.status(400).json({ error: 'sort_order required' })
   db.prepare('UPDATE shopping_items SET sort_order = ? WHERE id = ?').run(sort_order, req.params.id)
+  broadcastUpdate('shopping_reordered', { id: req.params.id, sort_order })
   res.json({ ok: true })
 })
 
@@ -263,6 +273,7 @@ app.patch('/api/user/features', (req, res) => {
     reminders_enabled !== undefined ? (reminders_enabled ? 1 : 0) : undefined
   )
   const features = db.prepare('SELECT * FROM user_features WHERE id = 1').get()
+  broadcastUpdate('features_updated', features)
   res.json(features)
 })
 
@@ -283,6 +294,7 @@ app.post('/api/reminders', (req, res) => {
     VALUES (?, ?, ?, ?, ?)`)
     .run(id, label.trim(), time, days_of_week ? JSON.stringify(days_of_week) : null, message_template || 'Il reste {remaining} tâches')
   const slot = db.prepare('SELECT * FROM reminder_slots WHERE id = ?').get(id)
+  broadcastUpdate('reminder_added', slot)
   res.status(201).json(slot)
 })
 
@@ -304,11 +316,13 @@ app.patch('/api/reminders/:id', (req, res) => {
     message_template,
     req.params.id
   )
+  broadcastUpdate('reminder_updated', { id: req.params.id })
   res.json({ ok: true })
 })
 
 app.delete('/api/reminders/:id', (req, res) => {
   db.prepare('DELETE FROM reminder_slots WHERE id = ?').run(req.params.id)
+  broadcastUpdate('reminder_deleted', { id: req.params.id })
   res.json({ ok: true })
 })
 
