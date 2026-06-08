@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTaskCategories } from '../hooks/useTaskCategories'
 import { FREQUENCIES, DAYS_OF_WEEK, MONTH_INTERVALS } from '../lib/taskUtils'
 import './AddTaskModal.css'
@@ -25,6 +25,11 @@ export default function AddTaskModal({ onAdd, onClose, initialTask = null }) {
   )
 
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = '' }
+  }, [])
 
   function toggleDay(day) {
     if (selectedDays.includes(day)) {
