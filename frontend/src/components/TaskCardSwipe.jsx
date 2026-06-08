@@ -62,11 +62,11 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
         <div className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}>
           {action === 'snooze' ? (
             <>
-              <button className="swipe-action-btn cancel-btn" onClick={cancelAction}>
+              <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); }}>
                 <span className="indicator-icon">↩</span>
                 <span className="indicator-text">Annuler</span>
               </button>
-              <button className="swipe-action-btn" onClick={confirmAction}>
+              <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmAction(); }}>
                 <span className="indicator-icon">⏰</span>
                 <span className="indicator-text">Reporter</span>
               </button>
@@ -90,11 +90,11 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
                   max={new Date().toISOString().split('T')[0]}
                 />
                 <div className="swipe-date-actions">
-                  <button className="swipe-action-btn cancel-btn" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
+                  <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(false); cancelAction(); }}>
                     <span className="indicator-icon">↩</span>
                     <span className="indicator-text">Annuler</span>
                   </button>
-                  <button className="swipe-action-btn" onClick={confirmSwipeWithDate}>
+                  <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmSwipeWithDate(); }}>
                     <span className="indicator-icon">✓</span>
                     <span className="indicator-text">Valider</span>
                   </button>
@@ -106,7 +106,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
                   <span className="indicator-icon">✓</span>
                   <span className="indicator-text">Valider</span>
                 </button>
-                <button className="swipe-action-btn cancel-btn" onClick={cancelAction}>
+                <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); }}>
                   <span className="indicator-icon">↩</span>
                   <span className="indicator-text">Annuler</span>
                 </button>
