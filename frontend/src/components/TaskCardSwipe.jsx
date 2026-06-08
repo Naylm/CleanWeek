@@ -59,68 +59,22 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
   return (
     <>
       <div className={`task-card-swipe-container ${celebrate ? 'celebrate' : ''}`}>
-        <div className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}>
-          {action === 'snooze' ? (
-            <>
-              <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); if (navigator.vibrate) navigator.vibrate(15); }}>
-                <span className="indicator-icon">↩</span>
-                <span className="indicator-text">Annuler</span>
-              </button>
-              <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmAction(); if (navigator.vibrate) navigator.vibrate([20, 30]); }}>
-                <span className="indicator-icon">⏰</span>
-                <span className="indicator-text">Reporter</span>
-              </button>
-              <span className="swipe-hint">↔ Glisser pour annuler</span>
-            </>
-          ) : (
-            <>
-              <span className="indicator-icon">⏰</span>
-              <span className="indicator-text">Reporter</span>
-            </>
-          )}
-        </div>
-        <div className={`swipe-indicator right ${action === 'done' ? 'active' : ''}`}>
-          {action === 'done' ? (
-            showSwipeDatePicker ? (
-              <div className="swipe-date-picker">
-                <span>Date de réalisation</span>
-                <input
-                  type="date"
-                  value={swipeDate}
-                  onChange={(e) => setSwipeDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
-                />
-                <div className="swipe-date-actions">
-                  <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(false); cancelAction(); }}>
-                    <span className="indicator-icon">↩</span>
-                    <span className="indicator-text">Annuler</span>
-                  </button>
-                  <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); confirmSwipeWithDate(); }}>
-                    <span className="indicator-icon">✓</span>
-                    <span className="indicator-text">Valider</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <button className="swipe-action-btn" onClick={(e) => { e.stopPropagation(); setShowSwipeDatePicker(true); if (navigator.vibrate) navigator.vibrate([20, 30]); }}>
-                  <span className="indicator-icon">✓</span>
-                  <span className="indicator-text">Valider</span>
-                </button>
-                <button className="swipe-action-btn cancel-btn" onClick={(e) => { e.stopPropagation(); cancelAction(); if (navigator.vibrate) navigator.vibrate(15); }}>
-                  <span className="indicator-icon">↩</span>
-                  <span className="indicator-text">Annuler</span>
-                </button>
-                <span className="swipe-hint">↔ Glisser pour annuler</span>
-              </>
-            )
-          ) : (
-            <>
-              <span className="indicator-icon">✓</span>
-              <span className="indicator-text">Fait !</span>
-            </>
-          )}
-        </div>
+        <button
+          type="button"
+          className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}
+          onClick={(e) => { e.stopPropagation(); if (action === 'snooze') { confirmAction(); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
+        >
+          <span className="indicator-icon">⏰</span>
+          <span className="indicator-text">Reporter</span>
+        </button>
+        <button
+          type="button"
+          className={`swipe-indicator right ${action === 'done' ? 'active' : ''}`}
+          onClick={(e) => { e.stopPropagation(); if (action === 'done') { setShowSwipeDatePicker(true); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
+        >
+          <span className="indicator-icon">✓</span>
+          <span className="indicator-text">Valider</span>
+        </button>
 
         <div
           className={`task-card-swipe ${isDragging ? 'dragging' : ''} ${revealedAction ? 'action-revealed' : ''}`}
@@ -143,6 +97,50 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
           )}
         </div>
       </div>
+
+      {showSwipeDatePicker && (
+        <div className="date-modal-overlay" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
+          <div className="date-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="date-modal-handle" />
+            <div className="date-modal-head">
+              <span className="date-modal-emoji">{getCategoryIconDynamic(task.category, taskCategories)}</span>
+              <div>
+                <h4>{task.name}</h4>
+                <p>Quand l'as-tu fait ?</p>
+              </div>
+            </div>
+            <div className="date-quick-options">
+              <button
+                className={`date-chip ${swipeDate === new Date().toISOString().split('T')[0] ? 'active' : ''}`}
+                onClick={() => setSwipeDate(new Date().toISOString().split('T')[0])}
+              >
+                Aujourd'hui
+              </button>
+              <button
+                className={`date-chip ${swipeDate === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'active' : ''}`}
+                onClick={() => setSwipeDate(new Date(Date.now() - 86400000).toISOString().split('T')[0])}
+              >
+                Hier
+              </button>
+            </div>
+            <input
+              type="date"
+              className="date-modal-input"
+              value={swipeDate}
+              onChange={(e) => setSwipeDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+            />
+            <div className="date-modal-actions">
+              <button className="date-btn-cancel" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
+                Annuler
+              </button>
+              <button className="date-btn-confirm" onClick={confirmSwipeWithDate}>
+                <span>✓</span> Valider
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showMenu && (
         <div className="task-menu-overlay" onClick={() => setShowMenu(false)}>
