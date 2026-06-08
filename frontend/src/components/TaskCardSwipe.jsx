@@ -80,6 +80,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
           className={`task-card-swipe ${isDragging ? 'dragging' : ''} ${revealedAction ? 'action-revealed' : ''}`}
           style={cardStyle}
           {...handlers}
+          onClick={() => { if (revealedAction) { cancelAction(); if (navigator.vibrate) navigator.vibrate(10); } }}
         >
           <div className="task-card-content">
             <span className="task-category-icon">{getCategoryIconDynamic(task.category, taskCategories)}</span>
@@ -87,7 +88,11 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
               <span className="task-name">{task.name}</span>
               <SweepyBar task={task} compact />
             </div>
-            <span className="task-freq-badge">{getIntervalLabel(task)}</span>
+            {revealedAction ? (
+              <span className="task-cancel-hint">↩ Annuler</span>
+            ) : (
+              <span className="task-freq-badge">{getIntervalLabel(task)}</span>
+            )}
           </div>
 
           {celebrate && (

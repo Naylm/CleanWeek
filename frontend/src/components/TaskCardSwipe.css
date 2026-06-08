@@ -242,11 +242,27 @@
 .task-card-swipe.action-revealed {
   cursor: pointer;
   opacity: 0.9;
-  pointer-events: none;
 }
 
 .swipe-indicator.active .swipe-action-btn {
   pointer-events: auto;
+}
+
+/* Indice d'annulation sur la carte */
+.task-cancel-hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding: 6px 10px;
+  background: var(--bg-card2, rgba(0,0,0,0.05));
+  border-radius: 10px;
+  animation: hintPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 .task-card-content {
