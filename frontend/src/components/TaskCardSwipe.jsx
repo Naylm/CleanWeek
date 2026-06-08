@@ -124,7 +124,6 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
           className={`task-card-swipe ${isDragging ? 'dragging' : ''} ${revealedAction ? 'action-revealed' : ''}`}
           style={cardStyle}
           {...handlers}
-          onClick={() => revealedAction && cancelAction()}
         >
           <div className="task-card-content">
             <span className="task-category-icon">{getCategoryIconDynamic(task.category, taskCategories)}</span>
