@@ -31,7 +31,11 @@ pm2 restart cleanweek-backend 2>/dev/null || pm2 start src/index.js --name clean
 pm2 save
 
 echo "==> Rechargement de Nginx..."
-sudo systemctl reload nginx
+if sudo -n systemctl reload nginx 2>/dev/null; then
+  echo "Nginx rechargé."
+else
+  echo "Rechargement Nginx ignoré (sudo non interactif indisponible)."
+fi
 
 echo ""
 echo "==> Vérification backend..."
