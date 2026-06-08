@@ -185,6 +185,11 @@
 .task-card-swipe.action-revealed {
   cursor: pointer;
   opacity: 0.9;
+  pointer-events: none;
+}
+
+.swipe-indicator.active .swipe-action-btn {
+  pointer-events: auto;
 }
 
 .task-card-content {
