@@ -52,6 +52,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
 
     const maxOffset = 150
     const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
+    offsetRef.current = limitedOffset
     setOffset(limitedOffset)
   }, [isDragging])
 
@@ -153,6 +154,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
 
     const maxOffset = 150
     const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
+    offsetRef.current = limitedOffset
     setOffset(limitedOffset)
   }, [isDragging])
 
