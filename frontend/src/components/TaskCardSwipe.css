@@ -26,20 +26,27 @@
 
 .swipe-indicator.left {
   left: 0;
-  background: linear-gradient(135deg, var(--caution) 0%, var(--warning) 100%);
+  align-items: flex-start;
+  padding-left: 24px;
+  background: linear-gradient(135deg, var(--success-2) 0%, var(--success) 100%);
   border-radius: var(--radius) 0 0 var(--radius);
 }
 
 .swipe-indicator.right {
   right: 0;
-  background: linear-gradient(135deg, var(--success-2) 0%, var(--success) 100%);
+  align-items: flex-end;
+  padding-right: 24px;
+  background: linear-gradient(135deg, var(--caution) 0%, var(--warning) 100%);
   border-radius: 0 var(--radius) var(--radius) 0;
 }
 
+.swipe-indicator.preview,
 .swipe-indicator.active {
   opacity: 1;
+}
+
+.swipe-indicator.active {
   pointer-events: auto;
-  z-index: 110;
 }
 
 .swipe-indicator.active:active {

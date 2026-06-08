@@ -34,6 +34,16 @@ const FEATURES_LIST = [
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'J', 'V', 'S']
 
+function toCategoryValue(label) {
+  return label
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
+
 export default function SettingsPage() {
   const { theme, setTheme } = useCurrentUser()
   const { settings, loading, setStartDayOfWeek, goToCurrentWeek } = useWeekSettings()
@@ -51,12 +61,10 @@ export default function SettingsPage() {
   })
 
   const [editingCat, setEditingCat] = useState(null)
-  const [newCatValue, setNewCatValue] = useState('')
   const [newCatLabel, setNewCatLabel] = useState('')
   const [newCatEmoji, setNewCatEmoji] = useState('📦')
 
   const [editingTaskCat, setEditingTaskCat] = useState(null)
-  const [newTaskCatValue, setNewTaskCatValue] = useState('')
   const [newTaskCatLabel, setNewTaskCatLabel] = useState('')
   const [newTaskCatIcon, setNewTaskCatIcon] = useState('🏠')
 
@@ -247,28 +255,19 @@ export default function SettingsPage() {
           <button
             type="button"
             className="shop-add-btn-small"
-            disabled={!newCatLabel.trim() || !newCatValue.trim()}
+            disabled={!toCategoryValue(newCatLabel)}
             onClick={async () => {
               await addCategory({
-                value: newCatValue,
+                value: toCategoryValue(newCatLabel),
                 label: newCatLabel,
                 emoji: newCatEmoji,
               })
-              setNewCatValue('')
               setNewCatLabel('')
               setNewCatEmoji('📦')
             }}
           >
             +
           </button>
-        </div>
-        <div className="shop-cat-add-row">
-          <input
-            value={newCatValue}
-            onChange={e => setNewCatValue(e.target.value)}
-            placeholder="Identifiant (ex: fruits secs)"
-            className="shop-cat-value-input"
-          />
         </div>
       </div>
 
@@ -356,28 +355,19 @@ export default function SettingsPage() {
           <button
             type="button"
             className="shop-add-btn-small"
-            disabled={!newTaskCatLabel.trim() || !newTaskCatValue.trim()}
+            disabled={!toCategoryValue(newTaskCatLabel)}
             onClick={async () => {
               await addTaskCategory({
-                value: newTaskCatValue,
+                value: toCategoryValue(newTaskCatLabel),
                 label: newTaskCatLabel,
                 icon: newTaskCatIcon,
               })
-              setNewTaskCatValue('')
               setNewTaskCatLabel('')
               setNewTaskCatIcon('🏠')
             }}
           >
             +
           </button>
-        </div>
-        <div className="shop-cat-add-row">
-          <input
-            value={newTaskCatValue}
-            onChange={e => setNewTaskCatValue(e.target.value)}
-            placeholder="Identifiant (ex: bureau)"
-            className="shop-cat-value-input"
-          />
         </div>
       </div>
 

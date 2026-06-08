@@ -5,13 +5,26 @@ import { useSwipe } from '../hooks/useSwipe'
 import SweepyBar from './SweepyBar'
 import './TaskCardSwipe.css'
 
+function formatLocalDate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDelete, onCompleteWithDate }) {
+  const [today] = useState(() => formatLocalDate(new Date()))
+  const [yesterday] = useState(() => {
+    const date = new Date()
+    date.setDate(date.getDate() - 1)
+    return formatLocalDate(date)
+  })
   const [showMenu, setShowMenu] = useState(false)
   const [celebrate, setCelebrate] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [showSwipeDatePicker, setShowSwipeDatePicker] = useState(false)
-  const [swipeDate, setSwipeDate] = useState(new Date().toISOString().split('T')[0])
-  const [customDate, setCustomDate] = useState(new Date().toISOString().split('T')[0])
+  const [swipeDate, setSwipeDate] = useState(today)
+  const [customDate, setCustomDate] = useState(today)
   const { categories: taskCategories } = useTaskCategories()
 
   const triggerComplete = useCallback((date = null) => {
@@ -29,11 +42,6 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
     // pour permettre la sélection de date
   }
 
-  const confirmSwipeWithDate = () => {
-    setShowSwipeDatePicker(false)
-    triggerComplete(swipeDate)
-  }
-
   const handleSwipeLeft = () => {
     if (onSnooze) onSnooze(task.id, 1)
   }
@@ -49,7 +57,16 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
     requireConfirmation: true,
   })
 
-  const action = revealedAction === 'right' ? 'done' : revealedAction === 'left' ? 'snooze' : null
+  const confirmSwipeWithDate = () => {
+    setShowSwipeDatePicker(false)
+    cancelAction()
+    triggerComplete(swipeDate)
+  }
+
+  const revealedActionName = revealedAction === 'right' ? 'done' : revealedAction === 'left' ? 'snooze' : null
+  const draggedActionName = offset > 10 ? 'done' : offset < -10 ? 'snooze' : null
+  const action = isDragging ? draggedActionName : revealedActionName
+  const actionClass = (name) => action === name ? (isDragging ? 'preview' : 'active') : ''
 
   const cardStyle = {
     transform: `translateX(${offset}px)`,
@@ -61,26 +78,25 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
       <div className={`task-card-swipe-container ${celebrate ? 'celebrate' : ''}`}>
         <button
           type="button"
-          className={`swipe-indicator left ${action === 'snooze' ? 'active' : ''}`}
-          onClick={(e) => { e.stopPropagation(); if (action === 'snooze') { confirmAction(); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
-        >
-          <span className="indicator-icon">⏰</span>
-          <span className="indicator-text">Reporter</span>
-        </button>
-        <button
-          type="button"
-          className={`swipe-indicator right ${action === 'done' ? 'active' : ''}`}
-          onClick={(e) => { e.stopPropagation(); if (action === 'done') { setShowSwipeDatePicker(true); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
+          className={`swipe-indicator left ${actionClass('done')}`}
+          onClick={(e) => { e.stopPropagation(); if (revealedActionName === 'done') { setShowSwipeDatePicker(true); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
         >
           <span className="indicator-icon">✓</span>
           <span className="indicator-text">Valider</span>
+        </button>
+        <button
+          type="button"
+          className={`swipe-indicator right ${actionClass('snooze')}`}
+          onClick={(e) => { e.stopPropagation(); if (revealedActionName === 'snooze') { confirmAction(); if (navigator.vibrate) navigator.vibrate([15, 25]); } }}
+        >
+          <span className="indicator-icon">⏰</span>
+          <span className="indicator-text">Reporter</span>
         </button>
 
         <div
           className={`task-card-swipe ${isDragging ? 'dragging' : ''} ${revealedAction ? 'action-revealed' : ''}`}
           style={cardStyle}
           {...handlers}
-          onClick={() => { if (revealedAction) { cancelAction(); if (navigator.vibrate) navigator.vibrate(10); } }}
         >
           <div className="task-card-content">
             <span className="task-category-icon">{getCategoryIconDynamic(task.category, taskCategories)}</span>
@@ -116,14 +132,14 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
             </div>
             <div className="date-quick-options">
               <button
-                className={`date-chip ${swipeDate === new Date().toISOString().split('T')[0] ? 'active' : ''}`}
-                onClick={() => setSwipeDate(new Date().toISOString().split('T')[0])}
+                className={`date-chip ${swipeDate === today ? 'active' : ''}`}
+                onClick={() => setSwipeDate(today)}
               >
                 Aujourd'hui
               </button>
               <button
-                className={`date-chip ${swipeDate === new Date(Date.now() - 86400000).toISOString().split('T')[0] ? 'active' : ''}`}
-                onClick={() => setSwipeDate(new Date(Date.now() - 86400000).toISOString().split('T')[0])}
+                className={`date-chip ${swipeDate === yesterday ? 'active' : ''}`}
+                onClick={() => setSwipeDate(yesterday)}
               >
                 Hier
               </button>
@@ -133,7 +149,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
               className="date-modal-input"
               value={swipeDate}
               onChange={(e) => setSwipeDate(e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
+              max={today}
             />
             <div className="date-modal-actions">
               <button className="date-btn-cancel" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
@@ -170,7 +186,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
                   type="date"
                   value={customDate}
                   onChange={(e) => setCustomDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={today}
                 />
                 <div className="date-picker-actions">
                   <button onClick={() => setShowDatePicker(false)}>Annuler</button>

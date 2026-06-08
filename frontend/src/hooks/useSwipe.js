@@ -9,6 +9,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
   const [isDragging, setIsDragging] = useState(false)
   const [revealedAction, setRevealedAction] = useState(null)
   const offsetRef = useRef(0)
+  const isDraggingRef = useRef(false)
   const touchStart = useRef({ x: 0, y: 0, time: 0 })
   const longPressTimer = useRef(null)
   const isLongPress = useRef(false)
@@ -20,6 +21,8 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
   const handleTouchStart = useCallback((e) => {
     const touch = e.touches[0]
     touchStart.current = { x: touch.clientX, y: touch.clientY, time: Date.now() }
+    offsetRef.current = 0
+    isDraggingRef.current = true
     isLongPress.current = false
     setIsDragging(true)
 
@@ -33,7 +36,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
   }, [onLongPress])
 
   const handleTouchMove = useCallback((e) => {
-    if (!isDragging) return
+    if (!isDraggingRef.current) return
 
     const touch = e.touches[0]
     const deltaX = touch.clientX - touchStart.current.x
@@ -54,9 +57,10 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
     const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
     offsetRef.current = limitedOffset
     setOffset(limitedOffset)
-  }, [isDragging])
+  }, [])
 
   const handleTouchEnd = useCallback(() => {
+    isDraggingRef.current = false
     setIsDragging(false)
 
     if (longPressTimer.current) {
@@ -130,6 +134,8 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
 
   const handleMouseDown = useCallback((e) => {
     touchStart.current = { x: e.clientX, y: e.clientY, time: Date.now() }
+    offsetRef.current = 0
+    isDraggingRef.current = true
     isLongPress.current = false
     setIsDragging(true)
 
@@ -140,7 +146,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
   }, [onLongPress])
 
   const handleMouseMove = useCallback((e) => {
-    if (!isDragging) return
+    if (!isDraggingRef.current) return
 
     const deltaX = e.clientX - touchStart.current.x
     const deltaY = e.clientY - touchStart.current.y
@@ -156,21 +162,25 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
     const limitedOffset = Math.max(-maxOffset, Math.min(maxOffset, deltaX))
     offsetRef.current = limitedOffset
     setOffset(limitedOffset)
-  }, [isDragging])
+  }, [])
 
   const handleMouseUp = useCallback(() => {
     handleTouchEnd()
   }, [handleTouchEnd])
 
   const handleMouseLeave = useCallback(() => {
-    if (isDragging) {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false
+      offsetRef.current = 0
       setIsDragging(false)
       setOffset(0)
+      setRevealedAction(null)
       if (longPressTimer.current) {
         clearTimeout(longPressTimer.current)
+        longPressTimer.current = null
       }
     }
-  }, [isDragging])
+  }, [])
 
   return {
     offset,
@@ -182,6 +192,7 @@ export function useSwipe({ onSwipeRight, onSwipeLeft, onLongPress, onTap, requir
       onTouchStart: handleTouchStart,
       onTouchMove: handleTouchMove,
       onTouchEnd: handleTouchEnd,
+      onTouchCancel: handleMouseLeave,
       onMouseDown: handleMouseDown,
       onMouseMove: handleMouseMove,
       onMouseUp: handleMouseUp,
