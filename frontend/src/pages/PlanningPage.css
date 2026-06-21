@@ -1,5 +1,6 @@
 .planning-page {
   padding-bottom: 8px;
+  overflow-x: hidden;
 }
 
 .planning-header {

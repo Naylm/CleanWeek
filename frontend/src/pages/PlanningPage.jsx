@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
 import './PlanningPage.css'
@@ -144,7 +145,7 @@ export default function PlanningPage() {
         </div>
 
       {/* Modal d'échange de repas */}
-      {swappingMealId && (
+      {swappingMealId && createPortal(
         <div className="modal-overlay" onClick={() => setSwappingMealId(null)}>
           <div className="modal">
             <div className="modal-header">
@@ -167,7 +168,8 @@ export default function PlanningPage() {
               })}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
