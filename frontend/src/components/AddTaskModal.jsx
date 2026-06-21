@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useTaskCategories } from '../hooks/useTaskCategories'
 import { FREQUENCIES, DAYS_OF_WEEK, MONTH_INTERVALS } from '../lib/taskUtils'
 import './AddTaskModal.css'
@@ -70,7 +71,7 @@ export default function AddTaskModal({ onAdd, onClose, initialTask = null }) {
     onClose()
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
@@ -220,6 +221,7 @@ export default function AddTaskModal({ onAdd, onClose, initialTask = null }) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

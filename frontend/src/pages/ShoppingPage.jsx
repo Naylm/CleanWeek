@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { useShopping } from '../hooks/useShopping'
 import { useShopCategories } from '../hooks/useShopCategories'
 import FoodAutocomplete from '../components/FoodAutocomplete'
@@ -267,7 +268,7 @@ export default function ShoppingPage() {
       )}
 
       {/* Modal d'ajout */}
-      {showAddModal && (
+      {showAddModal && createPortal(
         <div className="shop-modal-overlay" onClick={() => setShowAddModal(false)}>
           <div className="shop-modal" onClick={e => e.stopPropagation()}>
             <div className="shop-modal-header">
@@ -323,7 +324,8 @@ export default function ShoppingPage() {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
