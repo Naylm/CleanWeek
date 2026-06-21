@@ -170,9 +170,8 @@
   font-size: var(--fs-sm);
   font-weight: 600;
   padding-right: 130px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .meal-notes {
@@ -180,9 +179,8 @@
   color: var(--text-muted);
   margin-top: 2px;
   padding-right: 130px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .meal-actions {
