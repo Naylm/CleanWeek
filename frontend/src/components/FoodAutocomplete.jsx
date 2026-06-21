@@ -26,10 +26,12 @@ export default function FoodAutocomplete({
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const inputRef = useRef(null)
   const containerRef = useRef(null)
+  const justSelectedRef = useRef(false)
 
   // Handle input change
   function handleInputChange(e) {
     const newValue = e.target.value
+    justSelectedRef.current = false
     onChange(newValue)
     
     if (newValue.trim().length >= 2) {
@@ -43,9 +45,10 @@ export default function FoodAutocomplete({
 
   // Handle selection
   function handleSelect(food) {
-    onSelect(food)
-    clearSuggestions()
+    justSelectedRef.current = true
     setIsOpen(false)
+    clearSuggestions()
+    onSelect(food)
     inputRef.current?.focus()
   }
 
@@ -136,7 +139,7 @@ export default function FoodAutocomplete({
         </ul>
       )}
       
-      {isOpen && !loading && value.trim().length >= 2 && suggestions.length === 0 && (
+      {isOpen && !loading && !justSelectedRef.current && value.trim().length >= 2 && suggestions.length === 0 && (
         <div className="autocomplete-dropdown empty">
           <span>Aucun aliment trouvé</span>
         </div>
