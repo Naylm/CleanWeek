@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useTaskCategories } from '../hooks/useTaskCategories'
 import {
   getCategoryIconDynamic,
@@ -127,7 +128,7 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
         </div>
       </div>
 
-      {showSwipeDatePicker && (
+      {showSwipeDatePicker && createPortal(
         <div className="date-modal-overlay" onClick={() => { setShowSwipeDatePicker(false); cancelAction(); }}>
           <div className="date-modal" onClick={(e) => e.stopPropagation()}>
             <div className="date-modal-handle" />
@@ -168,7 +169,8 @@ export default function TaskCardSwipe({ task, onComplete, onSnooze, onEdit, onDe
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {showMenu && (
