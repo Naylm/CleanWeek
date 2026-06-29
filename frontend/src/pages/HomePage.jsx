@@ -2,27 +2,22 @@ import { useState, useMemo, useCallback } from 'react'
 import { useTasks } from '../hooks/useTasks'
 import { useMeals } from '../hooks/useMeals'
 import { useWeekSettings } from '../hooks/useWeekSettings'
+import { useTaskCategories } from '../hooks/useTaskCategories'
 import TaskCardSwipe, { sortTasksByUrgency } from '../components/TaskCardSwipe'
-import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays, CATEGORIES } from '../lib/taskUtils'
+import { isTaskDueToday, getDaysSinceLastDone, getTaskIntervalDays } from '../lib/taskUtils'
 import './HomePage.css'
-
-const CATEGORY_FILTERS = [
-  { value: 'all', label: 'Tout', icon: '🏠' },
-  { value: 'cuisine', label: 'Cuisine', icon: '🍳' },
-  { value: 'menage', label: 'Ménage', icon: '🧹' },
-  { value: 'linge', label: 'Linge', icon: '👕' },
-  { value: 'courses', label: 'Courses', icon: '🛒' },
-  { value: 'animaux', label: 'Animaux', icon: '🐾' },
-  { value: 'enfants', label: 'Enfants', icon: '👶' },
-  { value: 'jardin', label: 'Jardin', icon: '🌱' },
-  { value: 'autre', label: 'Autre', icon: '📦' },
-]
 
 export default function HomePage() {
   const { tasks, loading: tasksLoading, completeTask, snoozeTask } = useTasks()
+  const { categories: taskCategories } = useTaskCategories()
   const [filterCategory, setFilterCategory] = useState('all')
   const { plans, loading: mealsLoading } = useMeals()
   const { settings, loading: settingsLoading, getPeriodLabel } = useWeekSettings()
+
+  const categoryFilters = useMemo(() => [
+    { value: 'all', label: 'Tout', icon: '🏠' },
+    ...taskCategories.map(c => ({ value: c.value, label: c.label, icon: c.icon }))
+  ], [taskCategories])
 
   const referenceDate = useMemo(() => {
     if (!settings) return new Date()
@@ -134,7 +129,7 @@ export default function HomePage() {
       {/* Filtres par catégorie style Sweepy */}
       <div className="category-filters">
         <div className="filter-chips">
-          {CATEGORY_FILTERS.map(cat => {
+          {categoryFilters.map(cat => {
             const count = cat.value === 'all' 
               ? tasks.filter(t => isTaskDueToday(t, referenceDate)).length
               : tasks.filter(t => isTaskDueToday(t, referenceDate) && t.category === cat.value).length

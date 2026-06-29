@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useTasks } from '../hooks/useTasks'
+import { useTaskCategories } from '../hooks/useTaskCategories'
 import TaskCardSwipe, { sortTasksByUrgency } from '../components/TaskCardSwipe'
 import AddTaskModal from '../components/AddTaskModal'
-import { CATEGORIES } from '../lib/taskUtils'
 import './TasksPage.css'
 
 const SORT_OPTIONS = [
@@ -29,6 +29,7 @@ function sortTasks(tasks, sortBy) {
 
 export default function TasksPage() {
   const { tasks, loading, completeTask, snoozeTask, addTask, updateTask, deleteTask } = useTasks()
+  const { categories: taskCategories } = useTaskCategories()
   const [showAdd, setShowAdd] = useState(false)
   const [editingTask, setEditingTask] = useState(null)
   const [filterCategory, setFilterCategory] = useState('all')
@@ -100,7 +101,7 @@ export default function TasksPage() {
             >
               🏠 Tout
             </button>
-            {CATEGORIES.map(cat => {
+            {taskCategories.map(cat => {
               const count = tasks.filter(t => t.category === cat.value).length
               return (
                 <button
